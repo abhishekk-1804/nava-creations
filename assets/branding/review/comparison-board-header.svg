@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 580" width="100%" height="100%">
+  <defs>
+    <style>
+      .hdr-bg { fill: #FAFAFA; }
+      .bar-bg { fill: #FFFFFF; stroke: #E5E7EB; stroke-width: 1.2; }
+      .hdr-title { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; fill: #111827; }
+      .hdr-sub { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #4B5563; }
+      .nav-text { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; fill: #374151; }
+      .critique-lbl { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; fill: #111827; }
+      .critique-desc { font-family: 'DM Sans', sans-serif; font-size: 11.5px; fill: #4B5563; }
+    </style>
+  </defs>
+
+  <rect width="1100" height="580" class="hdr-bg" />
+
+  <!-- Board Header -->
+  <g transform="translate(50, 40)">
+    <text x="0" y="0" class="hdr-title">NAVA CREATIONS — E-Commerce Website Header Integration Audit</text>
+    <text x="0" y="24" class="hdr-sub">Evaluation of Horizontal Master Marks in a Standard 72px Desktop Navigation Bar (Scale, Vertical Alignment &amp; Visual Weight)</text>
+  </g>
+
+  <!-- TEST ROW 1: CONCEPT A IN HEADER (y=90) -->
+  <g transform="translate(50, 90)">
+    <!-- Header Bar (1000 x 72) -->
+    <rect width="1000" height="72" rx="8" class="bar-bg" />
+
+    <!-- Concept A Horizontal Logo (Scaled to fit 48px height) -->
+    <g transform="translate(25, 12) scale(0.30)">
+      <g transform="translate(15, 0)">
+        <path d="M 75 125 C 72 105, 82 85, 75 60 C 70 42, 60 35, 75 25" stroke="#C5A059" stroke-width="3" fill="none" />
+        <circle cx="75" cy="55" r="5" fill="#5C1D38" stroke="#C5A059" stroke-width="2.2" />
+        <path d="M 75 50.5 C 69 39, 73 29, 75 25 C 77 29, 81 39, 75 50.5 Z" stroke="#C5A059" stroke-width="2.5" fill="none" />
+        <path d="M 79 53 C 91 47, 100 51, 103 54 C 99 58, 90 59, 79 53 Z" stroke="#C5A059" stroke-width="2.5" fill="none" />
+        <path d="M 78 58 C 87 67, 93 75, 92 79 C 88 78, 82 70, 78 58 Z" stroke="#C5A059" stroke-width="2.5" fill="none" />
+        <path d="M 72 58 C 63 67, 57 75, 58 79 C 62 78, 68 70, 72 58 Z" stroke="#C5A059" stroke-width="2.5" fill="none" />
+        <path d="M 71 53 C 59 47, 50 51, 47 54 C 51 58, 60 59, 71 53 Z" stroke="#C5A059" stroke-width="2.5" fill="none" />
+        <circle cx="75" cy="78" r="48" fill="none" stroke="#C5A059" stroke-width="1.2" stroke-dasharray="3 4" opacity="0.6" />
+      </g>
+      <line x1="165" y1="35" x2="165" y2="125" stroke="#E7E5E4" stroke-width="2" />
+      <g transform="translate(195, 0)">
+        <text x="0" y="82" font-family="'Cormorant Garamond', serif" font-size="54px" font-weight="600" letter-spacing="0.12em" fill="#5C1D38">NAVA</text>
+        <line x1="2" y1="96" x2="310" y2="96" stroke="#C5A059" stroke-width="1.8" />
+        <circle cx="156" cy="96" r="3.5" fill="#5C1D38" />
+        <text x="6" y="118" font-family="'DM Sans', sans-serif" font-size="16px" font-weight="600" letter-spacing="0.38em" fill="#C5A059">CREATIONS</text>
+      </g>
+    </g>
+
+    <!-- Nav Links Center -->
+    <g transform="translate(360, 42)">
+      <text x="0" y="0" class="nav-text">SHOP ALL</text>
+      <text x="90" y="0" class="nav-text" font-weight="700" fill="#5C1D38">BRIDAL BANGLES</text>
+      <text x="220" y="0" class="nav-text">KUNDAN WORK</text>
+      <text x="340" y="0" class="nav-text">SIZE GUIDE</text>
+    </g>
+
+    <!-- Right Utilities -->
+    <g transform="translate(860, 42)">
+      <text x="0" y="0" class="nav-text">SEARCH 🔍</text>
+      <text x="80" y="0" class="nav-text" font-weight="700" fill="#5C1D38">BAG (2)</text>
+    </g>
+
+    <!-- Audit Caption -->
+    <text x="0" y="92" class="critique-lbl">Concept A Audit:</text>
+    <text x="110" y="92" class="critique-desc">✔ Outstanding poise and breathing room. Wordmark "NAVA" and crest anchor the left margin with regal clarity.</text>
+  </g>
+
+  <!-- TEST ROW 2: CONCEPT B IN HEADER (y=230) -->
+  <g transform="translate(50, 230)">
+    <rect width="1000" height="72" rx="8" class="bar-bg" />
+
+    <!-- Concept B Horizontal Logo (Scaled to fit 48px height) -->
+    <g transform="translate(25, 12) scale(0.30)">
+      <g transform="translate(15, 0)">
+        <circle cx="70" cy="80" r="54" fill="none" stroke="#D4AF37" stroke-width="1.8" opacity="0.4" />
+        <path d="M 96 52 A 40 40 0 1 0 96 108" fill="none" stroke="#D4AF37" stroke-width="4.5" stroke-linecap="round" />
+        <circle cx="96" cy="52" r="4" fill="#D4AF37" />
+        <circle cx="96" cy="108" r="4" fill="#D4AF37" />
+        <path d="M 52 48 L 52 112" stroke="#173E2E" stroke-width="4.5" stroke-linecap="round" />
+        <path d="M 53 50 L 87 110" stroke="#173E2E" stroke-width="4.5" stroke-linecap="round" />
+        <circle cx="70" cy="80" r="5" fill="#FFFFFF" />
+        <circle cx="70" cy="80" r="2.8" fill="#D4AF37" />
+        <path d="M 88 48 L 88 112" stroke="#173E2E" stroke-width="4.5" stroke-linecap="round" />
+      </g>
+      <line x1="165" y1="36" x2="165" y2="124" stroke="#E7E5E4" stroke-width="2" />
+      <g transform="translate(195, 0)">
+        <text x="0" y="82" font-family="'Tenor Sans', 'Playfair Display', serif" font-size="52px" font-weight="600" letter-spacing="0.16em" fill="#173E2E">NAVA</text>
+        <line x1="2" y1="96" x2="310" y2="96" stroke="#D4AF37" stroke-width="1.8" />
+        <rect x="150" y="93.5" width="6" height="6" fill="#173E2E" transform="rotate(45 153 96)" />
+        <text x="6" y="118" font-family="'Jost', sans-serif" font-size="16px" font-weight="600" letter-spacing="0.42em" fill="#D4AF37">CREATIONS</text>
+      </g>
+    </g>
+
+    <!-- Nav Links Center -->
+    <g transform="translate(360, 42)">
+      <text x="0" y="0" class="nav-text">COLLECTIONS</text>
+      <text x="110" y="0" class="nav-text" font-weight="700" fill="#173E2E">KUNDAN KADAS</text>
+      <text x="230" y="0" class="nav-text">SILK BRIDAL</text>
+      <text x="330" y="0" class="nav-text">ATELIER</text>
+    </g>
+
+    <g transform="translate(860, 42)">
+      <text x="0" y="0" class="nav-text">SEARCH 🔍</text>
+      <text x="80" y="0" class="nav-text" font-weight="700" fill="#173E2E">BAG (2)</text>
+    </g>
+
+    <text x="0" y="92" class="critique-lbl">Concept B Audit:</text>
+    <text x="110" y="92" class="critique-desc">✔ Modern architectural luxury. Highly legible and crisp even at reduced zoom levels. Projects an established design house feel.</text>
+  </g>
+
+  <!-- TEST ROW 3: CONCEPT C IN HEADER (y=370) -->
+  <g transform="translate(50, 370)">
+    <rect width="1000" height="72" rx="8" class="bar-bg" />
+
+    <!-- Concept C Horizontal Logo (Scaled to fit 48px height) -->
+    <g transform="translate(25, 12) scale(0.30)">
+      <g transform="translate(15, 0)">
+        <path d="M 45 125 C 48 108, 54 98, 62 90 C 72 80, 84 76, 95 82" stroke="#9E4733" stroke-width="3" fill="none" stroke-linecap="round" />
+        <path d="M 62 90 C 65 72, 75 58, 88 50 C 96 45, 104 46, 108 52 C 104 58, 96 66, 92 78" stroke="#9E4733" stroke-width="3" fill="none" stroke-linecap="round" />
+        <circle cx="85" cy="74" r="32" stroke="#D89D40" stroke-width="4" fill="none" stroke-linecap="round" />
+        <circle cx="85" cy="42" r="3.5" fill="#D89D40" />
+        <circle cx="117" cy="74" r="3.5" fill="#D89D40" />
+        <circle cx="85" cy="106" r="3.5" fill="#D89D40" />
+        <circle cx="53" cy="74" r="3.5" fill="#D89D40" />
+      </g>
+      <line x1="165" y1="36" x2="165" y2="124" stroke="#E7E5E4" stroke-width="2" />
+      <g transform="translate(195, 0)">
+        <text x="0" y="82" font-family="'Cinzel', serif" font-size="52px" font-weight="600" letter-spacing="0.14em" fill="#2E1B15">NAVA</text>
+        <path d="M 2 96 C 60 94, 180 97, 310 95" stroke="#D89D40" stroke-width="2" stroke-linecap="round" fill="none" />
+        <circle cx="155" cy="95.5" r="3.5" fill="#9E4733" />
+        <text x="4" y="120" font-family="'Playfair Display', serif" font-style="italic" font-size="18px" letter-spacing="0.28em" fill="#9E4733">CREATIONS</text>
+      </g>
+    </g>
+
+    <g transform="translate(360, 42)">
+      <text x="0" y="0" class="nav-text">HANDMADE BANGLES</text>
+      <text x="140" y="0" class="nav-text" font-weight="700" fill="#9E4733">OUR MAKERS</text>
+      <text x="250" y="0" class="nav-text">RETURN GIFTS</text>
+      <text x="360" y="0" class="nav-text">CUSTOM ORDERS</text>
+    </g>
+
+    <g transform="translate(860, 42)">
+      <text x="0" y="0" class="nav-text">SEARCH 🔍</text>
+      <text x="80" y="0" class="nav-text" font-weight="700" fill="#9E4733">BAG (2)</text>
+    </g>
+
+    <text x="0" y="92" class="critique-lbl">Concept C Audit:</text>
+    <text x="110" y="92" class="critique-desc">▲ Hand mark feels slightly heavy at header height. The italic sub-text "CREATIONS" loses crispness at lower screen DPIs.</text>
+  </g>
+
+  <!-- Summary Bottom Line -->
+  <line x1="50" y1="520" x2="1050" y2="520" stroke="#E5E7EB" stroke-width="1.5" />
+  <text x="50" y="550" font-family="'DM Sans', sans-serif" font-size="12.5px" font-weight="700" fill="#111827">Header Integration Verdict:</text>
+  <text x="220" y="550" font-family="'DM Sans', sans-serif" font-size="12px" fill="#4B5563">Concept A and Concept B both integrate seamlessly with standard e-commerce header metrics. Concept C requires size reduction.</text>
+</svg>

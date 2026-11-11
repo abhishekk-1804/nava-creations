@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <defs>
+    <path id="textArcTopB" d="M 45 150 A 105 105 0 0 1 255 150" fill="none" />
+    <path id="textArcBottomB" d="M 255 150 A 105 105 0 0 1 45 150" fill="none" />
+    <style>
+      .seal-text-b { font-family: 'Tenor Sans', 'Playfair Display', serif; font-size: 18px; font-weight: 500; letter-spacing: 0.22em; fill: #173E2E; }
+      .seal-sub-b { font-family: 'Jost', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.35em; fill: #D4AF37; }
+      .gold-stroke { stroke: #D4AF37; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .emerald-stroke { stroke: #173E2E; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    </style>
+  </defs>
+
+  <!-- Circular Outer Seals -->
+  <circle cx="150" cy="150" r="142" fill="#F8F8F6" stroke="#173E2E" stroke-width="2.5" />
+  <circle cx="150" cy="150" r="134" fill="none" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="2 3" />
+  <circle cx="150" cy="150" r="80" fill="none" stroke="#D4AF37" stroke-width="1.2" />
+
+  <!-- Circular Text Along Path -->
+  <text class="seal-text-b">
+    <textPath href="#textArcTopB" startOffset="50%" text-anchor="middle">NAVA CREATIONS</textPath>
+  </text>
+  <text class="seal-sub-b">
+    <textPath href="#textArcBottomB" startOffset="50%" text-anchor="middle">★ ATELIER BENGALURU ★</textPath>
+  </text>
+
+  <!-- Centered NC Monogram (scale 0.8) -->
+  <g transform="translate(94, 86) scale(0.8)">
+    <path class="gold-stroke" d="M 96 52 A 40 40 0 1 0 96 108" />
+    <circle cx="96" cy="52" r="3" fill="#D4AF37" />
+    <circle cx="96" cy="108" r="3" fill="#D4AF37" />
+
+    <path class="emerald-stroke" d="M 52 48 L 52 112" />
+    <line x1="46" y1="48" x2="58" y2="48" stroke="#173E2E" stroke-width="2.2" />
+    <line x1="46" y1="112" x2="58" y2="112" stroke="#173E2E" stroke-width="2.2" />
+
+    <path class="emerald-stroke" d="M 53 50 L 87 110" />
+    <circle cx="70" cy="80" r="3.5" fill="#FFFFFF" />
+    <circle cx="70" cy="80" r="2" fill="#D4AF37" />
+
+    <path class="emerald-stroke" d="M 88 48 L 88 112" />
+    <line x1="82" y1="48" x2="94" y2="48" stroke="#173E2E" stroke-width="2.2" />
+    <line x1="82" y1="112" x2="94" y2="112" stroke="#173E2E" stroke-width="2.2" />
+  </g>
+</svg>

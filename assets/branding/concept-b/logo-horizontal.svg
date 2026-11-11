@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="100%" height="100%">
+  <defs>
+    <style>
+      .emerald-fill { fill: #173E2E; }
+      .champagne-gold { fill: #D4AF37; }
+      .gold-stroke { stroke: #D4AF37; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .emerald-stroke { stroke: #173E2E; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .serif-title { font-family: 'Tenor Sans', 'Playfair Display', 'Cormorant Garamond', serif; font-size: 52px; font-weight: 500; letter-spacing: 0.16em; fill: #173E2E; }
+      .sans-sub { font-family: 'Jost', 'Inter', 'Montserrat', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.42em; fill: #D4AF37; }
+    </style>
+  </defs>
+
+  <!-- Left Icon: Architectural Interlocking 'NC' Bangle Monogram (Center x=85, y=80) -->
+  <g transform="translate(15, 0)">
+    <!-- Outer Bangle Subtle Orbit Ring -->
+    <circle cx="70" cy="80" r="54" fill="none" stroke="#D4AF37" stroke-width="1.2" opacity="0.4" />
+
+    <!-- Custom Geometrical NC Monogram -->
+    <!-- The 'C' Form: Sweeping Bangle Arc (Champagne Gold) -->
+    <path class="gold-stroke" d="M 96 52 A 40 40 0 1 0 96 108" />
+    <!-- C Terminals / Bangle Finials -->
+    <circle cx="96" cy="52" r="3.5" fill="#D4AF37" />
+    <circle cx="96" cy="108" r="3.5" fill="#D4AF37" />
+
+    <!-- The 'N' Form: Structured Pillar with Overlap Interruption (Emerald) -->
+    <!-- Left Vertical Stem of N -->
+    <path class="emerald-stroke" d="M 52 48 L 52 112" />
+    <!-- Top & Bottom Serif Finials for Left Stem -->
+    <line x1="46" y1="48" x2="58" y2="48" stroke="#173E2E" stroke-width="2.5" />
+    <line x1="46" y1="112" x2="58" y2="112" stroke="#173E2E" stroke-width="2.5" />
+
+    <!-- Diagonal of N (Passing through the C) -->
+    <path class="emerald-stroke" d="M 53 50 L 87 110" />
+    <!-- White clearance mask effect to create depth where N crosses C -->
+    <circle cx="70" cy="80" r="4" fill="#FFFFFF" opacity="0.9" />
+    <circle cx="70" cy="80" r="2.2" fill="#D4AF37" />
+
+    <!-- Right Vertical Stem of N -->
+    <path class="emerald-stroke" d="M 88 48 L 88 112" />
+    <line x1="82" y1="48" x2="94" y2="48" stroke="#173E2E" stroke-width="2.5" />
+    <line x1="82" y1="112" x2="94" y2="112" stroke="#173E2E" stroke-width="2.5" />
+  </g>
+
+  <!-- Clean Vertical Hairline Divider -->
+  <line x1="165" y1="36" x2="165" y2="124" stroke="#E7E5E4" stroke-width="1.2" />
+
+  <!-- Horizontal Wordmark Lockup -->
+  <g transform="translate(195, 0)">
+    <text x="0" y="82" class="serif-title">NAVA</text>
+
+    <!-- Minimalist Architectural Hairline -->
+    <line x1="2" y1="96" x2="310" y2="96" stroke="#D4AF37" stroke-width="1.2" />
+    <rect x="150" y="93.5" width="5" height="5" fill="#173E2E" transform="rotate(45 152.5 96)" />
+
+    <text x="6" y="118" class="sans-sub">CREATIONS</text>
+    <text x="215" y="118" class="sans-sub" font-size="10" letter-spacing="0.25em" fill="#57534E">• BENGALURU</text>
+  </g>
+</svg>

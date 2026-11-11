@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Emerald Green Base -->
+  <circle cx="16" cy="16" r="15" fill="#173E2E" />
+  <!-- Champagne Gold Subtle Ring -->
+  <circle cx="16" cy="16" r="13" fill="none" stroke="#D4AF37" stroke-width="0.8" />
+
+  <!-- Monogram NC Simplified for 32px Visibility -->
+  <g transform="translate(16, 16) scale(0.68)">
+    <!-- C Arc -->
+    <path d="M 9 -10 A 13 13 0 1 0 9 10" fill="none" stroke="#D4AF37" stroke-width="2.6" stroke-linecap="round" />
+
+    <!-- N Form -->
+    <path d="M -7 -10 L -7 10" stroke="#F8F8F6" stroke-width="2.6" stroke-linecap="round" />
+    <path d="M -7 -9 L 5 9" stroke="#F8F8F6" stroke-width="2.4" stroke-linecap="round" />
+    <path d="M 6 -10 L 6 10" stroke="#F8F8F6" stroke-width="2.6" stroke-linecap="round" />
+  </g>
+</svg>

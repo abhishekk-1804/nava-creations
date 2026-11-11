@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg-canvas { fill: #F4EFEB; }
+      .box-sleeve { fill: #5C1D38; }
+      .box-drawer { fill: #FDFBF7; }
+      .foil-gold { fill: #C5A059; }
+      .foil-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; letter-spacing: 0.22em; fill: #C5A059; text-anchor: middle; }
+      .foil-sub { font-family: 'DM Sans', sans-serif; font-size: 9.5px; font-weight: 600; letter-spacing: 0.38em; fill: #C5A059; text-anchor: middle; }
+      .box-shadow { fill: rgba(28, 25, 23, 0.12); }
+    </style>
+  </defs>
+
+  <rect width="800" height="600" class="bg-canvas" />
+
+  <!-- Shadow Under Box Structure -->
+  <ellipse cx="400" cy="460" rx="310" ry="45" class="box-shadow" />
+
+  <!-- 3D Perspective Rigid Outer Sleeve (Plum Box Top & Sides) -->
+  <g transform="translate(140, 160)">
+    <!-- Exposed Inner Drawer Sliding Out (Ivory Velvet Tray) -->
+    <g transform="translate(180, 80)">
+      <polygon points="0,0 280,0 340,50 60,50" fill="#EAE5DF" stroke="#D6D1CA" stroke-width="1.2" />
+      <polygon points="60,50 340,50 340,140 60,140" fill="#FDFBF7" stroke="#D6D1CA" stroke-width="1.2" />
+
+      <!-- Bangle Resting in Velvet Bed -->
+      <ellipse cx="200" cy="65" rx="75" ry="24" fill="#D6D1CA" opacity="0.6" />
+      <ellipse cx="200" cy="55" rx="70" ry="22" fill="none" stroke="#D4AF37" stroke-width="14" />
+      <ellipse cx="200" cy="55" rx="70" ry="22" fill="none" stroke="#5C1D38" stroke-width="4" />
+      <circle cx="150" cy="55" r="3" fill="#FFFFFF" />
+      <circle cx="200" cy="67" r="3" fill="#FFFFFF" />
+      <circle cx="250" cy="55" r="3" fill="#FFFFFF" />
+
+      <!-- Grosgrain Gold Ribbon Pull Loop -->
+      <path d="M 330 95 C 365 95, 365 105, 330 105 Z" fill="#C5A059" />
+    </g>
+
+    <!-- Main Outer Rigid Sleeve (Deep Wine / Plum) -->
+    <!-- Top Face -->
+    <polygon points="0,0 340,0 400,60 60,60" fill="#48162C" stroke="#3A1022" stroke-width="1.5" />
+    <!-- Front Face -->
+    <polygon points="60,60 400,60 400,200 60,200" fill="#5C1D38" stroke="#48162C" stroke-width="1.5" />
+    <!-- Left Face -->
+    <polygon points="0,0 60,60 60,200 0,140" fill="#3D1124" stroke="#2B0A18" stroke-width="1.5" />
+
+    <!-- Gold Hot-Foil Stamped NAVA CREATIONS Logo on Front Face (Center ~230, 130) -->
+    <g transform="translate(230, 115)">
+      <!-- Gold Foil Botanical Icon -->
+      <circle cx="0" cy="-22" r="12" fill="none" stroke="#C5A059" stroke-width="1.2" />
+      <circle cx="0" cy="-22" r="3" fill="#C5A059" />
+
+      <!-- Wordmark -->
+      <text x="0" y="10" class="foil-title">NAVA</text>
+      <line x1="-90" y1="20" x2="90" y2="20" stroke="#C5A059" stroke-width="1" />
+      <circle cx="0" cy="20" r="2.5" fill="#C5A059" />
+      <text x="0" y="36" class="foil-sub">CREATIONS</text>
+      <text x="0" y="52" font-family="'DM Sans', sans-serif" font-size="8px" font-weight="600" letter-spacing="0.25em" fill="#C5A059" text-anchor="middle">BENGALURU</text>
+    </g>
+  </g>
+
+  <!-- Explanatory Caption -->
+  <g transform="translate(400, 530)">
+    <text x="0" y="0" font-family="'Cormorant Garamond', serif" font-size="22px" font-weight="600" fill="#1C1917" text-anchor="middle">Rigid Keepsake Bangle Drawer Box</text>
+    <text x="0" y="24" font-family="'DM Sans', sans-serif" font-size="13px" fill="#57534E" text-anchor="middle">Matte Plum Textured Wibalin Paper • Gold Foil Stamping • Anti-Tarnish Velvet Tray</text>
+  </g>
+</svg>

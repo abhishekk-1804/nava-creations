@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 680" width="100%" height="100%">
+  <defs>
+    <style>
+      .board-bg-dark { fill: #1C1917; }
+      .card-bg-dark { fill: #292524; stroke: #44403C; stroke-width: 1.5; }
+      .title-main-dark { font-family: 'DM Sans', -apple-system, sans-serif; font-size: 22px; font-weight: 700; fill: #FDFBF7; }
+      .sub-main-dark { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #A8A29E; }
+      .concept-title-dark { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; fill: #FDFBF7; text-anchor: middle; }
+      .concept-desc-dark { font-family: 'DM Sans', sans-serif; font-size: 11.5px; fill: #A8A29E; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="680" class="board-bg-dark" />
+
+  <!-- Board Header -->
+  <g transform="translate(50, 45)">
+    <text x="0" y="0" class="title-main-dark">NAVA CREATIONS — Visual Comparison Board: Dark Background</text>
+    <text x="0" y="24" class="sub-main-dark">Phase 1.5 Independent Audit • Reversed / Foil / High-Contrast Evaluation on Charcoal (#1C1917) and Plum (#5C1D38)</text>
+  </g>
+
+  <!-- COLUMN 1: CONCEPT A (Deep Plum / Gold Reversed) -->
+  <g transform="translate(50, 95)">
+    <rect width="280" height="520" rx="12" class="card-bg-dark" />
+    <text x="140" y="55" class="concept-title-dark">CONCEPT A (REVERSED)</text>
+    <text x="140" y="75" class="concept-desc-dark">Gold Foil &amp; Warm Ivory on Plum</text>
+
+    <!-- Logo Display Box: Deep Plum Background -->
+    <rect x="15" y="95" width="250" height="230" rx="8" fill="#5C1D38" stroke="#48162C" />
+    <g transform="translate(140, 190) scale(0.65)">
+      <circle cx="0" cy="-60" r="4.5" fill="#FDFBF7" stroke="#C5A059" stroke-width="1.8" />
+      <path d="M 0 -64.5 C -7 -78, -3 -88, 0 -94 C 3 -88, 7 -78, 0 -64.5 Z" fill="none" stroke="#C5A059" stroke-width="2.2" />
+      <path d="M 4 -62 C 18 -69, 28 -65, 32 -61 C 27 -56, 17 -55, 4 -62 Z" fill="none" stroke="#C5A059" stroke-width="2.2" />
+      <path d="M 3 -57 C 14 -46, 20 -38, 19 -33 C 15 -34, 8 -43, 3 -57 Z" fill="none" stroke="#C5A059" stroke-width="2.2" />
+      <path d="M -3 -57 C -14 -46, -20 -38, -19 -33 C -15 -34, -8 -43, -3 -57 Z" fill="none" stroke="#C5A059" stroke-width="2.2" />
+      <path d="M -4 -62 C -18 -69, -28 -65, -32 -61 C -27 -56, -17 -55, -4 -62 Z" fill="none" stroke="#C5A059" stroke-width="2.2" />
+      <circle cx="0" cy="-80" r="1.8" fill="#C5A059" />
+      <circle cx="0" cy="-60" r="50" fill="none" stroke="#C5A059" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.6" />
+
+      <text x="0" y="20" font-family="'Cormorant Garamond', serif" font-size="52px" font-weight="600" letter-spacing="0.14em" fill="#FDFBF7" text-anchor="middle">NAVA</text>
+      <line x1="-90" y1="36" x2="90" y2="36" stroke="#C5A059" stroke-width="1.2" />
+      <circle cx="0" cy="36" r="2.8" fill="#FDFBF7" />
+      <text x="0" y="60" font-family="'DM Sans', sans-serif" font-size="13px" font-weight="600" letter-spacing="0.4em" fill="#C5A059" text-anchor="middle">CREATIONS</text>
+      <text x="0" y="80" font-family="'DM Sans', sans-serif" font-size="9px" font-weight="600" letter-spacing="0.25em" fill="#E7E5E4" text-anchor="middle">BENGALURU</text>
+    </g>
+
+    <!-- Audit Evaluation Notes -->
+    <g transform="translate(20, 350)">
+      <text x="0" y="0" font-family="'DM Sans', sans-serif" font-size="12px" font-weight="700" fill="#FDFBF7">Dark Ground Audit:</text>
+      <text x="0" y="22" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#4ADE80">✔ Unrivaled luxury on packaging box sleeves</text>
+      <text x="0" y="40" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#4ADE80">✔ Antique gold lines glow with high contrast</text>
+      <text x="0" y="58" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#FBBF24">▲ Dashed outer ring requires high-density print</text>
+      <text x="0" y="80" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#A8A29E">Dark Usability: 9.2 / 10</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 2: CONCEPT B (Royal Emerald / Champagne Gold Reversed) -->
+  <g transform="translate(360, 95)">
+    <rect width="280" height="520" rx="12" class="card-bg-dark" />
+    <text x="140" y="55" class="concept-title-dark">CONCEPT B (REVERSED)</text>
+    <text x="140" y="75" class="concept-desc-dark">Champagne Gold &amp; White on Emerald</text>
+
+    <!-- Logo Display Box: Royal Emerald Background -->
+    <rect x="15" y="95" width="250" height="230" rx="8" fill="#173E2E" stroke="#0D281E" />
+    <g transform="translate(140, 190) scale(0.65)">
+      <g transform="translate(-70, -80)">
+        <circle cx="70" cy="20" r="50" fill="none" stroke="#D4AF37" stroke-width="1.2" opacity="0.4" />
+        <path d="M 96 -8 A 38 38 0 1 0 96 48" fill="none" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" />
+        <circle cx="96" cy="-8" r="3" fill="#D4AF37" />
+        <circle cx="96" cy="48" r="3" fill="#D4AF37" />
+
+        <path d="M 52 -12 L 52 52" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+        <path d="M 53 -10 L 87 50" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+        <circle cx="70" cy="20" r="3.5" fill="#173E2E" />
+        <circle cx="70" cy="20" r="2" fill="#D4AF37" />
+        <path d="M 88 -12 L 88 52" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+      </g>
+
+      <text x="0" y="20" font-family="'Tenor Sans', 'Playfair Display', serif" font-size="52px" font-weight="500" letter-spacing="0.16em" fill="#FFFFFF" text-anchor="middle">NAVA</text>
+      <line x1="-90" y1="36" x2="90" y2="36" stroke="#D4AF37" stroke-width="1.2" />
+      <rect x="-2.5" y="33.5" width="5" height="5" fill="#FFFFFF" transform="rotate(45 0 36)" />
+      <text x="0" y="60" font-family="'Jost', sans-serif" font-size="13px" font-weight="600" letter-spacing="0.4em" fill="#D4AF37" text-anchor="middle">CREATIONS</text>
+      <text x="0" y="80" font-family="'Jost', sans-serif" font-size="9px" font-weight="600" letter-spacing="0.25em" fill="#E7E5E4" text-anchor="middle">BENGALURU</text>
+    </g>
+
+    <!-- Audit Evaluation Notes -->
+    <g transform="translate(20, 350)">
+      <text x="0" y="0" font-family="'DM Sans', sans-serif" font-size="12px" font-weight="700" fill="#FDFBF7">Dark Ground Audit:</text>
+      <text x="0" y="22" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#4ADE80">✔ Highest geometric definition and presence</text>
+      <text x="0" y="40" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#4ADE80">✔ Clean interlace clearance prevents optical blur</text>
+      <text x="0" y="58" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#FBBF24">▲ Champagne gold needs exact metallic ink match</text>
+      <text x="0" y="80" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#A8A29E">Dark Usability: 9.5 / 10</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 3: CONCEPT C (Terracotta / Amber Gold Reversed) -->
+  <g transform="translate(670, 95)">
+    <rect width="280" height="520" rx="12" class="card-bg-dark" />
+    <text x="140" y="55" class="concept-title-dark">CONCEPT C (REVERSED)</text>
+    <text x="140" y="75" class="concept-desc-dark">Amber Gold &amp; Ivory on Deep Umber</text>
+
+    <!-- Logo Display Box: Deep Umber Background -->
+    <rect x="15" y="95" width="250" height="230" rx="8" fill="#2E1B15" stroke="#1F110D" />
+    <g transform="translate(140, 190) scale(0.65)">
+      <g transform="translate(-85, -74)">
+        <path d="M 45 125 C 48 108, 54 98, 62 90 C 72 80, 84 76, 95 82" stroke="#F4EFEB" stroke-width="2.5" fill="none" stroke-linecap="round" />
+        <path d="M 62 90 C 65 72, 75 58, 88 50 C 96 45, 104 46, 108 52 C 104 58, 96 66, 92 78" stroke="#F4EFEB" stroke-width="2.5" fill="none" stroke-linecap="round" />
+        <circle cx="85" cy="74" r="28" stroke="#D89D40" stroke-width="3" fill="none" stroke-linecap="round" />
+        <circle cx="85" cy="46" r="2.5" fill="#D89D40" />
+        <circle cx="105" cy="54" r="2.5" fill="#D89D40" />
+        <circle cx="113" cy="74" r="2.5" fill="#D89D40" />
+        <circle cx="105" cy="94" r="2.5" fill="#D89D40" />
+      </g>
+
+      <text x="0" y="20" font-family="'Cinzel', 'Playfair Display', serif" font-size="52px" font-weight="600" letter-spacing="0.14em" fill="#F4EFEB" text-anchor="middle">NAVA</text>
+      <path d="M -90 36 C -40 34, 40 37, 90 35" stroke="#D89D40" stroke-width="1.5" stroke-linecap="round" fill="none" />
+      <circle cx="0" cy="35.5" r="2.8" fill="#F4EFEB" />
+      <text x="0" y="60" font-family="'Playfair Display', serif" font-style="italic" font-size="15px" letter-spacing="0.25em" fill="#D89D40" text-anchor="middle">CREATIONS</text>
+      <text x="0" y="80" font-family="'DM Sans', sans-serif" font-size="9px" font-weight="600" letter-spacing="0.25em" fill="#E7E5E4" text-anchor="middle">HANDCRAFTED BENGALURU</text>
+    </g>
+
+    <!-- Audit Evaluation Notes -->
+    <g transform="translate(20, 350)">
+      <text x="0" y="0" font-family="'DM Sans', sans-serif" font-size="12px" font-weight="700" fill="#FDFBF7">Dark Ground Audit:</text>
+      <text x="0" y="22" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#4ADE80">✔ Warm, earthy artisan glow on deep brown/umber</text>
+      <text x="0" y="40" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#F87171">✖ Finger lines appear slightly skeletal in white</text>
+      <text x="0" y="58" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#FBBF24">▲ Saffron gold on brown has moderate contrast</text>
+      <text x="0" y="80" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#A8A29E">Dark Usability: 7.0 / 10</text>
+    </g>
+  </g>
+</svg>

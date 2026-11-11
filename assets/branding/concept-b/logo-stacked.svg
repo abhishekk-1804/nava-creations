@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 360" width="100%" height="100%">
+  <defs>
+    <style>
+      .serif-title { font-family: 'Tenor Sans', 'Playfair Display', serif; font-size: 54px; font-weight: 500; letter-spacing: 0.18em; fill: #173E2E; text-anchor: middle; }
+      .sans-sub { font-family: 'Jost', 'Inter', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.42em; fill: #D4AF37; text-anchor: middle; }
+      .gold-stroke { stroke: #D4AF37; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .emerald-stroke { stroke: #173E2E; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    </style>
+  </defs>
+
+  <!-- Centered NC Monogram (Center x=200, y=95) -->
+  <g transform="translate(130, 15)">
+    <!-- Outer Bangle Subtle Orbit Ring -->
+    <circle cx="70" cy="80" r="54" fill="none" stroke="#D4AF37" stroke-width="1.2" opacity="0.4" />
+
+    <!-- C Sweeping Arc -->
+    <path class="gold-stroke" d="M 96 52 A 40 40 0 1 0 96 108" />
+    <circle cx="96" cy="52" r="3.5" fill="#D4AF37" />
+    <circle cx="96" cy="108" r="3.5" fill="#D4AF37" />
+
+    <!-- N Form -->
+    <path class="emerald-stroke" d="M 52 48 L 52 112" />
+    <line x1="46" y1="48" x2="58" y2="48" stroke="#173E2E" stroke-width="2.5" />
+    <line x1="46" y1="112" x2="58" y2="112" stroke="#173E2E" stroke-width="2.5" />
+
+    <path class="emerald-stroke" d="M 53 50 L 87 110" />
+    <circle cx="70" cy="80" r="4" fill="#FFFFFF" opacity="0.9" />
+    <circle cx="70" cy="80" r="2.2" fill="#D4AF37" />
+
+    <path class="emerald-stroke" d="M 88 48 L 88 112" />
+    <line x1="82" y1="48" x2="94" y2="48" stroke="#173E2E" stroke-width="2.5" />
+    <line x1="82" y1="112" x2="94" y2="112" stroke="#173E2E" stroke-width="2.5" />
+  </g>
+
+  <!-- Typography Stacked -->
+  <text x="200" y="235" class="serif-title">NAVA</text>
+
+  <line x1="80" y1="256" x2="320" y2="256" stroke="#D4AF37" stroke-width="1.2" />
+  <rect x="197.5" y="253.5" width="5" height="5" fill="#173E2E" transform="rotate(45 200 256)" />
+
+  <text x="204" y="286" class="sans-sub">CREATIONS</text>
+  <text x="200" y="316" font-family="'Jost', sans-serif" font-size="10" font-weight="500" letter-spacing="0.25em" fill="#57534E" text-anchor="middle">BENGALURU • LUXURY ACCESSORIES</text>
+</svg>

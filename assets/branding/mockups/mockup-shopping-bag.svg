@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 680" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg-canvas-bag { fill: #F4EFEB; }
+      .bag-kraft { fill: #FAF6F0; }
+      .bag-shadow { fill: rgba(28,25,23,0.12); }
+      .bag-brand { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; letter-spacing: 0.24em; fill: #5C1D38; text-anchor: middle; }
+      .bag-sub { font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.42em; fill: #C5A059; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="600" height="680" class="bg-canvas-bag" />
+
+  <!-- Bag Shadow on Floor -->
+  <ellipse cx="300" cy="620" rx="200" ry="24" class="bag-shadow" />
+
+  <!-- Cotton Twill Rope Handles (Braided Cream Ribbon) -->
+  <path d="M 230 190 C 230 70, 370 70, 370 190" fill="none" stroke="#D6D1CA" stroke-width="12" stroke-linecap="round" />
+  <path d="M 230 190 C 230 70, 370 70, 370 190" fill="none" stroke="#EAE5DF" stroke-width="8" stroke-linecap="round" />
+
+  <!-- Shopping Bag Body (Rigid Kraft Matte Paper 280 GSM) -->
+  <!-- Main Front Face (340 x 420) -->
+  <polygon points="130,190 470,190 450,600 150,600" class="bag-kraft" stroke="#E7E5E4" stroke-width="1.5" />
+  <!-- Side Gusset Fold Hint -->
+  <polygon points="130,190 150,210 160,590 150,600" fill="#EAE5DF" opacity="0.6" />
+
+  <!-- Top Hem Fold Reinforcement -->
+  <line x1="130" y1="210" x2="470" y2="210" stroke="#D6D1CA" stroke-width="1" />
+
+  <!-- Embossed / Foil Stamped Center Logo Lockup (Center ~300, 370) -->
+  <g transform="translate(300, 370)">
+    <!-- Botanical Motif -->
+    <circle cx="0" cy="-28" r="15" fill="none" stroke="#C5A059" stroke-width="1.4" />
+    <circle cx="0" cy="-28" r="4" fill="#5C1D38" />
+
+    <!-- Brand Wordmark -->
+    <text x="0" y="14" class="bag-brand">NAVA</text>
+    <line x1="-100" y1="26" x2="100" y2="26" stroke="#C5A059" stroke-width="1.2" />
+    <circle cx="0" cy="26" r="3" fill="#5C1D38" stroke="#C5A059" stroke-width="1" />
+    <text x="0" y="44" class="bag-sub">CREATIONS</text>
+    <text x="0" y="66" font-family="'DM Sans', sans-serif" font-size="9px" font-weight="600" letter-spacing="0.28em" fill="#78716C" text-anchor="middle">ATELIER BENGALURU</text>
+  </g>
+
+  <!-- Hanging Swing Tag Attached to Left Handle -->
+  <g transform="translate(210, 220) rotate(12)">
+    <!-- String -->
+    <line x1="0" y1="0" x2="20" y2="40" stroke="#C5A059" stroke-width="1.5" />
+    <!-- Tag Card -->
+    <rect x="0" y="40" width="50" height="90" rx="4" fill="#5C1D38" stroke="#3A1022" stroke-width="1" />
+    <circle cx="25" cy="50" r="3" fill="#C5A059" />
+    <text x="25" y="80" font-family="'Cormorant Garamond', serif" font-size="12px" font-weight="600" fill="#C5A059" text-anchor="middle">NC</text>
+  </g>
+</svg>

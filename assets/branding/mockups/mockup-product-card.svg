@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 520" width="100%" height="100%">
+  <defs>
+    <style>
+      .card-bg { fill: #FFFFFF; }
+      .img-bg { fill: #FAF6F0; }
+      .badge-text { font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.15em; fill: #FDFBF7; }
+      .card-title { font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 600; line-height: 1.25; fill: #1C1917; }
+      .card-sub { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400; fill: #57534E; }
+      .price-curr { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; fill: #5C1D38; }
+      .price-mrp { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 400; fill: #A8A29E; text-decoration: line-through; }
+      .pill-text { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; fill: #1C1917; }
+      .btn-add { font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600; letter-spacing: 0.08em; fill: #5C1D38; }
+    </style>
+  </defs>
+
+  <!-- Card Container (340 x 520) with Elevation Drop Shadow -->
+  <rect x="0" y="0" width="340" height="520" rx="14" class="card-bg" stroke="#E7E5E4" stroke-width="1.2" filter="drop-shadow(0 4px 16px rgba(28,25,23,0.06))" />
+
+  <!-- 4:5 Aspect Ratio Image Canvas (316 x 320) -->
+  <g transform="translate(12, 12)">
+    <rect x="0" y="0" width="316" height="300" rx="10" class="img-bg" />
+
+    <!-- Stylized Jewelry Showcase Inside Card -->
+    <circle cx="158" cy="150" r="100" fill="#F4EFEB" opacity="0.6" />
+    <g transform="translate(158, 140)">
+      <!-- Broad Kada Bangle -->
+      <ellipse cx="0" cy="-10" rx="72" ry="22" fill="none" stroke="#D4AF37" stroke-width="10" />
+      <ellipse cx="0" cy="-10" rx="72" ry="22" fill="none" stroke="#5C1D38" stroke-width="4" />
+      <circle cx="-50" cy="-10" r="3" fill="#FFFFFF" />
+      <circle cx="0" cy="5" r="3" fill="#FFFFFF" />
+      <circle cx="50" cy="-10" r="3" fill="#FFFFFF" />
+
+      <!-- Silk Bangles Accents -->
+      <ellipse cx="0" cy="10" rx="70" ry="21" fill="none" stroke="#8B263E" stroke-width="6" />
+      <ellipse cx="0" cy="24" rx="69" ry="20" fill="none" stroke="#C5A059" stroke-width="4" stroke-dasharray="2 2" />
+      <ellipse cx="0" cy="38" rx="72" ry="22" fill="none" stroke="#D4AF37" stroke-width="10" />
+      <ellipse cx="0" cy="38" rx="72" ry="22" fill="none" stroke="#5C1D38" stroke-width="4" />
+    </g>
+
+    <!-- Top Left Badge: "BRIDAL EDIT" -->
+    <rect x="12" y="12" width="94" height="22" rx="4" fill="#5C1D38" />
+    <text x="59" y="27" class="badge-text" text-anchor="middle">BRIDAL EDIT</text>
+
+    <!-- Top Right Wishlist Floating Button -->
+    <circle cx="286" cy="23" r="16" fill="#FFFFFF" stroke="#E7E5E4" stroke-width="1" />
+    <path d="M 286 21 C 284 17, 280 17, 278 20 C 276 24, 282 28, 286 31 C 290 28, 296 24, 294 20 C 292 17, 288 17, 286 21 Z" fill="none" stroke="#5C1D38" stroke-width="1.5" />
+  </g>
+
+  <!-- Product Meta Section -->
+  <g transform="translate(20, 332)">
+    <!-- Title -->
+    <text x="0" y="20" class="card-title">Aadya Kundan Silk Bangle Set</text>
+    <text x="0" y="38" class="card-sub">Ruby Silk Thread • Hand-set Kundan Stones</text>
+
+    <!-- Price Row -->
+    <g transform="translate(0, 68)">
+      <text x="0" y="0" class="price-curr">₹1,849</text>
+      <text x="75" y="0" class="price-mrp">₹2,299</text>
+      <text x="135" y="-1" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#15803D">20% OFF</text>
+    </g>
+
+    <!-- Size Pills Row -->
+    <g transform="translate(0, 90)">
+      <text x="0" y="16" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#78716C">SIZE:</text>
+      <rect x="42" y="2" width="34" height="22" rx="4" fill="#FDFBF7" stroke="#E7E5E4" />
+      <text x="59" y="17" class="pill-text" text-anchor="middle">2.4</text>
+
+      <rect x="82" y="2" width="34" height="22" rx="4" fill="#5C1D38" stroke="#5C1D38" />
+      <text x="99" y="17" class="pill-text" fill="#FFFFFF" text-anchor="middle">2.6</text>
+
+      <rect x="122" y="2" width="34" height="22" rx="4" fill="#FDFBF7" stroke="#E7E5E4" />
+      <text x="139" y="17" class="pill-text" text-anchor="middle">2.8</text>
+
+      <rect x="162" y="2" width="34" height="22" rx="4" fill="#FDFBF7" stroke="#E7E5E4" />
+      <text x="179" y="17" class="pill-text" text-anchor="middle">2.10</text>
+    </g>
+
+    <!-- Add to Cart Full Width Button -->
+    <g transform="translate(0, 130)">
+      <rect x="0" y="0" width="300" height="42" rx="8" fill="#FDFBF7" stroke="#5C1D38" stroke-width="1.5" />
+      <text x="150" y="26" class="btn-add" text-anchor="middle">+ ADD TO CART</text>
+    </g>
+  </g>
+</svg>

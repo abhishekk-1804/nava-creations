@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 560" width="100%" height="100%">
+  <defs>
+    <style>
+      .pkg-bg { fill: #F4EFEB; }
+      .pkg-title { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; fill: #1C1917; }
+      .pkg-sub { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #57534E; }
+      .box-lbl { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; fill: #1C1917; text-anchor: middle; }
+      .mat-lbl { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: #78716C; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="1050" height="560" class="pkg-bg" />
+
+  <!-- Header -->
+  <g transform="translate(50, 40)">
+    <text x="0" y="0" class="pkg-title">NAVA CREATIONS — Packaging &amp; Unboxing Feasibility Audit</text>
+    <text x="0" y="24" class="pkg-sub">3D Perspective Comparison of Rigid Keepsake Bangle Boxes with Hot-Foil Stamped Marks and Unit Cost Analysis</text>
+  </g>
+
+  <!-- BOX 1: CONCEPT A (Plum Box + Gold Foil Parijata) -->
+  <g transform="translate(40, 110)">
+    <text x="150" y="0" class="box-lbl">CONCEPT A: BOTANICAL</text>
+    <text x="150" y="20" class="mat-lbl">Matte Plum Paper • Antique Gold Foil</text>
+
+    <!-- Box Graphic -->
+    <g transform="translate(30, 45)">
+      <!-- Shadow -->
+      <ellipse cx="120" cy="220" rx="110" ry="20" fill="rgba(28,25,23,0.12)" />
+
+      <!-- Box Top -->
+      <polygon points="0,0 180,0 230,40 50,40" fill="#48162C" stroke="#3A1022" />
+      <!-- Box Front -->
+      <polygon points="50,40 230,40 230,170 50,170" fill="#5C1D38" stroke="#48162C" />
+      <!-- Box Left -->
+      <polygon points="0,0 50,40 50,170 0,130" fill="#3D1124" stroke="#2B0A18" />
+
+      <!-- Gold Foil Logo on Front Face (Center ~140, 105) -->
+      <g transform="translate(140, 95) scale(0.65)">
+        <circle cx="0" cy="-22" r="12" fill="none" stroke="#C5A059" stroke-width="1.4" />
+        <circle cx="0" cy="-22" r="3.5" fill="#C5A059" />
+        <text x="0" y="10" font-family="'Cormorant Garamond', serif" font-size="34px" font-weight="600" letter-spacing="0.2em" fill="#C5A059" text-anchor="middle">NAVA</text>
+        <line x1="-80" y1="22" x2="80" y2="22" stroke="#C5A059" stroke-width="1.2" />
+        <circle cx="0" cy="22" r="3" fill="#C5A059" />
+        <text x="0" y="40" font-family="'DM Sans', sans-serif" font-size="10px" font-weight="600" letter-spacing="0.35em" fill="#C5A059" text-anchor="middle">CREATIONS</text>
+      </g>
+    </g>
+
+    <!-- Critique Notes -->
+    <g transform="translate(30, 310)">
+      <rect width="240" height="75" rx="6" fill="#FFFFFF" stroke="#E7E5E4" />
+      <text x="12" y="20" font-family="'DM Sans', sans-serif" font-size="11.5px" font-weight="700" fill="#15803D">✔ Breath-taking bridal unboxing</text>
+      <text x="12" y="38" font-family="'DM Sans', sans-serif" font-size="11px" fill="#57534E">• Unit packaging cost: ~₹110–₹140</text>
+      <text x="12" y="56" font-family="'DM Sans', sans-serif" font-size="11px" fill="#B45309">▲ Viable for bridal (₹2k+), unviable for ₹400 daily</text>
+    </g>
+  </g>
+
+  <!-- BOX 2: CONCEPT B (Emerald Box + Champagne Gold NC Monogram) -->
+  <g transform="translate(370, 110)">
+    <text x="150" y="0" class="box-lbl">CONCEPT B: MONOGRAM</text>
+    <text x="150" y="20" class="mat-lbl">Matte Emerald Paper • Champagne Foil</text>
+
+    <!-- Box Graphic -->
+    <g transform="translate(30, 45)">
+      <ellipse cx="120" cy="220" rx="110" ry="20" fill="rgba(28,25,23,0.12)" />
+
+      <polygon points="0,0 180,0 230,40 50,40" fill="#0E291E" stroke="#071912" />
+      <polygon points="50,40 230,40 230,170 50,170" fill="#173E2E" stroke="#0E291E" />
+      <polygon points="0,0 50,40 50,170 0,130" fill="#0A1E16" stroke="#05120D" />
+
+      <!-- Monogram on Front Face -->
+      <g transform="translate(140, 95) scale(0.65)">
+        <!-- NC Monogram Foil -->
+        <g transform="translate(-70, -35)">
+          <path d="M 96 -8 A 38 38 0 1 0 96 48" fill="none" stroke="#D4AF37" stroke-width="4" stroke-linecap="round" />
+          <path d="M 52 -12 L 52 52" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+          <path d="M 53 -10 L 87 50" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+          <path d="M 88 -12 L 88 52" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+        </g>
+        <text x="0" y="45" font-family="'Tenor Sans', serif" font-size="28px" font-weight="600" letter-spacing="0.22em" fill="#FFFFFF" text-anchor="middle">NAVA</text>
+      </g>
+    </g>
+
+    <!-- Critique Notes -->
+    <g transform="translate(30, 310)">
+      <rect width="240" height="75" rx="6" fill="#FFFFFF" stroke="#E7E5E4" />
+      <text x="12" y="20" font-family="'DM Sans', sans-serif" font-size="11.5px" font-weight="700" fill="#15803D">✔ International luxury brand presence</text>
+      <text x="12" y="38" font-family="'DM Sans', sans-serif" font-size="11px" fill="#57534E">• Flawless foil stamping die definition</text>
+      <text x="12" y="56" font-family="'DM Sans', sans-serif" font-size="11px" fill="#15803D">✔ Monogram can be cast in brass metal charms</text>
+    </g>
+  </g>
+
+  <!-- BOX 3: CONCEPT C (Terracotta Kraft Box + Screen Print Hand) -->
+  <g transform="translate(700, 110)">
+    <text x="150" y="0" class="box-lbl">CONCEPT C: ARTISAN HAND</text>
+    <text x="150" y="20" class="mat-lbl">Recycled Kraft Box • Umber Ink Stamp</text>
+
+    <!-- Box Graphic -->
+    <g transform="translate(30, 45)">
+      <ellipse cx="120" cy="220" rx="110" ry="20" fill="rgba(28,25,23,0.12)" />
+
+      <polygon points="0,0 180,0 230,40 50,40" fill="#803827" stroke="#662C1E" />
+      <polygon points="50,40 230,40 230,170 50,170" fill="#9E4733" stroke="#803827" />
+      <polygon points="0,0 50,40 50,170 0,130" fill="#692C1D" stroke="#4D1F14" />
+
+      <!-- Hand Mark on Front Face -->
+      <g transform="translate(140, 95) scale(0.65)">
+        <circle cx="0" cy="-20" r="24" fill="none" stroke="#D89D40" stroke-width="3" />
+        <circle cx="0" cy="-44" r="2.5" fill="#F4EFEB" />
+        <circle cx="24" cy="-20" r="2.5" fill="#F4EFEB" />
+        <circle cx="0" cy="4" r="2.5" fill="#F4EFEB" />
+        <circle cx="-24" cy="-20" r="2.5" fill="#F4EFEB" />
+        <text x="0" y="28" font-family="'Cinzel', serif" font-size="32px" font-weight="600" fill="#F4EFEB" text-anchor="middle">NAVA</text>
+        <text x="0" y="46" font-family="'Playfair Display', serif" font-style="italic" font-size="12px" fill="#D89D40" text-anchor="middle">Handcrafted</text>
+      </g>
+    </g>
+
+    <!-- Critique Notes -->
+    <g transform="translate(30, 310)">
+      <rect width="240" height="75" rx="6" fill="#FFFFFF" stroke="#E7E5E4" />
+      <text x="12" y="20" font-family="'DM Sans', sans-serif" font-size="11.5px" font-weight="700" fill="#15803D">✔ Lowest manufacturing cost (~₹35–₹50)</text>
+      <text x="12" y="38" font-family="'DM Sans', sans-serif" font-size="11px" fill="#57534E">• Can use direct rubber stamps on kraft</text>
+      <text x="12" y="56" font-family="'DM Sans', sans-serif" font-size="11px" fill="#B45309">▲ Does not feel like a luxury wedding keepsake</text>
+    </g>
+  </g>
+
+  <!-- Bottom Insight Bar -->
+  <line x1="50" y1="465" x2="1000" y2="465" stroke="#D6D1CA" stroke-width="1" />
+  <text x="50" y="495" font-family="'DM Sans', sans-serif" font-size="12.5px" font-weight="700" fill="#1C1917">Packaging Governance Finding:</text>
+  <text x="255" y="495" font-family="'DM Sans', sans-serif" font-size="12px" fill="#57534E">Concept A &amp; B require a two-tier packaging strategy: Tier 1 (Luxury rigid box) for bridal orders ≥ ₹2,000; Tier 2 (Folding branded kraft) for daily orders &lt; ₹1,000.</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Clean High-Contrast Background Circle -->
+  <circle cx="16" cy="16" r="15" fill="#5C1D38" />
+  <!-- Delicate Inner Bangle Gold Ring -->
+  <circle cx="16" cy="16" r="13" fill="none" stroke="#C5A059" stroke-width="0.8" />
+
+  <!-- Stylized High-Readability 5-Petal Parijata at 32px -->
+  <g transform="translate(16, 16)">
+    <!-- Center Core -->
+    <circle cx="0" cy="0" r="1.8" fill="#C5A059" />
+
+    <!-- 5 Petal Silhouettes -->
+    <!-- Top -->
+    <path d="M 0 -1.5 C -1.5 -4.5, -0.8 -7.5, 0 -8.5 C 0.8 -7.5, 1.5 -4.5, 0 -1.5 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.5" />
+    <!-- Top Right -->
+    <path d="M 1.2 -0.8 C 4.5 -2.2, 7.2 -1.2, 8.2 -0.2 C 6.8 0.8, 4.2 1.2, 1.2 -0.8 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.5" />
+    <!-- Bottom Right -->
+    <path d="M 0.8 1.2 C 3.2 4.2, 5.2 6.2, 4.8 7.2 C 3.8 7.0, 2.0 4.8, 0.8 1.2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.5" />
+    <!-- Bottom Left -->
+    <path d="M -0.8 1.2 C -3.2 4.2, -5.2 6.2, -4.8 7.2 C -3.8 7.0, -2.0 4.8, -0.8 1.2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.5" />
+    <!-- Top Left -->
+    <path d="M -1.2 -0.8 C -4.5 -2.2, -7.2 -1.2, -8.2 -0.2 C -6.8 0.8, -4.2 1.2, -1.2 -0.8 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.5" />
+  </g>
+</svg>

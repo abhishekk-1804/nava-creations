@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440" width="100%" height="100%">
+  <defs>
+    <style>
+      .card-canvas { fill: #F4EFEB; }
+      .card-paper { fill: #FDFBF7; }
+      .card-brand { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; letter-spacing: 0.22em; fill: #5C1D38; text-anchor: middle; }
+      .card-heading { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; font-style: italic; fill: #1C1917; text-anchor: middle; }
+      .card-body { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400; line-height: 1.6; fill: #57534E; text-anchor: middle; }
+      .gold-border { stroke: #C5A059; stroke-width: 1; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="600" height="440" class="card-canvas" />
+
+  <!-- A6 Heavyweight Card Shadow -->
+  <rect x="65" y="45" width="470" height="350" rx="6" fill="rgba(28,25,23,0.10)" />
+
+  <!-- A6 Card Paper Body (Ivory Laid Finish 350 GSM) -->
+  <rect x="60" y="40" width="470" height="350" rx="4" class="card-paper" stroke="#E7E5E4" stroke-width="1.2" />
+
+  <!-- Double Gold Accent Blind Emboss Border -->
+  <rect x="76" y="56" width="438" height="318" class="gold-border" stroke-dasharray="4 3" opacity="0.6" />
+  <rect x="82" y="62" width="426" height="306" class="gold-border" stroke-width="0.8" />
+
+  <!-- Top Logo Lockup -->
+  <g transform="translate(295, 110)">
+    <circle cx="0" cy="-14" r="8" fill="none" stroke="#C5A059" stroke-width="1" />
+    <circle cx="0" cy="-14" r="2.2" fill="#5C1D38" />
+    <text x="0" y="10" class="card-brand">NAVA CREATIONS</text>
+    <text x="0" y="26" font-family="'DM Sans', sans-serif" font-size="9px" font-weight="600" letter-spacing="0.3em" fill="#C5A059" text-anchor="middle">ATELIER BENGALURU</text>
+  </g>
+
+  <!-- Editorial Message -->
+  <g transform="translate(295, 190)">
+    <text x="0" y="0" class="card-heading">Handmade for your chapter.</text>
+
+    <text x="0" y="32" class="card-body">Thank you for welcoming our craftsmanship into your celebrations.</text>
+    <text x="0" y="54" class="card-body">Each Kundan stone, silk thread, and metallic kada has been shaped</text>
+    <text x="0" y="76" class="card-body">by hand in Bengaluru to celebrate your unforgettable moments.</text>
+  </g>
+
+  <!-- Handwritten Sign-off Simulation -->
+  <g transform="translate(295, 310)">
+    <text x="0" y="0" font-family="'Cormorant Garamond', Georgia, serif" font-size="16px" font-style="italic" fill="#5C1D38" text-anchor="middle">With love &amp; auspicious blessings,</text>
+    <text x="0" y="22" font-family="'Cormorant Garamond', serif" font-size="18px" font-weight="600" fill="#1C1917" text-anchor="middle">The NAVA Creations Team</text>
+    <text x="0" y="40" font-family="'DM Sans', sans-serif" font-size="10.5px" font-weight="500" fill="#78716C" text-anchor="middle">Bengaluru, Karnataka • #NavaCreationsBride</text>
+  </g>
+</svg>

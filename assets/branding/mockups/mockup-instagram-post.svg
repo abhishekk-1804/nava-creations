@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="100%" height="100%">
+  <defs>
+    <style>
+      .post-bg { fill: #FDFBF7; }
+      .post-brand { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; letter-spacing: 0.2em; fill: #5C1D38; }
+      .post-title { font-family: 'Cormorant Garamond', serif; font-size: 54px; font-weight: 500; line-height: 1.15; fill: #1C1917; }
+      .post-sub { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 400; letter-spacing: 0.04em; fill: #57534E; }
+      .post-badge { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; fill: #C5A059; }
+      .post-link { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; fill: #5C1D38; }
+    </style>
+  </defs>
+
+  <!-- High-Resolution 1:1 Canvas -->
+  <rect width="1080" height="1080" class="post-bg" />
+
+  <!-- Outer Editorial Fine Double Border -->
+  <rect x="40" y="40" width="1000" height="1000" fill="none" stroke="#E7E5E4" stroke-width="1.5" />
+  <rect x="52" y="52" width="976" height="976" fill="none" stroke="#C5A059" stroke-width="0.8" stroke-dasharray="3 4" opacity="0.6" />
+
+  <!-- Top Brand Watermark Header -->
+  <g transform="translate(540, 110)">
+    <circle cx="0" cy="-18" r="10" fill="none" stroke="#C5A059" stroke-width="1.2" />
+    <circle cx="0" cy="-18" r="2.8" fill="#5C1D38" />
+    <text x="0" y="10" class="post-brand" text-anchor="middle">NAVA CREATIONS</text>
+    <text x="0" y="32" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" letter-spacing="0.35em" fill="#78716C" text-anchor="middle">ATELIER BENGALURU</text>
+  </g>
+
+  <!-- Central Visual Showcase Area: Realistic Bangle Geometry on Linen Cloth -->
+  <g transform="translate(540, 500)">
+    <!-- Soft Drop Shadow on Linen Ground -->
+    <ellipse cx="0" cy="110" rx="280" ry="50" fill="#EAE5DF" opacity="0.7" />
+
+    <!-- Silk Bangle Stack Rendering -->
+    <!-- Bangle 1 (Broad Golden Kundan Kada) -->
+    <ellipse cx="0" cy="-50" rx="220" ry="60" fill="none" stroke="#D4AF37" stroke-width="26" />
+    <ellipse cx="0" cy="-50" rx="220" ry="60" fill="none" stroke="#5C1D38" stroke-width="8" />
+    <circle cx="-160" cy="-50" r="6" fill="#FFFFFF" />
+    <circle cx="0" cy="-10" r="7" fill="#FFFFFF" />
+    <circle cx="160" cy="-50" r="6" fill="#FFFFFF" />
+
+    <!-- Bangle 2 (Crimson Silk Thread Spacer) -->
+    <ellipse cx="0" cy="-10" rx="214" ry="58" fill="none" stroke="#8B263E" stroke-width="14" />
+    <!-- Bangle 3 (Gold Filigree Bangle) -->
+    <ellipse cx="0" cy="20" rx="212" ry="57" fill="none" stroke="#C5A059" stroke-width="10" stroke-dasharray="4 4" />
+    <!-- Bangle 4 (Emerald Silk Spacer) -->
+    <ellipse cx="0" cy="50" rx="210" ry="56" fill="none" stroke="#173E2E" stroke-width="14" />
+    <!-- Bangle 5 (Broad Golden Kundan Kada Bottom) -->
+    <ellipse cx="0" cy="90" rx="220" ry="60" fill="none" stroke="#D4AF37" stroke-width="26" />
+    <ellipse cx="0" cy="90" rx="220" ry="60" fill="none" stroke="#5C1D38" stroke-width="8" />
+    <circle cx="-160" cy="90" r="6" fill="#FFFFFF" />
+    <circle cx="0" cy="130" r="7" fill="#FFFFFF" />
+    <circle cx="160" cy="90" r="6" fill="#FFFFFF" />
+  </g>
+
+  <!-- Editorial Typography Bottom Block -->
+  <g transform="translate(540, 810)">
+    <text x="0" y="0" class="post-badge" text-anchor="middle">NEW BRIDAL CURATION</text>
+    <text x="0" y="55" class="post-title" text-anchor="middle">The Muhurtham Heritage Set</text>
+    <text x="0" y="100" class="post-sub" text-anchor="middle">Custom-dyed crimson silk thread with hand-set Kundan stones.</text>
+    <text x="0" y="128" class="post-sub" text-anchor="middle">Tailored to your wrist diameter. Ships Pan-India.</text>
+
+    <!-- Tap to Shop Link -->
+    <g transform="translate(0, 165)">
+      <rect x="-110" y="-18" width="220" height="36" rx="18" fill="#5C1D38" />
+      <text x="0" y="5" font-family="'DM Sans', sans-serif" font-size="12.5px" font-weight="600" letter-spacing="0.1em" fill="#FDFBF7" text-anchor="middle">TAP TO SHOP 🔗</text>
+    </g>
+  </g>
+</svg>

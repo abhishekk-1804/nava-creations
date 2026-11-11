@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Warm Terracotta Base -->
+  <circle cx="16" cy="16" r="15" fill="#9E4733" />
+  <!-- Amber Gold Bangle Ring -->
+  <circle cx="16" cy="16" r="10.5" fill="none" stroke="#D89D40" stroke-width="2.2" />
+
+  <!-- 4 Kundan Jewel Nodes at Cardinal Positions for Instant 32px Recognition -->
+  <circle cx="16" cy="5.5" r="1.4" fill="#F4EFEB" />
+  <circle cx="26.5" cy="16" r="1.4" fill="#F4EFEB" />
+  <circle cx="16" cy="26.5" r="1.4" fill="#F4EFEB" />
+  <circle cx="5.5" cy="16" r="1.4" fill="#F4EFEB" />
+
+  <!-- Stylized Palm Silhouette Accent -->
+  <path d="M 11 20 C 13 22, 19 22, 21 20" stroke="#F4EFEB" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.8" />
+</svg>

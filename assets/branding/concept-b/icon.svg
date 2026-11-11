@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <style>
+      .gold-stroke { stroke: #D4AF37; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .emerald-stroke { stroke: #173E2E; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    </style>
+  </defs>
+
+  <circle cx="80" cy="80" r="74" fill="#F8F8F6" stroke="#173E2E" stroke-width="1.8" />
+  <circle cx="80" cy="80" r="66" fill="none" stroke="#D4AF37" stroke-width="0.8" stroke-dasharray="2 2" />
+
+  <g transform="translate(10, 0)">
+    <path class="gold-stroke" d="M 96 52 A 40 40 0 1 0 96 108" />
+    <circle cx="96" cy="52" r="3.5" fill="#D4AF37" />
+    <circle cx="96" cy="108" r="3.5" fill="#D4AF37" />
+
+    <path class="emerald-stroke" d="M 52 48 L 52 112" />
+    <line x1="46" y1="48" x2="58" y2="48" stroke="#173E2E" stroke-width="2.5" />
+    <line x1="46" y1="112" x2="58" y2="112" stroke="#173E2E" stroke-width="2.5" />
+
+    <path class="emerald-stroke" d="M 53 50 L 87 110" />
+    <circle cx="70" cy="80" r="4" fill="#FFFFFF" opacity="0.9" />
+    <circle cx="70" cy="80" r="2.2" fill="#D4AF37" />
+
+    <path class="emerald-stroke" d="M 88 48 L 88 112" />
+    <line x1="82" y1="48" x2="94" y2="48" stroke="#173E2E" stroke-width="2.5" />
+    <line x1="82" y1="112" x2="94" y2="112" stroke="#173E2E" stroke-width="2.5" />
+  </g>
+</svg>

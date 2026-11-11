@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <defs>
+    <path id="textArcTopC" d="M 45 150 A 105 105 0 0 1 255 150" fill="none" />
+    <path id="textArcBottomC" d="M 255 150 A 105 105 0 0 1 45 150" fill="none" />
+    <style>
+      .seal-title-c { font-family: 'Cinzel', 'Playfair Display', serif; font-size: 18px; font-weight: 600; letter-spacing: 0.24em; fill: #2E1B15; }
+      .seal-sub-c { font-family: 'Playfair Display', serif; font-style: italic; font-size: 13px; letter-spacing: 0.28em; fill: #9E4733; }
+      .craft-stroke { stroke: #9E4733; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .gold-bangle-stroke { stroke: #D89D40; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    </style>
+  </defs>
+
+  <!-- Circular Kraft/Clay Style Outer Stamp Rings -->
+  <circle cx="150" cy="150" r="142" fill="#F4EFEB" stroke="#9E4733" stroke-width="2.5" />
+  <circle cx="150" cy="150" r="133" fill="none" stroke="#D89D40" stroke-width="1.2" stroke-dasharray="3 3" />
+  <circle cx="150" cy="150" r="82" fill="none" stroke="#D89D40" stroke-width="1.2" />
+
+  <!-- Circular Text Along Path -->
+  <text class="seal-title-c">
+    <textPath href="#textArcTopC" startOffset="50%" text-anchor="middle">NAVA CREATIONS</textPath>
+  </text>
+  <text class="seal-sub-c">
+    <textPath href="#textArcBottomC" startOffset="50%" text-anchor="middle">★ Handcrafted in Bengaluru ★</textPath>
+  </text>
+
+  <!-- Centered Hand & Bangle Mark (Scale 0.78) -->
+  <g transform="translate(84, 88) scale(0.78)">
+    <path class="craft-stroke" d="M 45 125 C 48 108, 54 98, 62 90 C 72 80, 84 76, 95 82" />
+    <path class="craft-stroke" d="M 62 90 C 65 72, 75 58, 88 50 C 96 45, 104 46, 108 52 C 104 58, 96 66, 92 78" />
+    <path class="craft-stroke" d="M 72 65 C 78 52, 88 40, 96 35 C 101 32, 106 34, 108 38 C 103 48, 92 60, 86 72" />
+    <path class="craft-stroke" d="M 50 100 C 44 92, 42 82, 45 74 C 48 68, 54 68, 58 75 C 60 80, 62 86, 62 90" />
+
+    <circle cx="85" cy="74" r="32" class="gold-bangle-stroke" />
+    <circle cx="85" cy="42" r="2.8" fill="#D89D40" />
+    <circle cx="108" cy="51" r="2.8" fill="#D89D40" />
+    <circle cx="117" cy="74" r="2.8" fill="#D89D40" />
+    <circle cx="108" cy="97" r="2.8" fill="#D89D40" />
+    <circle cx="85" cy="106" r="2.8" fill="#D89D40" />
+    <circle cx="62" cy="97" r="2.8" fill="#D89D40" />
+    <circle cx="53" cy="74" r="2.8" fill="#D89D40" />
+    <circle cx="62" cy="51" r="2.8" fill="#D89D40" />
+  </g>
+</svg>

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="100%" height="100%">
+  <defs>
+    <style>
+      .insert-canvas { fill: #F4EFEB; }
+      .insert-paper { fill: #FDFBF7; }
+      .ins-brand { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; letter-spacing: 0.22em; fill: #5C1D38; text-anchor: middle; }
+      .ins-head { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; fill: #1C1917; }
+      .ins-body { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.55; fill: #57534E; }
+      .ins-step { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; fill: #5C1D38; }
+    </style>
+  </defs>
+
+  <rect width="600" height="750" class="insert-canvas" />
+
+  <!-- A5 Heavyweight Paper Card Body -->
+  <rect x="45" y="35" width="510" height="680" rx="10" fill="rgba(28,25,23,0.12)" />
+  <rect x="40" y="30" width="510" height="680" rx="8" class="insert-paper" stroke="#E7E5E4" stroke-width="1.5" />
+
+  <!-- Double Gold Accent Border -->
+  <rect x="54" y="44" width="482" height="652" fill="none" stroke="#C5A059" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6" />
+
+  <!-- Top Brand Header Lockup -->
+  <g transform="translate(295, 90)">
+    <circle cx="0" cy="-14" r="9" fill="none" stroke="#C5A059" stroke-width="1.2" />
+    <circle cx="0" cy="-14" r="2.5" fill="#5C1D38" />
+    <text x="0" y="10" class="ins-brand">NAVA CREATIONS</text>
+    <text x="0" y="28" font-family="'DM Sans', sans-serif" font-size="9px" font-weight="600" letter-spacing="0.35em" fill="#C5A059" text-anchor="middle">CARE &amp; SIZING COMPANION</text>
+    <line x1="-80" y1="40" x2="80" y2="40" stroke="#C5A059" stroke-width="1" />
+  </g>
+
+  <!-- Section 1: Preserving Handcrafted Adornments -->
+  <g transform="translate(75, 175)">
+    <text x="0" y="0" class="ins-head">Caring for Your Handcrafted Pieces</text>
+
+    <g transform="translate(0, 20)">
+      <circle cx="10" cy="10" r="10" fill="#FAF6F0" stroke="#5C1D38" />
+      <text x="10" y="14" font-size="10" font-weight="700" fill="#5C1D38" text-anchor="middle">1</text>
+      <text x="30" y="8" class="ins-step">Protect from Moisture &amp; Perfumes</text>
+      <text x="30" y="26" class="ins-body">Put on bangles after applying lotions or mists. Keep silk threads dry.</text>
+    </g>
+
+    <g transform="translate(0, 68)">
+      <circle cx="10" cy="10" r="10" fill="#FAF6F0" stroke="#5C1D38" />
+      <text x="10" y="14" font-size="10" font-weight="700" fill="#5C1D38" text-anchor="middle">2</text>
+      <text x="30" y="8" class="ins-step">Store in Velvet Keepsake Box</text>
+      <text x="30" y="26" class="ins-body">Store individually in the provided NAVA box to prevent Kundan friction.</text>
+    </g>
+
+    <g transform="translate(0, 116)">
+      <circle cx="10" cy="10" r="10" fill="#FAF6F0" stroke="#5C1D38" />
+      <text x="10" y="14" font-size="10" font-weight="700" fill="#5C1D38" text-anchor="middle">3</text>
+      <text x="30" y="8" class="ins-step">Gentle Wipe Down</text>
+      <text x="30" y="26" class="ins-body">Gently polish metallic surfaces with a dry microfiber cloth before storing.</text>
+    </g>
+  </g>
+
+  <line x1="75" y1="340" x2="515" y2="340" stroke="#E7E5E4" stroke-width="1" />
+
+  <!-- Section 2: Rapid Sizing Verification Ruler -->
+  <g transform="translate(75, 375)">
+    <text x="0" y="0" class="ins-head">Need a Size Exchange?</text>
+    <text x="0" y="22" class="ins-body">Place your bangle over the diameter circles below to verify your perfect fit:</text>
+
+    <!-- Diameter Circles -->
+    <g transform="translate(20, 70)">
+      <!-- 2.4 Circle -->
+      <circle cx="50" cy="0" r="28" fill="none" stroke="#5C1D38" stroke-width="1.8" />
+      <text x="50" y="4" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="700" fill="#5C1D38" text-anchor="middle">2.4</text>
+      <text x="50" y="42" font-family="'DM Mono', monospace" font-size="9px" fill="#78716C" text-anchor="middle">57.2 mm</text>
+
+      <!-- 2.6 Circle -->
+      <circle cx="150" cy="0" r="30" fill="none" stroke="#5C1D38" stroke-width="2.2" />
+      <text x="150" y="4" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="700" fill="#5C1D38" text-anchor="middle">2.6</text>
+      <text x="150" y="44" font-family="'DM Mono', monospace" font-size="9px" fill="#78716C" text-anchor="middle">60.3 mm</text>
+
+      <!-- 2.8 Circle -->
+      <circle cx="260" cy="0" r="32" fill="none" stroke="#5C1D38" stroke-width="1.8" />
+      <text x="260" y="4" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="700" fill="#5C1D38" text-anchor="middle">2.8</text>
+      <text x="260" y="46" font-family="'DM Mono', monospace" font-size="9px" fill="#78716C" text-anchor="middle">63.5 mm</text>
+
+      <!-- 2.10 Circle -->
+      <circle cx="370" cy="0" r="34" fill="none" stroke="#5C1D38" stroke-width="1.8" />
+      <text x="370" y="4" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="700" fill="#5C1D38" text-anchor="middle">2.10</text>
+      <text x="370" y="48" font-family="'DM Mono', monospace" font-size="9px" fill="#78716C" text-anchor="middle">66.7 mm</text>
+    </g>
+  </g>
+
+  <!-- Section 3: Direct WhatsApp Support QR Box -->
+  <g transform="translate(75, 540)">
+    <rect x="0" y="0" width="440" height="110" rx="8" fill="#FAF6F0" stroke="#E7E5E4" />
+
+    <!-- QR Code Graphic Placeholder -->
+    <g transform="translate(18, 15)">
+      <rect x="0" y="0" width="80" height="80" fill="#FFFFFF" stroke="#D6D1CA" stroke-width="1" />
+      <!-- QR Blocks Simulation -->
+      <rect x="8" y="8" width="22" height="22" fill="#5C1D38" />
+      <rect x="12" y="12" width="14" height="14" fill="#FFFFFF" />
+      <rect x="15" y="15" width="8" height="8" fill="#5C1D38" />
+
+      <rect x="50" y="8" width="22" height="22" fill="#5C1D38" />
+      <rect x="54" y="12" width="14" height="14" fill="#FFFFFF" />
+      <rect x="57" y="15" width="8" height="8" fill="#5C1D38" />
+
+      <rect x="8" y="50" width="22" height="22" fill="#5C1D38" />
+      <rect x="12" y="54" width="14" height="14" fill="#FFFFFF" />
+      <rect x="15" y="57" width="8" height="8" fill="#5C1D38" />
+
+      <rect x="36" y="36" width="8" height="8" fill="#5C1D38" />
+      <rect x="48" y="42" width="12" height="6" fill="#5C1D38" />
+      <rect x="38" y="52" width="6" height="16" fill="#5C1D38" />
+      <rect x="52" y="60" width="16" height="8" fill="#5C1D38" />
+    </g>
+
+    <!-- Support Help Text Next to QR -->
+    <g transform="translate(115, 28)">
+      <text x="0" y="0" font-family="'DM Sans', sans-serif" font-size="13px" font-weight="700" fill="#1C1917">Scan for Direct WhatsApp Assistance</text>
+      <text x="0" y="20" class="ins-body">Instant sizing exchanges, custom bridal questions,</text>
+      <text x="0" y="38" class="ins-body">or styling advice. We reply within 24 hours.</text>
+      <text x="0" y="58" font-family="'DM Mono', monospace" font-size="11.5px" font-weight="600" fill="#5C1D38">support@navacreations.in • +91 (WhatsApp)</text>
+    </g>
+  </g>
+</svg>

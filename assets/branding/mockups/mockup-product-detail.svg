@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 680" width="100%" height="100%">
+  <defs>
+    <style>
+      .pdp-bg { fill: #FFFFFF; }
+      .pdp-title { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; line-height: 1.2; fill: #1C1917; }
+      .pdp-sku { font-family: 'DM Mono', monospace; font-size: 11px; fill: #78716C; }
+      .pdp-price { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 600; fill: #5C1D38; }
+      .pdp-body { font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6; fill: #57534E; }
+      .pdp-btn { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.08em; fill: #FFFFFF; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="680" class="pdp-bg" />
+
+  <!-- Left: Main Image Gallery (x=60, y=50) -->
+  <g transform="translate(60, 50)">
+    <!-- Main Display Photo (420 x 480) -->
+    <rect x="0" y="0" width="420" height="480" rx="12" fill="#FAF6F0" stroke="#E7E5E4" stroke-width="1" />
+
+    <!-- Stylized Macro Jewelry Representation -->
+    <g transform="translate(210, 240)">
+      <circle cx="0" cy="0" r="140" fill="#F4EFEB" opacity="0.6" />
+      <ellipse cx="0" cy="0" rx="120" ry="40" fill="none" stroke="#D4AF37" stroke-width="16" />
+      <ellipse cx="0" cy="0" rx="120" ry="40" fill="none" stroke="#5C1D38" stroke-width="6" />
+      <!-- Kundan Inset Facets -->
+      <circle cx="-80" cy="-10" r="5" fill="#FFFFFF" stroke="#D4AF37" stroke-width="1" />
+      <circle cx="0" cy="15" r="6" fill="#FFFFFF" stroke="#D4AF37" stroke-width="1" />
+      <circle cx="80" cy="-10" r="5" fill="#FFFFFF" stroke="#D4AF37" stroke-width="1" />
+    </g>
+
+    <!-- 4 Small Thumbnail Cards Below -->
+    <g transform="translate(0, 500)">
+      <rect x="0" y="0" width="90" height="90" rx="8" fill="#FAF6F0" stroke="#5C1D38" stroke-width="2" />
+      <rect x="110" y="0" width="90" height="90" rx="8" fill="#FAF6F0" stroke="#E7E5E4" stroke-width="1" />
+      <rect x="220" y="0" width="90" height="90" rx="8" fill="#FAF6F0" stroke="#E7E5E4" stroke-width="1" />
+      <rect x="330" y="0" width="90" height="90" rx="8" fill="#FAF6F0" stroke="#E7E5E4" stroke-width="1" />
+    </g>
+  </g>
+
+  <!-- Right: Product Information & Purchase Flow (x=530, y=50) -->
+  <g transform="translate(530, 50)">
+    <!-- Category & SKU -->
+    <text x="0" y="14" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" letter-spacing="0.15em" fill="#C5A059">BRIDAL CHUDA COLLECTION</text>
+    <text x="350" y="14" class="pdp-sku" text-anchor="end">SKU: NC-BRD-04-26</text>
+
+    <!-- Title -->
+    <text x="0" y="52" class="pdp-title">Padmavati Heritage Kundan Chuda</text>
+
+    <!-- Price Block -->
+    <g transform="translate(0, 95)">
+      <text x="0" y="0" class="pdp-price">₹2,899</text>
+      <text x="110" y="0" font-family="'DM Mono', monospace" font-size="16px" fill="#A8A29E" text-decoration="line-through">₹3,499</text>
+      <text x="190" y="-2" font-family="'DM Sans', sans-serif" font-size="12px" font-weight="600" fill="#15803D">Inclusive of all taxes</text>
+    </g>
+
+    <line x1="0" y1="115" x2="410" y2="115" stroke="#E7E5E4" stroke-width="1" />
+
+    <!-- Description Paragraph -->
+    <text x="0" y="145" class="pdp-body">An authentic heirloom bridal set crafted with double-layered Kundan kadas</text>
+    <text x="0" y="168" class="pdp-body">and deep crimson silk-threaded spacer bangles. Hand-finished in our</text>
+    <text x="0" y="191" class="pdp-body">Bengaluru atelier to ensure zero rough edges against bridal silks.</text>
+
+    <!-- Size Selection with Guide Trigger -->
+    <g transform="translate(0, 230)">
+      <text x="0" y="0" font-family="'DM Sans', sans-serif" font-size="13px" font-weight="600" fill="#1C1917">SELECT BANGLE SIZE</text>
+      <text x="410" y="0" font-family="'DM Sans', sans-serif" font-size="12px" font-weight="600" fill="#5C1D38" text-anchor="end">📏 Sizing Guide (Inner Dia)</text>
+
+      <!-- Sizing Options Pills -->
+      <g transform="translate(0, 15)">
+        <rect x="0" y="0" width="70" height="38" rx="6" fill="#FDFBF7" stroke="#E7E5E4" />
+        <text x="35" y="24" font-family="'DM Sans', sans-serif" font-size="13px" text-anchor="middle">2.2</text>
+
+        <rect x="85" y="0" width="70" height="38" rx="6" fill="#FDFBF7" stroke="#E7E5E4" />
+        <text x="120" y="24" font-family="'DM Sans', sans-serif" font-size="13px" text-anchor="middle">2.4</text>
+
+        <rect x="170" y="0" width="70" height="38" rx="6" fill="#5C1D38" stroke="#5C1D38" />
+        <text x="205" y="24" font-family="'DM Sans', sans-serif" font-size="13px" font-weight="700" fill="#FFFFFF" text-anchor="middle">2.6</text>
+
+        <rect x="255" y="0" width="70" height="38" rx="6" fill="#FDFBF7" stroke="#E7E5E4" />
+        <text x="290" y="24" font-family="'DM Sans', sans-serif" font-size="13px" text-anchor="middle">2.8</text>
+
+        <rect x="340" y="0" width="70" height="38" rx="6" fill="#FDFBF7" stroke="#E7E5E4" />
+        <text x="375" y="24" font-family="'DM Sans', sans-serif" font-size="13px" text-anchor="middle">2.10</text>
+      </g>
+    </g>
+
+    <!-- Pincode Check Block -->
+    <g transform="translate(0, 310)">
+      <rect x="0" y="0" width="410" height="52" rx="8" fill="#FAF6F0" stroke="#E7E5E4" />
+      <text x="16" y="32" font-family="'DM Sans', sans-serif" font-size="13px" fill="#78716C">Enter 6-digit Pincode</text>
+      <rect x="310" y="8" width="90" height="36" rx="6" fill="#FFFFFF" stroke="#5C1D38" />
+      <text x="355" y="31" font-family="'DM Sans', sans-serif" font-size="12px" font-weight="600" fill="#5C1D38" text-anchor="middle">CHECK</text>
+    </g>
+
+    <!-- CTAs: Add to Cart & Buy with UPI -->
+    <g transform="translate(0, 385)">
+      <rect x="0" y="0" width="410" height="54" rx="8" fill="#5C1D38" />
+      <text x="205" y="33" class="pdp-btn" text-anchor="middle">ADD TO SHOPPING BAG</text>
+
+      <rect x="0" y="65" width="410" height="54" rx="8" fill="#15803D" />
+      <text x="205" y="98" class="pdp-btn" text-anchor="middle">⚡ BUY WITH UPI / INSTANT CHECKOUT</text>
+    </g>
+
+    <!-- WhatsApp Consultation Link -->
+    <g transform="translate(0, 525)">
+      <rect x="0" y="0" width="410" height="42" rx="8" fill="#F4EFEB" />
+      <text x="205" y="26" font-family="'DM Sans', sans-serif" font-size="12.5px" font-weight="600" fill="#5C1D38" text-anchor="middle">💬 Need Custom Colors? Chat with our Bridal Stylist</text>
+    </g>
+  </g>
+</svg>

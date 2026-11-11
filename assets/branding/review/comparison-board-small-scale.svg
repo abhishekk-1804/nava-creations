@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 760" width="100%" height="100%">
+  <defs>
+    <style>
+      .board-bg-s { fill: #FFFFFF; }
+      .grid-line { stroke: #F3F4F6; stroke-width: 1; }
+      .title-s { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; fill: #111827; }
+      .sub-s { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #4B5563; }
+      .col-header { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; fill: #111827; text-anchor: middle; }
+      .row-label { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; fill: #374151; }
+      .critique-pass { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; fill: #15803D; }
+      .critique-warn { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; fill: #B45309; }
+      .critique-fail { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; fill: #B91C1C; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="760" class="board-bg-s" />
+
+  <!-- Board Header -->
+  <g transform="translate(50, 45)">
+    <text x="0" y="0" class="title-s">NAVA CREATIONS — Extreme Small-Scale Legibility Audit</text>
+    <text x="0" y="24" class="sub-s">Pixel-Level Stress Testing of Standalone Marks at 64px, 48px, 32px, 24px, and 16px (Browser Tab &amp; App UI)</text>
+  </g>
+
+  <!-- Table Headers (y=110) -->
+  <g transform="translate(0, 110)">
+    <line x1="50" y1="0" x2="950" y2="0" stroke="#E5E7EB" stroke-width="1.5" />
+    <text x="100" y="-12" font-family="'DM Sans', sans-serif" font-size="12px" font-weight="700" fill="#6B7280">SIZE / RASTER CONTEXT</text>
+    <text x="320" y="-12" class="col-header">CONCEPT A (PARIJATA)</text>
+    <text x="560" y="-12" class="col-header">CONCEPT B (NC MONOGRAM)</text>
+    <text x="800" y="-12" class="col-header">CONCEPT C (ARTISAN HAND)</text>
+    <line x1="50" y1="5" x2="950" y2="5" stroke="#E5E7EB" stroke-width="1.5" />
+  </g>
+
+  <!-- ROW 1: 64px (y=140) -->
+  <g transform="translate(50, 140)">
+    <rect x="0" y="0" width="900" height="95" rx="6" fill="#F9FAFB" />
+    <text x="20" y="35" class="row-label">64 × 64 px</text>
+    <text x="20" y="55" font-family="'DM Sans', sans-serif" font-size="11px" fill="#6B7280">Retina App Icon / PWA</text>
+
+    <!-- Concept A at 64px (x=270, y=15) -->
+    <g transform="translate(240, 15)">
+      <circle cx="32" cy="32" r="31" fill="#5C1D38" />
+      <circle cx="32" cy="32" r="27" fill="none" stroke="#C5A059" stroke-width="0.8" />
+      <!-- Scaled Flower -->
+      <g transform="translate(32, 32) scale(0.9)">
+        <circle cx="0" cy="0" r="3" fill="#C5A059" />
+        <path d="M 0 -3 C -3 -10, 0 -18, 0 -22 C 0 -18, 3 -10, 0 -3 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.6" />
+        <path d="M 3 -1 C 10 -4, 18 0, 22 0 C 18 2, 10 4, 3 -1 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.6" />
+        <path d="M 2 2 C 8 8, 14 14, 14 17 C 11 16, 5 10, 2 2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.6" />
+        <path d="M -2 2 C -8 8, -14 14, -14 17 C -11 16, -5 10, -2 2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.6" />
+        <path d="M -3 -1 C -10 -4, -18 0, -22 0 C -18 2, -10 4, -3 -1 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.6" />
+      </g>
+    </g>
+    <text x="320" y="86" class="critique-pass" text-anchor="middle">✔ Crisp &amp; fully legible</text>
+
+    <!-- Concept B at 64px (x=480, y=15) -->
+    <g transform="translate(480, 15)">
+      <circle cx="32" cy="32" r="31" fill="#173E2E" />
+      <circle cx="32" cy="32" r="27" fill="none" stroke="#D4AF37" stroke-width="0.8" />
+      <g transform="translate(32, 32) scale(1.1)">
+        <path d="M 9 -10 A 13 13 0 1 0 9 10" fill="none" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round" />
+        <path d="M -7 -10 L -7 10" stroke="#F8F8F6" stroke-width="2.5" stroke-linecap="round" />
+        <path d="M -7 -9 L 5 9" stroke="#F8F8F6" stroke-width="2.3" stroke-linecap="round" />
+        <path d="M 6 -10 L 6 10" stroke="#F8F8F6" stroke-width="2.5" stroke-linecap="round" />
+      </g>
+    </g>
+    <text x="560" y="86" class="critique-pass" text-anchor="middle">✔ Flawless geometry</text>
+
+    <!-- Concept C at 64px (x=720, y=15) -->
+    <g transform="translate(720, 15)">
+      <circle cx="32" cy="32" r="31" fill="#9E4733" />
+      <circle cx="32" cy="32" r="21" fill="none" stroke="#D89D40" stroke-width="3" />
+      <circle cx="32" cy="11" r="2.5" fill="#F4EFEB" />
+      <circle cx="53" cy="32" r="2.5" fill="#F4EFEB" />
+      <circle cx="32" cy="53" r="2.5" fill="#F4EFEB" />
+      <circle cx="11" cy="32" r="2.5" fill="#F4EFEB" />
+      <path d="M 22 40 C 26 44, 38 44, 42 40" stroke="#F4EFEB" stroke-width="2" stroke-linecap="round" fill="none" />
+    </g>
+    <text x="800" y="86" class="critique-pass" text-anchor="middle">✔ Bangle shape readable</text>
+  </g>
+
+  <!-- ROW 2: 48px (y=255) -->
+  <g transform="translate(50, 255)">
+    <rect x="0" y="0" width="900" height="85" rx="6" fill="#FFFFFF" stroke="#E5E7EB" />
+    <text x="20" y="32" class="row-label">48 × 48 px</text>
+    <text x="20" y="50" font-family="'DM Sans', sans-serif" font-size="11px" fill="#6B7280">Standard Mobile Header Icon</text>
+
+    <!-- Concept A 48px -->
+    <g transform="translate(248, 18) scale(0.75)">
+      <circle cx="32" cy="32" r="31" fill="#5C1D38" />
+      <g transform="translate(32, 32) scale(0.9)">
+        <circle cx="0" cy="0" r="3.5" fill="#C5A059" />
+        <path d="M 0 -3 C -3 -10, 0 -18, 0 -22 C 0 -18, 3 -10, 0 -3 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.8" />
+        <path d="M 3 -1 C 10 -4, 18 0, 22 0 C 18 2, 10 4, 3 -1 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.8" />
+        <path d="M 2 2 C 8 8, 14 14, 14 17 C 11 16, 5 10, 2 2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.8" />
+        <path d="M -2 2 C -8 8, -14 14, -14 17 C -11 16, -5 10, -2 2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.8" />
+        <path d="M -3 -1 C -10 -4, -18 0, -22 0 C -18 2, -10 4, -3 -1 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="0.8" />
+      </g>
+    </g>
+    <text x="320" y="75" class="critique-pass" text-anchor="middle">✔ Good petal separation</text>
+
+    <!-- Concept B 48px -->
+    <g transform="translate(488, 18) scale(0.75)">
+      <circle cx="32" cy="32" r="31" fill="#173E2E" />
+      <g transform="translate(32, 32) scale(1.1)">
+        <path d="M 9 -10 A 13 13 0 1 0 9 10" fill="none" stroke="#D4AF37" stroke-width="2.6" stroke-linecap="round" />
+        <path d="M -7 -10 L -7 10" stroke="#F8F8F6" stroke-width="2.6" stroke-linecap="round" />
+        <path d="M -7 -9 L 5 9" stroke="#F8F8F6" stroke-width="2.4" stroke-linecap="round" />
+        <path d="M 6 -10 L 6 10" stroke="#F8F8F6" stroke-width="2.6" stroke-linecap="round" />
+      </g>
+    </g>
+    <text x="560" y="75" class="critique-pass" text-anchor="middle">✔ Outstanding definition</text>
+
+    <!-- Concept C 48px -->
+    <g transform="translate(728, 18) scale(0.75)">
+      <circle cx="32" cy="32" r="31" fill="#9E4733" />
+      <circle cx="32" cy="32" r="21" fill="none" stroke="#D89D40" stroke-width="3" />
+      <circle cx="32" cy="11" r="2.5" fill="#F4EFEB" />
+      <circle cx="53" cy="32" r="2.5" fill="#F4EFEB" />
+      <circle cx="32" cy="53" r="2.5" fill="#F4EFEB" />
+      <circle cx="11" cy="32" r="2.5" fill="#F4EFEB" />
+    </g>
+    <text x="800" y="75" class="critique-warn" text-anchor="middle">▲ Palm line disappears</text>
+  </g>
+
+  <!-- ROW 3: 32px (y=360) -->
+  <g transform="translate(50, 360)">
+    <rect x="0" y="0" width="900" height="85" rx="6" fill="#F9FAFB" />
+    <text x="20" y="32" class="row-label">32 × 32 px</text>
+    <text x="20" y="50" font-family="'DM Sans', sans-serif" font-size="11px" fill="#6B7280">Desktop Browser Favicon</text>
+
+    <!-- Concept A 32px -->
+    <g transform="translate(256, 18) scale(0.5)">
+      <circle cx="32" cy="32" r="31" fill="#5C1D38" />
+      <g transform="translate(32, 32)">
+        <circle cx="0" cy="0" r="4" fill="#C5A059" />
+        <path d="M 0 -3 C -3 -10, 0 -18, 0 -22 C 0 -18, 3 -10, 0 -3 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="1.2" />
+        <path d="M 3 -1 C 10 -4, 18 0, 22 0 C 18 2, 10 4, 3 -1 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="1.2" />
+        <path d="M 2 2 C 8 8, 14 14, 14 17 C 11 16, 5 10, 2 2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="1.2" />
+        <path d="M -2 2 C -8 8, -14 14, -14 17 C -11 16, -5 10, -2 2 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="1.2" />
+        <path d="M -3 -1 C -10 -4, -18 0, -22 0 C -18 2, -10 4, -3 -1 Z" fill="#FDFBF7" stroke="#C5A059" stroke-width="1.2" />
+      </g>
+    </g>
+    <text x="320" y="75" class="critique-pass" text-anchor="middle">✔ Flower shape holds</text>
+
+    <!-- Concept B 32px -->
+    <g transform="translate(496, 18) scale(0.5)">
+      <circle cx="32" cy="32" r="31" fill="#173E2E" />
+      <g transform="translate(32, 32) scale(1.1)">
+        <path d="M 9 -10 A 13 13 0 1 0 9 10" fill="none" stroke="#D4AF37" stroke-width="3" stroke-linecap="round" />
+        <path d="M -7 -10 L -7 10" stroke="#F8F8F6" stroke-width="3" stroke-linecap="round" />
+        <path d="M -7 -9 L 5 9" stroke="#F8F8F6" stroke-width="2.8" stroke-linecap="round" />
+        <path d="M 6 -10 L 6 10" stroke="#F8F8F6" stroke-width="3" stroke-linecap="round" />
+      </g>
+    </g>
+    <text x="560" y="75" class="critique-pass" text-anchor="middle">✔ Crisp letterforms</text>
+
+    <!-- Concept C 32px -->
+    <g transform="translate(736, 18) scale(0.5)">
+      <circle cx="32" cy="32" r="31" fill="#9E4733" />
+      <circle cx="32" cy="32" r="21" fill="none" stroke="#D89D40" stroke-width="4" />
+      <circle cx="32" cy="11" r="3.5" fill="#F4EFEB" />
+      <circle cx="53" cy="32" r="3.5" fill="#F4EFEB" />
+      <circle cx="32" cy="53" r="3.5" fill="#F4EFEB" />
+      <circle cx="11" cy="32" r="3.5" fill="#F4EFEB" />
+    </g>
+    <text x="800" y="75" class="critique-warn" text-anchor="middle">▲ Reads as plain circle/dots</text>
+  </g>
+
+  <!-- ROW 4: 24px (y=465) -->
+  <g transform="translate(50, 465)">
+    <rect x="0" y="0" width="900" height="85" rx="6" fill="#FFFFFF" stroke="#E5E7EB" />
+    <text x="20" y="32" class="row-label">24 × 24 px</text>
+    <text x="20" y="50" font-family="'DM Sans', sans-serif" font-size="11px" fill="#6B7280">Browser Bookmark Bar / Micro Icon</text>
+
+    <!-- Concept A 24px -->
+    <g transform="translate(260, 20) scale(0.375)">
+      <circle cx="32" cy="32" r="31" fill="#5C1D38" />
+      <circle cx="32" cy="32" r="16" fill="#FDFBF7" />
+      <circle cx="32" cy="32" r="5" fill="#C5A059" />
+    </g>
+    <text x="320" y="75" class="critique-warn" text-anchor="middle">▲ Hairlines merge; needs solid fill</text>
+
+    <!-- Concept B 24px -->
+    <g transform="translate(500, 20) scale(0.375)">
+      <circle cx="32" cy="32" r="31" fill="#173E2E" />
+      <g transform="translate(32, 32) scale(1.1)">
+        <path d="M 9 -10 A 13 13 0 1 0 9 10" fill="none" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" />
+        <path d="M -7 -10 L -7 10" stroke="#F8F8F6" stroke-width="3.5" stroke-linecap="round" />
+        <path d="M 6 -10 L 6 10" stroke="#F8F8F6" stroke-width="3.5" stroke-linecap="round" />
+      </g>
+    </g>
+    <text x="560" y="75" class="critique-pass" text-anchor="middle">✔ 'NC' still instantly legible</text>
+
+    <!-- Concept C 24px -->
+    <g transform="translate(740, 20) scale(0.375)">
+      <circle cx="32" cy="32" r="31" fill="#9E4733" />
+      <circle cx="32" cy="32" r="20" fill="none" stroke="#D89D40" stroke-width="5" />
+    </g>
+    <text x="800" y="75" class="critique-fail" text-anchor="middle">✖ Hand &amp; Kundan completely lost</text>
+  </g>
+
+  <!-- ROW 5: 16px (y=570) -->
+  <g transform="translate(50, 570)">
+    <rect x="0" y="0" width="900" height="85" rx="6" fill="#F9FAFB" />
+    <text x="20" y="32" class="row-label">16 × 16 px</text>
+    <text x="20" y="50" font-family="'DM Sans', sans-serif" font-size="11px" fill="#6B7280">Standard Non-Retina Favicon</text>
+
+    <!-- Concept A 16px -->
+    <g transform="translate(264, 24) scale(0.25)">
+      <circle cx="32" cy="32" r="31" fill="#5C1D38" />
+      <circle cx="32" cy="32" r="14" fill="#FDFBF7" />
+      <circle cx="32" cy="32" r="5" fill="#C5A059" />
+    </g>
+    <text x="320" y="75" class="critique-fail" text-anchor="middle">✖ Indistinct rosette blur</text>
+
+    <!-- Concept B 16px -->
+    <g transform="translate(504, 24) scale(0.25)">
+      <circle cx="32" cy="32" r="31" fill="#173E2E" />
+      <g transform="translate(32, 32) scale(1.1)">
+        <path d="M 9 -10 A 13 13 0 1 0 9 10" fill="none" stroke="#D4AF37" stroke-width="5" stroke-linecap="round" />
+        <path d="M -7 -10 L -7 10" stroke="#F8F8F6" stroke-width="5" stroke-linecap="round" />
+        <path d="M 6 -10 L 6 10" stroke="#F8F8F6" stroke-width="5" stroke-linecap="round" />
+      </g>
+    </g>
+    <text x="560" y="75" class="critique-pass" text-anchor="middle">✔ Strong glyph presence</text>
+
+    <!-- Concept C 16px -->
+    <g transform="translate(744, 24) scale(0.25)">
+      <circle cx="32" cy="32" r="31" fill="#9E4733" />
+      <circle cx="32" cy="32" r="18" fill="none" stroke="#D89D40" stroke-width="7" />
+    </g>
+    <text x="800" y="75" class="critique-fail" text-anchor="middle">✖ Indistinguishable solid washer</text>
+  </g>
+
+  <!-- Audit Summary Bar (y=675) -->
+  <g transform="translate(50, 675)">
+    <rect width="900" height="50" rx="6" fill="#111827" />
+    <text x="30" y="30" font-family="'DM Sans', sans-serif" font-size="12.5px" font-weight="700" fill="#F9FAFB">Small-Scale Scalability Verdict:</text>
+    <text x="235" y="30" font-family="'DM Sans', sans-serif" font-size="12px" fill="#D1D5DB">Concept B is the undisputed winner at small screen scales (16–32px). Concept A requires solid petal silhouettes below 24px.</text>
+  </g>
+</svg>

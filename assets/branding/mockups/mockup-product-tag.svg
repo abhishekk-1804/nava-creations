@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 600" width="100%" height="100%">
+  <defs>
+    <style>
+      .tag-canvas { fill: #F4EFEB; }
+      .tag-paper { fill: #FDFBF7; }
+      .tag-brand { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.22em; fill: #5C1D38; text-anchor: middle; }
+      .tag-sub { font-family: 'DM Sans', sans-serif; font-size: 8px; font-weight: 600; letter-spacing: 0.35em; fill: #C5A059; text-anchor: middle; }
+      .tag-label { font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; fill: #78716C; }
+      .tag-val { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; fill: #1C1917; }
+      .tag-price { font-family: 'DM Mono', monospace; font-size: 19px; font-weight: 600; fill: #5C1D38; }
+    </style>
+  </defs>
+
+  <rect width="360" height="600" class="tag-canvas" />
+
+  <!-- Tag Shadow -->
+  <rect x="55" y="45" width="250" height="510" rx="12" fill="rgba(28,25,23,0.12)" />
+
+  <!-- Tag Body (Ivory Heavyboard 600 GSM with Beveled Edge) -->
+  <rect x="50" y="40" width="250" height="510" rx="10" class="tag-paper" stroke="#E7E5E4" stroke-width="1.5" />
+
+  <!-- Gold Eyelet Hole at Top -->
+  <circle cx="175" cy="75" r="9" fill="#FDFBF7" stroke="#C5A059" stroke-width="2.5" />
+  <circle cx="175" cy="75" r="5" fill="#C5A059" opacity="0.3" />
+
+  <!-- Jute / Satin Twine String Threading Through Eyelet -->
+  <path d="M 175 75 C 175 30, 160 10, 175 0" stroke="#C5A059" stroke-width="2" fill="none" />
+
+  <!-- Top Logo Lockup -->
+  <g transform="translate(175, 140)">
+    <circle cx="0" cy="-14" r="8" fill="none" stroke="#C5A059" stroke-width="1.2" />
+    <circle cx="0" cy="-14" r="2.2" fill="#5C1D38" />
+    <text x="0" y="10" class="tag-brand">NAVA</text>
+    <text x="0" y="24" class="tag-sub">CREATIONS</text>
+    <line x1="-50" y1="36" x2="50" y2="36" stroke="#C5A059" stroke-width="0.8" />
+  </g>
+
+  <!-- Tag Specification Fields -->
+  <g transform="translate(75, 210)">
+    <text x="0" y="0" class="tag-label">ITEM NAME</text>
+    <text x="0" y="18" class="tag-val">Kundan Bridal Chuda Set</text>
+
+    <text x="0" y="45" class="tag-label">SIZE (INNER DIAMETER)</text>
+    <text x="0" y="63" class="tag-val">Size 2.6 (60.3 mm)</text>
+
+    <text x="0" y="90" class="tag-label">COLOR / FINISH</text>
+    <text x="0" y="108" class="tag-val">Crimson Silk &amp; Antique Gold</text>
+
+    <text x="0" y="135" class="tag-label">ORIGIN</text>
+    <text x="0" y="153" class="tag-val">Bengaluru, Karnataka, India</text>
+
+    <line x1="0" y1="175" x2="200" y2="175" stroke="#E7E5E4" stroke-width="1" />
+
+    <!-- Price Field -->
+    <text x="0" y="200" class="tag-label">MAX RETAIL PRICE</text>
+    <text x="0" y="224" class="tag-price">₹2,899.00</text>
+    <text x="110" y="222" font-family="'DM Sans', sans-serif" font-size="10px" fill="#78716C">(Incl. of all taxes)</text>
+  </g>
+
+  <!-- Barcode Representation at Bottom -->
+  <g transform="translate(95, 470)">
+    <!-- Barcode Lines -->
+    <rect x="0" y="0" width="3" height="35" fill="#1C1917" />
+    <rect x="6" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="11" y="0" width="4" height="35" fill="#1C1917" />
+    <rect x="18" y="0" width="1" height="35" fill="#1C1917" />
+    <rect x="23" y="0" width="5" height="35" fill="#1C1917" />
+    <rect x="31" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="36" y="0" width="4" height="35" fill="#1C1917" />
+    <rect x="43" y="0" width="1" height="35" fill="#1C1917" />
+    <rect x="47" y="0" width="3" height="35" fill="#1C1917" />
+    <rect x="53" y="0" width="6" height="35" fill="#1C1917" />
+    <rect x="62" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="67" y="0" width="4" height="35" fill="#1C1917" />
+    <rect x="74" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="79" y="0" width="5" height="35" fill="#1C1917" />
+    <rect x="87" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="92" y="0" width="3" height="35" fill="#1C1917" />
+    <rect x="98" y="0" width="6" height="35" fill="#1C1917" />
+    <rect x="107" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="112" y="0" width="4" height="35" fill="#1C1917" />
+    <rect x="119" y="0" width="3" height="35" fill="#1C1917" />
+    <rect x="125" y="0" width="5" height="35" fill="#1C1917" />
+    <rect x="133" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="138" y="0" width="4" height="35" fill="#1C1917" />
+    <rect x="145" y="0" width="2" height="35" fill="#1C1917" />
+    <rect x="150" y="0" width="5" height="35" fill="#1C1917" />
+    <rect x="158" y="0" width="2" height="35" fill="#1C1917" />
+
+    <!-- Barcode Numeric SKU -->
+    <text x="80" y="50" font-family="'DM Mono', monospace" font-size="10.5px" fill="#78716C" text-anchor="middle">NC-890432-00426</text>
+  </g>
+</svg>

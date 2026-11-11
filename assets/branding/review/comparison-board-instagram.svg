@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" width="100%" height="100%">
+  <defs>
+    <style>
+      .board-bg-ig { fill: #FAFAFA; }
+      .card-ig { fill: #FFFFFF; stroke: #DBDBDB; stroke-width: 1.2; rx: 12; }
+      .ig-title { font-family: 'DM Sans', -apple-system, sans-serif; font-size: 20px; font-weight: 700; fill: #262626; }
+      .ig-sub { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #8E8E8E; }
+      .col-title { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; font-weight: 700; fill: #262626; text-anchor: middle; }
+      .handle-text { font-family: -apple-system, sans-serif; font-size: 14px; font-weight: 600; fill: #262626; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="500" class="board-bg-ig" />
+
+  <!-- Board Header -->
+  <g transform="translate(50, 40)">
+    <text x="0" y="0" class="ig-title">NAVA CREATIONS — Instagram Profile Avatar Audit</text>
+    <text x="0" y="24" class="ig-sub">Evaluation of 110px Circular Profile Picture and 40px Story Ring Visibility for @nava__creationsss</text>
+  </g>
+
+  <!-- COLUMN 1: CONCEPT A (x=50, y=90) -->
+  <g transform="translate(50, 90)">
+    <rect width="280" height="370" rx="12" class="card-ig" />
+    <text x="140" y="32" class="col-title">CONCEPT A: BOTANICAL</text>
+
+    <!-- 110px Profile Avatar with Story Ring -->
+    <g transform="translate(140, 110)">
+      <!-- Gradient Story Ring -->
+      <circle cx="0" cy="0" r="58" fill="none" stroke="#C5A059" stroke-width="2.5" />
+      <circle cx="0" cy="0" r="53" fill="#5C1D38" />
+
+      <!-- Parijata Vector Centered -->
+      <g transform="translate(0, 0) scale(0.9)">
+        <circle cx="0" cy="0" r="4.5" fill="#C5A059" />
+        <path d="M 0 -4.5 C -5 -16, 0 -26, 0 -30 C 0 -26, 5 -16, 0 -4.5 Z" fill="#FDFBF7" />
+        <path d="M 4 -2 C 16 -6, 25 0, 28 0 C 23 3, 15 5, 4 -2 Z" fill="#FDFBF7" />
+        <path d="M 3 3 C 14 14, 18 20, 17 24 C 13 23, 7 16, 3 3 Z" fill="#FDFBF7" />
+        <path d="M -3 3 C -14 14, -18 20, -17 24 C -13 23, -7 16, -3 3 Z" fill="#FDFBF7" />
+        <path d="M -4 -2 C -16 -6, -25 0, -28 0 C -23 3, -15 5, -4 -2 Z" fill="#FDFBF7" />
+      </g>
+    </g>
+
+    <text x="140" y="195" class="handle-text">nava__creationsss</text>
+    <text x="140" y="215" font-family="-apple-system, sans-serif" font-size="12px" fill="#8E8E8E" text-anchor="middle">Jewellery &amp; Accessories</text>
+
+    <!-- Critique Box -->
+    <g transform="translate(20, 245)">
+      <rect width="240" height="100" rx="6" fill="#F9FAFB" stroke="#E5E7EB" />
+      <text x="12" y="22" font-family="'DM Sans', sans-serif" font-size="11.5px" font-weight="700" fill="#15803D">✔ Distinctive botanical silhouette</text>
+      <text x="12" y="42" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#15803D">✔ High luxury contrast on dark plum</text>
+      <text x="12" y="62" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#57534E">• Gold ring complements story ring</text>
+      <text x="12" y="82" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#78716C">Avatar Rating: 9.0 / 10</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 2: CONCEPT B (x=360, y=90) -->
+  <g transform="translate(360, 90)">
+    <rect width="280" height="370" rx="12" class="card-ig" />
+    <text x="140" y="32" class="col-title">CONCEPT B: MONOGRAM</text>
+
+    <!-- 110px Profile Avatar -->
+    <g transform="translate(140, 110)">
+      <circle cx="0" cy="0" r="58" fill="none" stroke="#D4AF37" stroke-width="2.5" />
+      <circle cx="0" cy="0" r="53" fill="#173E2E" />
+
+      <!-- NC Monogram Centered -->
+      <g transform="translate(0, 0) scale(1.1)">
+        <path d="M 12 -15 A 18 18 0 1 0 12 15" fill="none" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" />
+        <circle cx="12" cy="-15" r="2.8" fill="#D4AF37" />
+        <circle cx="12" cy="15" r="2.8" fill="#D4AF37" />
+
+        <path d="M -10 -16 L -10 16" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+        <path d="M -10 -15 L 8 15" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" />
+        <circle cx="0" cy="0" r="3.5" fill="#173E2E" />
+        <circle cx="0" cy="0" r="2" fill="#D4AF37" />
+        <path d="M 9 -16 L 9 16" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+      </g>
+    </g>
+
+    <text x="140" y="195" class="handle-text">nava__creationsss</text>
+    <text x="140" y="215" font-family="-apple-system, sans-serif" font-size="12px" fill="#8E8E8E" text-anchor="middle">Luxury Adornments</text>
+
+    <!-- Critique Box -->
+    <g transform="translate(20, 245)">
+      <rect width="240" height="100" rx="6" fill="#F9FAFB" stroke="#E5E7EB" />
+      <text x="12" y="22" font-family="'DM Sans', sans-serif" font-size="11.5px" font-weight="700" fill="#15803D">✔ Instant monogram recognition</text>
+      <text x="12" y="42" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#15803D">✔ Stands out in a crowded DM inbox list</text>
+      <text x="12" y="62" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#B45309">▲ Looks like international luxury brand</text>
+      <text x="12" y="82" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#78716C">Avatar Rating: 9.4 / 10</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 3: CONCEPT C (x=670, y=90) -->
+  <g transform="translate(670, 90)">
+    <rect width="280" height="370" rx="12" class="card-ig" />
+    <text x="140" y="32" class="col-title">CONCEPT C: ARTISAN HAND</text>
+
+    <!-- 110px Profile Avatar -->
+    <g transform="translate(140, 110)">
+      <circle cx="0" cy="0" r="58" fill="none" stroke="#D89D40" stroke-width="2.5" />
+      <circle cx="0" cy="0" r="53" fill="#9E4733" />
+
+      <!-- Hand Mark Centered -->
+      <g transform="translate(0, 0) scale(0.95)">
+        <circle cx="0" cy="0" r="28" fill="none" stroke="#D89D40" stroke-width="3.5" />
+        <circle cx="0" cy="-28" r="3" fill="#F4EFEB" />
+        <circle cx="28" cy="0" r="3" fill="#F4EFEB" />
+        <circle cx="0" cy="28" r="3" fill="#F4EFEB" />
+        <circle cx="-28" cy="0" r="3" fill="#F4EFEB" />
+        <path d="M -14 12 C -6 20, 6 20, 14 12" stroke="#F4EFEB" stroke-width="2.2" stroke-linecap="round" fill="none" />
+      </g>
+    </g>
+
+    <text x="140" y="195" class="handle-text">nava__creationsss</text>
+    <text x="140" y="215" font-family="-apple-system, sans-serif" font-size="12px" fill="#8E8E8E" text-anchor="middle">Handmade Bangles</text>
+
+    <!-- Critique Box -->
+    <g transform="translate(20, 245)">
+      <rect width="240" height="100" rx="6" fill="#F9FAFB" stroke="#E5E7EB" />
+      <text x="12" y="22" font-family="'DM Sans', sans-serif" font-size="11.5px" font-weight="700" fill="#15803D">✔ Warm, organic terracotta tone</text>
+      <text x="12" y="42" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#B45309">▲ Palm line is barely visible at phone size</text>
+      <text x="12" y="62" font-family="'DM Sans', sans-serif" font-size="11.5px" fill="#B91C1C">✖ Reads like a circular dial or ring</text>
+      <text x="12" y="82" font-family="'DM Sans', sans-serif" font-size="11px" font-weight="600" fill="#78716C">Avatar Rating: 7.0 / 10</text>
+    </g>
+  </g>
+</svg>
