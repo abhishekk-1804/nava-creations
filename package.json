@@ -1,0 +1,27 @@
+{
+  "name": "nava-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=12.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:e2e": "pnpm --filter @nava/web test:e2e",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "db:generate": "pnpm --filter @nava/db generate",
+    "db:validate": "pnpm --filter @nava/db validate",
+    "db:check": "pnpm --filter @nava/db db:check",
+    "db:migrate:deploy": "pnpm --filter @nava/db db:migrate:deploy"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "pnpm@12.18.0"
+}
