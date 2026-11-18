@@ -1,7 +1,9 @@
+import { prisma, Prisma } from '@nava/db';
 import { CouponDto, DiscountCalculationResult, PromotionEngine, PromotionType } from '@nava/domain';
 import { NotFoundError, ValidationError } from '@nava/shared';
+import { isDatabaseAvailable } from './catalog-service';
 
-// Global singleton registry for in-memory promotion management
+// Global singleton registry for in-memory promotion management (fallback for unit tests / offline)
 const globalForPromotions = globalThis as unknown as {
   __nava_coupons__?: Map<string, CouponDto>;
 };
@@ -12,8 +14,13 @@ if (!globalForPromotions.__nava_coupons__) {
 
 const couponsRegistry = globalForPromotions.__nava_coupons__;
 
-// Seed standard studio promotional campaigns if empty
+// Initialize test/dev promotional registry with legitimate zero usage counts
 function initializeCoupons() {
+  // Strict security: Never auto-seed promotional coupons in production
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+
   if (couponsRegistry.size === 0) {
     const c1: CouponDto = {
       id: 'coup-bridal-10',
@@ -24,7 +31,7 @@ function initializeCoupons() {
       minOrderPaise: 200000, // ₹2,000
       maxDiscountPaise: 50000, // ₹500 cap
       isActive: true,
-      usageCount: 14,
+      usageCount: 0,
       usageLimit: 200,
     };
 
@@ -36,7 +43,7 @@ function initializeCoupons() {
       value: 20000, // ₹200 (20,000 paise)
       minOrderPaise: 150000, // ₹1,500
       isActive: true,
-      usageCount: 28,
+      usageCount: 0,
     };
 
     const c3: CouponDto = {
@@ -48,7 +55,7 @@ function initializeCoupons() {
       minOrderPaise: 300000, // ₹3,000
       maxDiscountPaise: 75000, // ₹750
       isActive: true,
-      usageCount: 6,
+      usageCount: 0,
       usageLimit: 100,
     };
 
@@ -58,7 +65,7 @@ function initializeCoupons() {
   }
 }
 
-// Auto-seed coupons
+// Auto-seed coupons for local/test fallback only
 initializeCoupons();
 
 export interface CreateCouponInput {
@@ -86,16 +93,74 @@ export class PromotionService {
    * Lists all coupons for store manager administration.
    */
   static async listCoupons(): Promise<CouponDto[]> {
+    if (isDatabaseAvailable()) {
+      try {
+        const dbCoupons = await prisma.coupon.findMany({
+          orderBy: { createdAt: 'desc' },
+        });
+        if (dbCoupons && dbCoupons.length > 0) {
+          return dbCoupons.map((c) => ({
+            id: c.id,
+            code: c.code,
+            description: c.description,
+            type: c.type as PromotionType,
+            value: c.value,
+            minOrderPaise: c.minOrderPaise,
+            maxDiscountPaise: c.maxDiscountPaise,
+            usageLimit: c.usageLimit,
+            usageCount: c.usageCount,
+            isActive: c.isActive,
+            validFrom: c.validFrom ? c.validFrom.toISOString() : null,
+            validUntil: c.validUntil ? c.validUntil.toISOString() : null,
+          }));
+        }
+      } catch (_e) {
+        // Fallback to memory
+      }
+    }
+
     initializeCoupons();
     return Array.from(couponsRegistry.values());
   }
 
   /**
-   * Finds coupon by its alphanumeric code.
+   * Finds coupon by its alphanumeric code with optional transaction client support.
    */
-  static async getCouponByCode(code: string): Promise<CouponDto | null> {
-    initializeCoupons();
+  static async getCouponByCode(
+    code: string,
+    tx?: Prisma.TransactionClient
+  ): Promise<CouponDto | null> {
     const cleanCode = PromotionEngine.normalizeCode(code);
+    if (!cleanCode) return null;
+
+    if (isDatabaseAvailable()) {
+      try {
+        const client = tx || prisma;
+        const dbCoupon = await client.coupon.findUnique({
+          where: { code: cleanCode },
+        });
+        if (dbCoupon) {
+          return {
+            id: dbCoupon.id,
+            code: dbCoupon.code,
+            description: dbCoupon.description,
+            type: dbCoupon.type as PromotionType,
+            value: dbCoupon.value,
+            minOrderPaise: dbCoupon.minOrderPaise,
+            maxDiscountPaise: dbCoupon.maxDiscountPaise,
+            usageLimit: dbCoupon.usageLimit,
+            usageCount: dbCoupon.usageCount,
+            isActive: dbCoupon.isActive,
+            validFrom: dbCoupon.validFrom ? dbCoupon.validFrom.toISOString() : null,
+            validUntil: dbCoupon.validUntil ? dbCoupon.validUntil.toISOString() : null,
+          };
+        }
+      } catch (_e) {
+        // Fallback to memory
+      }
+    }
+
+    initializeCoupons();
     return couponsRegistry.get(cleanCode) || null;
   }
 
@@ -104,14 +169,15 @@ export class PromotionService {
    */
   static async validateAndApply(
     code: string,
-    subtotalPaise: number
+    subtotalPaise: number,
+    tx?: Prisma.TransactionClient
   ): Promise<DiscountCalculationResult> {
     const cleanCode = PromotionEngine.normalizeCode(code);
     if (!cleanCode) {
       throw new ValidationError('Please enter a coupon code.');
     }
 
-    const coupon = await this.getCouponByCode(cleanCode);
+    const coupon = await this.getCouponByCode(cleanCode, tx);
     if (!coupon) {
       return {
         isValid: false,
@@ -128,11 +194,60 @@ export class PromotionService {
   }
 
   /**
-   * Increments usage count when an order is successfully confirmed.
+   * Increments usage count when an order is confirmed or created.
+   * Atomically validates that usage limit has not been breached using native tagged SQL.
    */
-  static async incrementUsage(code: string): Promise<void> {
-    const coupon = await this.getCouponByCode(code);
+  static async incrementUsage(
+    code: string,
+    tx?: Prisma.TransactionClient
+  ): Promise<void> {
+    const cleanCode = PromotionEngine.normalizeCode(code);
+    if (!cleanCode) return;
+
+    if (isDatabaseAvailable()) {
+      const client = tx || prisma;
+      // Atomic increment with usage limit guard using raw tagged template (ARCH-01 Fix)
+      const affectedCount = await client.$executeRaw`
+        UPDATE "coupons"
+        SET "usage_count" = "usage_count" + 1, "updated_at" = NOW()
+        WHERE "code" = ${cleanCode}
+          AND "is_active" = true
+          AND ("valid_from" IS NULL OR "valid_from" <= NOW())
+          AND ("valid_until" IS NULL OR "valid_until" >= NOW())
+          AND ("usage_limit" IS NULL OR "usage_count" < "usage_limit");
+      `;
+
+      if (affectedCount === 0) {
+        const existing = await client.coupon.findUnique({ where: { code: cleanCode } });
+        if (!existing || !existing.isActive) {
+          throw new ValidationError(`Coupon '${cleanCode}' does not exist or is inactive.`);
+        }
+        if (existing.usageLimit !== null && existing.usageCount >= existing.usageLimit) {
+          throw new ValidationError(`Coupon '${cleanCode}' has reached its maximum redemption limit.`);
+        }
+        if (existing.validFrom && existing.validFrom > new Date()) {
+          throw new ValidationError(`Coupon '${cleanCode}' is not yet active.`);
+        }
+        if (existing.validUntil && existing.validUntil < new Date()) {
+          throw new ValidationError(`Coupon '${cleanCode}' has expired.`);
+        }
+        throw new ValidationError(`Unable to apply coupon '${cleanCode}'.`);
+      }
+
+      // Sync in-memory cache if present
+      const cached = couponsRegistry.get(cleanCode);
+      if (cached) {
+        cached.usageCount += 1;
+      }
+      return;
+    }
+
+    // In-memory fallback
+    const coupon = await this.getCouponByCode(cleanCode);
     if (coupon) {
+      if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+        throw new ValidationError(`Coupon '${coupon.code}' has reached its maximum redemption limit.`);
+      }
       coupon.usageCount += 1;
       couponsRegistry.set(coupon.code, coupon);
     }
@@ -147,16 +262,56 @@ export class PromotionService {
       throw new ValidationError('Coupon code must be at least 3 characters.');
     }
 
-    if (couponsRegistry.has(code)) {
-      throw new ValidationError(`Coupon with code '${code}' already exists.`);
-    }
-
     if (input.type === 'PERCENTAGE' && (input.value <= 0 || input.value > 100)) {
       throw new ValidationError('Percentage discount value must be between 1% and 100%.');
     }
 
     if (input.type === 'FLAT_AMOUNT' && input.value <= 0) {
       throw new ValidationError('Flat discount amount must be greater than zero.');
+    }
+
+    if (isDatabaseAvailable()) {
+      const existing = await prisma.coupon.findUnique({ where: { code } });
+      if (existing) {
+        throw new ValidationError(`Coupon with code '${code}' already exists.`);
+      }
+
+      const created = await prisma.coupon.create({
+        data: {
+          code,
+          description: input.description.trim(),
+          type: input.type,
+          value: input.value,
+          minOrderPaise: input.minOrderPaise || 0,
+          maxDiscountPaise: input.maxDiscountPaise || null,
+          usageLimit: input.usageLimit || null,
+          isActive: true,
+          validFrom: input.validFrom ? new Date(input.validFrom) : null,
+          validUntil: input.validUntil ? new Date(input.validUntil) : null,
+        },
+      });
+
+      const dto: CouponDto = {
+        id: created.id,
+        code: created.code,
+        description: created.description,
+        type: created.type as PromotionType,
+        value: created.value,
+        minOrderPaise: created.minOrderPaise,
+        maxDiscountPaise: created.maxDiscountPaise,
+        usageLimit: created.usageLimit,
+        usageCount: created.usageCount,
+        isActive: created.isActive,
+        validFrom: created.validFrom ? created.validFrom.toISOString() : null,
+        validUntil: created.validUntil ? created.validUntil.toISOString() : null,
+      };
+
+      couponsRegistry.set(code, dto);
+      return dto;
+    }
+
+    if (couponsRegistry.has(code)) {
+      throw new ValidationError(`Coupon with code '${code}' already exists.`);
     }
 
     const newCoupon: CouponDto = {
@@ -186,8 +341,49 @@ export class PromotionService {
     updates: Partial<CouponDto>
   ): Promise<CouponDto> {
     initializeCoupons();
-    let foundCoupon: CouponDto | null = null;
 
+    if (isDatabaseAvailable()) {
+      try {
+        const existing = await prisma.coupon.findFirst({
+          where: { OR: [{ id }, { code: id }] },
+        });
+
+        if (existing) {
+          const updated = await prisma.coupon.update({
+            where: { id: existing.id },
+            data: {
+              ...(updates.isActive !== undefined ? { isActive: updates.isActive } : {}),
+              ...(updates.description ? { description: updates.description.trim() } : {}),
+              ...(updates.minOrderPaise !== undefined ? { minOrderPaise: updates.minOrderPaise } : {}),
+              ...(updates.maxDiscountPaise !== undefined ? { maxDiscountPaise: updates.maxDiscountPaise } : {}),
+              ...(updates.usageLimit !== undefined ? { usageLimit: updates.usageLimit } : {}),
+            },
+          });
+
+          const dto: CouponDto = {
+            id: updated.id,
+            code: updated.code,
+            description: updated.description,
+            type: updated.type as PromotionType,
+            value: updated.value,
+            minOrderPaise: updated.minOrderPaise,
+            maxDiscountPaise: updated.maxDiscountPaise,
+            usageLimit: updated.usageLimit,
+            usageCount: updated.usageCount,
+            isActive: updated.isActive,
+            validFrom: updated.validFrom ? updated.validFrom.toISOString() : null,
+            validUntil: updated.validUntil ? updated.validUntil.toISOString() : null,
+          };
+
+          couponsRegistry.set(updated.code, dto);
+          return dto;
+        }
+      } catch (_e) {
+        // Fallback to memory
+      }
+    }
+
+    let foundCoupon: CouponDto | null = null;
     for (const c of couponsRegistry.values()) {
       if (c.id === id || c.code === id) {
         foundCoupon = c;

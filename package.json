@@ -16,7 +16,9 @@
     "db:generate": "pnpm --filter @nava/db generate",
     "db:validate": "pnpm --filter @nava/db validate",
     "db:check": "pnpm --filter @nava/db db:check",
-    "db:migrate:deploy": "pnpm --filter @nava/db db:migrate:deploy"
+    "db:migrate:deploy": "pnpm --filter @nava/db db:migrate:deploy",
+    "db:backup": "node scripts/backup-database.js",
+    "db:restore": "node scripts/restore-database.js"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

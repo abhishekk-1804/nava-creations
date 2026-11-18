@@ -23,6 +23,7 @@ import {
   UpiVerificationResult,
   CodCollectionRecord,
 } from '@nava/domain';
+import { ConflictError } from '@nava/shared';
 import { CONFIG } from './config';
 
 export interface GenerateUpiInstructionsInput {
@@ -194,7 +195,7 @@ export class PaymentService {
    * It NEVER automatically establishes payment success or marks order as confirmed.
    */
   static submitUpiTransactionReference(input: SubmitUpiReferenceInput): SubmitUpiReferenceResult {
-    const rawUtr = (input.claimedUtr || input.upiTransactionRef || '').trim();
+    const rawUtr = (input.claimedUtr || input.upiTransactionRef || '').trim().toUpperCase();
 
     // Indian Bank UTR format: 12 to 22 alphanumeric digits
     const utrRegex = /^[0-9A-Za-z]{12,22}$/;
@@ -244,7 +245,7 @@ export class PaymentService {
       throw new Error(`Payment for order ${input.orderNumber} has already been verified`);
     }
 
-    const verifiedId = (input.verifiedTransactionId || input.bankReference || input.claimedUtr || '').trim();
+    const verifiedId = (input.verifiedTransactionId || input.bankReference || input.claimedUtr || '').trim().toUpperCase();
     if (!/^[0-9A-Za-z_-]{8,35}$/.test(verifiedId)) {
       throw new Error('Invalid verified transaction reference: must be 8-35 characters (alphanumeric, hyphens or underscores)');
     }
@@ -256,7 +257,7 @@ export class PaymentService {
     // Guard 2: Enforce uniqueness of verified bank transaction ID across all orders
     const existingVerified = verifiedBankTransactions.get(verifiedId);
     if (existingVerified && existingVerified.orderNumber !== input.orderNumber) {
-      throw new Error(
+      throw new ConflictError(
         `Bank transaction reference "${verifiedId}" has already been verified and credited for order ${existingVerified.orderNumber}`
       );
     }

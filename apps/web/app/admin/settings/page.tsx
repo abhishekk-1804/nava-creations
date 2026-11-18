@@ -35,6 +35,7 @@ export default function AdminSettingsPage() {
   const [codMaxRupees, setCodMaxRupees] = useState('');
   const [codCourierChargeRupees, setCodCourierChargeRupees] = useState('');
   const [freeShippingThresholdRupees, setFreeShippingThresholdRupees] = useState('');
+  const [standardShippingFeeRupees, setStandardShippingFeeRupees] = useState('');
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -60,6 +61,7 @@ export default function AdminSettingsPage() {
         setCodMaxRupees((s.codMaxPaise / 100).toString());
         setCodCourierChargeRupees((s.codCourierChargePaise / 100).toString());
         setFreeShippingThresholdRupees((s.freeShippingThresholdPaise / 100).toString());
+        setStandardShippingFeeRupees(((s.standardShippingFeePaise ?? 15000) / 100).toString());
       } else {
         setErrorMessage('Failed to load studio settings.');
       }
@@ -97,6 +99,7 @@ export default function AdminSettingsPage() {
         codMaxPaise: Math.round((parseFloat(codMaxRupees) || 0) * 100),
         codCourierChargePaise: Math.round((parseFloat(codCourierChargeRupees) || 0) * 100),
         freeShippingThresholdPaise: Math.round((parseFloat(freeShippingThresholdRupees) || 0) * 100),
+        standardShippingFeePaise: Math.round((parseFloat(standardShippingFeeRupees) || 0) * 100),
       };
 
       const res = await fetch('/api/admin/settings', {
@@ -429,6 +432,28 @@ export default function AdminSettingsPage() {
                 </div>
                 <span className="text-[10px] text-stone-400 mt-1 block">
                   Cart subtotals above this amount receive free standard shipping.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                  Standard Shipping Fee (₹)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-xs text-stone-400">₹</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    required
+                    value={standardShippingFeeRupees}
+                    onChange={(e) => setStandardShippingFeeRupees(e.target.value)}
+                    placeholder="150"
+                    className="w-full text-xs pl-7 pr-3 py-2 border border-stone-300 rounded focus:ring-1 focus:ring-brand-maroon outline-none"
+                  />
+                </div>
+                <span className="text-[10px] text-stone-400 mt-1 block">
+                  Flat delivery fee applied to orders below the free-shipping threshold.
                 </span>
               </div>
 

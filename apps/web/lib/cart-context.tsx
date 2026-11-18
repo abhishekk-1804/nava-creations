@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 
 export interface CartItem {
   id: string; // Composite: `${productId}_${variantId}`
@@ -29,16 +29,43 @@ interface CartContextType {
   closeDrawer: () => void;
   formatPrice: (paise: number) => string;
   validateCartWithServer: () => Promise<string[]>;
+  isValidating: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'nava_storefront_cart_v1';
 
+/**
+ * Stable, normalized comparison between two cart item arrays.
+ * Prevents unnecessary state updates and effect re-trigger cycles.
+ */
+function areCartItemsEqual(a: CartItem[], b: CartItem[]): boolean {
+  if (a.length !== b.length) return false;
+  const mapA = new Map(a.map((i) => [i.id, i]));
+  for (const itemB of b) {
+    const itemA = mapA.get(itemB.id);
+    if (!itemA) return false;
+    if (
+      itemA.quantity !== itemB.quantity ||
+      itemA.pricePaise !== itemB.pricePaise ||
+      itemA.maxStock !== itemB.maxStock ||
+      itemA.variantId !== itemB.variantId ||
+      itemA.productId !== itemB.productId ||
+      itemA.size !== itemB.size ||
+      itemA.name !== itemB.name
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
 
   // Load cart from localStorage on client mount
   useEffect(() => {
@@ -102,30 +129,71 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   };
 
-  const validateCartWithServer = useCallback(async (): Promise<string[]> => {
-    if (items.length === 0) return [];
-    try {
-      const res = await fetch('/api/cart/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map((i) => ({
-            productId: i.productId,
-            variantId: i.variantId,
-            quantity: i.quantity,
-          })),
-        }),
-      });
-      if (!res.ok) return [];
-      const data = await res.json();
-      if (Array.isArray(data.items)) {
-        setItems(data.items);
-      }
-      return data.warnings || [];
-    } catch (_e) {
-      return [];
-    }
+  const itemsRef = useRef(items);
+  useEffect(() => {
+    itemsRef.current = items;
   }, [items]);
+
+  // Request versioning to discard stale in-flight responses
+  const activeRequestIdRef = useRef(0);
+  const pendingPromiseRef = useRef<Promise<string[]> | null>(null);
+
+  const validateCartWithServer = useCallback(async (): Promise<string[]> => {
+    const currentItems = itemsRef.current;
+    if (currentItems.length === 0) return [];
+
+    // Deduplicate in-flight validation requests
+    if (pendingPromiseRef.current) {
+      return pendingPromiseRef.current;
+    }
+
+    const currentRequestId = ++activeRequestIdRef.current;
+    setIsValidating(true);
+
+    const validationPromise = (async () => {
+      try {
+        const res = await fetch('/api/cart/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: currentItems.map((i) => ({
+              productId: i.productId,
+              variantId: i.variantId,
+              quantity: i.quantity,
+              pricePaise: i.pricePaise,
+            })),
+          }),
+        });
+
+        if (!res.ok) return [];
+        const data = await res.json();
+
+        // Discard stale responses if user performed a newer cart action in the interim
+        if (currentRequestId !== activeRequestIdRef.current) {
+          return [];
+        }
+
+        if (Array.isArray(data.items)) {
+          // Stable comparison: only replace cart state if server data actually differs
+          if (!areCartItemsEqual(itemsRef.current, data.items)) {
+            setItems(data.items);
+          }
+        }
+
+        return data.warnings || [];
+      } catch (_e) {
+        return [];
+      } finally {
+        if (currentRequestId === activeRequestIdRef.current) {
+          setIsValidating(false);
+          pendingPromiseRef.current = null;
+        }
+      }
+    })();
+
+    pendingPromiseRef.current = validationPromise;
+    return validationPromise;
+  }, []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotalPaise = items.reduce((sum, item) => sum + item.pricePaise * item.quantity, 0);
@@ -154,6 +222,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         closeDrawer: () => setIsDrawerOpen(false),
         formatPrice,
         validateCartWithServer,
+        isValidating,
       }}
     >
       {children}

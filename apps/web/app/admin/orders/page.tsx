@@ -24,6 +24,13 @@ export default function AdminOrdersPage() {
   const [courierAwb, setCourierAwb] = useState('');
   const [isShipping, setIsShipping] = useState(false);
 
+  // Refund Modal State
+  const [refundingOrder, setRefundingOrder] = useState<OrderDto | null>(null);
+  const [refundAmountRupees, setRefundAmountRupees] = useState('');
+  const [refundReason, setRefundReason] = useState('Customer cancellation request');
+  const [refundBankRef, setRefundBankRef] = useState('');
+  const [isRefunding, setIsRefunding] = useState(false);
+
   const fetchOrders = async (status?: string) => {
     setLoading(true);
     try {
@@ -139,6 +146,55 @@ export default function AdminOrdersPage() {
     } catch (_e) {
     } finally {
       setIsShipping(false);
+    }
+  };
+
+  const handleOpenRefundModal = (order: OrderDto) => {
+    setRefundingOrder(order);
+    setRefundAmountRupees((order.totalPaise / 100).toString());
+    setRefundReason('Customer cancellation request');
+    setRefundBankRef('');
+    setErrorMessage(null);
+  };
+
+  const handleConfirmRefund = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!refundingOrder) return;
+
+    const amountFloat = parseFloat(refundAmountRupees);
+    if (isNaN(amountFloat) || amountFloat <= 0) {
+      setErrorMessage('Please enter a valid refund amount in Rupees.');
+      return;
+    }
+    const amountPaise = Math.round(amountFloat * 100);
+
+    setIsRefunding(true);
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch(`/api/admin/orders/${refundingOrder.orderNumber}/refund`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amountPaise,
+          reason: refundReason,
+          bankTransactionRef: refundBankRef.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'Failed to process refund');
+      }
+
+      setActionMessage(`Refund initiation of ₹${amountFloat} recorded successfully for ${refundingOrder.orderNumber}`);
+      setRefundingOrder(null);
+      fetchOrders(statusFilter);
+      setTimeout(() => setActionMessage(null), 4000);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : 'Error processing refund');
+    } finally {
+      setIsRefunding(false);
     }
   };
 
@@ -337,6 +393,16 @@ export default function AdminOrdersPage() {
                           </button>
                         )}
 
+                        {/* Process Refund Button */}
+                        {(ord.payment?.status === 'VERIFIED' || ord.payment?.status === 'PARTIALLY_REFUNDED' || ord.status === 'PAYMENT_CONFIRMED' || ord.status === 'PROCESSING') && ord.payment?.status !== 'REFUNDED' && (
+                          <button
+                            onClick={() => handleOpenRefundModal(ord)}
+                            className="px-2 py-1 text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 rounded text-[11px] font-semibold border border-purple-200 transition-colors"
+                          >
+                            Refund
+                          </button>
+                        )}
+
                         {/* Cancel Pre-Dispatch */}
                         {ord.status !== 'SHIPPED' && ord.status !== 'DELIVERED' && ord.status !== 'CANCELLED' && (
                           <button
@@ -491,6 +557,95 @@ export default function AdminOrdersPage() {
                   className="px-4 py-2 bg-purple-700 text-white rounded text-xs font-semibold hover:bg-purple-800 disabled:opacity-60"
                 >
                   {isShipping ? 'Dispatching...' : 'Mark as Dispatched'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Customer Refund Modal */}
+      {refundingOrder && (
+        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl border border-stone-200 max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="font-serif text-lg font-medium text-stone-900">
+                Record Manual Refund Initiation
+              </h3>
+              <button
+                onClick={() => setRefundingOrder(null)}
+                className="text-stone-400 hover:text-stone-600 text-lg leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-600">
+              Order: <span className="font-mono font-bold text-brand-maroon">{refundingOrder.orderNumber}</span> &bull; Paid: {formatPrice(refundingOrder.totalPaise)}
+            </p>
+            <p className="text-[11px] text-stone-500">
+              Note: Automated gateway refunds are inactive. Record manual bank IMPS/NEFT or UPI remittances initiated by the store administrator.
+            </p>
+
+            <form onSubmit={handleConfirmRefund} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-medium text-stone-700 mb-1">
+                  Refund Amount (INR) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  required
+                  value={refundAmountRupees}
+                  onChange={(e) => setRefundAmountRupees(e.target.value)}
+                  className="w-full font-mono text-xs border border-stone-300 rounded px-3 py-2 bg-white text-stone-900 focus:outline-none focus:border-brand-maroon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium text-stone-700 mb-1">
+                  Refund Reason *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value)}
+                  placeholder="e.g. Customer requested cancellation before dispatch"
+                  className="w-full text-xs border border-stone-300 rounded px-3 py-2 bg-white text-stone-900 focus:outline-none focus:border-brand-maroon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium text-stone-700 mb-1">
+                  Bank Settlement Reference (IMPS/NEFT/UPI)
+                </label>
+                <input
+                  type="text"
+                  value={refundBankRef}
+                  onChange={(e) => setRefundBankRef(e.target.value)}
+                  placeholder="e.g. IMPS-20261115-998812"
+                  className="w-full font-mono text-xs border border-stone-300 rounded px-3 py-2 bg-white text-stone-900 focus:outline-none focus:border-brand-maroon"
+                />
+                <span className="text-[10px] text-stone-400 block mt-0.5">
+                  Leave empty if pending bank ledger remittance.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                <button
+                  type="button"
+                  onClick={() => setRefundingOrder(null)}
+                  className="px-4 py-2 border border-stone-300 rounded text-xs text-stone-700 hover:bg-stone-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isRefunding}
+                  className="px-4 py-2 bg-purple-700 text-white rounded text-xs font-semibold hover:bg-purple-800 disabled:opacity-60"
+                >
+                  {isRefunding ? 'Recording...' : 'Record Refund Initiation'}
                 </button>
               </div>
             </form>

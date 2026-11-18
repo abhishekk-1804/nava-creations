@@ -49,27 +49,45 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
               {collection.description}
             </p>
           )}
-          <div className="pt-2 flex flex-wrap gap-4">
+          <div className="pt-2 flex flex-wrap gap-4 items-center">
+            {slug === 'bridal-edit-2026' && (
+              <Link
+                href="/lookbook/bridal-edit-2026"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-stone-900 rounded-lg text-xs font-bold hover:bg-brand-lightGold transition-all shadow-md"
+              >
+                <span>Download 2026 Lookbook (PDF)</span>
+                <ArrowRightIcon className="w-3.5 h-3.5" />
+              </Link>
+            )}
+
             <a
-              href={buildWhatsAppLink(`Hello NAVA Creations, I would like to enquire about pieces from the ${collection.name} collection.`)}
+              href={buildWhatsAppLink(`Hello NAVA Creations Bengaluru, I would like to enquire about bespoke pieces from the ${collection.name} collection.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-700 text-white rounded text-xs font-semibold hover:bg-emerald-800 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-700 text-white rounded-lg text-xs font-semibold hover:bg-emerald-800 transition-colors shadow-sm"
             >
               <WhatsAppIcon className="w-4 h-4" />
-              <span>Enquire for Bulk / Bridal</span>
+              <span>WhatsApp Bridal Concierge</span>
             </a>
           </div>
         </div>
 
-        <div className="h-64 lg:h-full min-h-[320px] bg-stone-800 relative">
-          {collection.coverImageUrl && (
+        <div className="h-64 lg:h-full min-h-[320px] bg-[#250812] relative flex items-center justify-center p-6 border-t lg:border-t-0 lg:border-l border-brand-gold/30">
+          {collection.coverImageUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={collection.coverImageUrl}
               alt={collection.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-xl"
             />
+          ) : (
+            <div className="text-center space-y-3 p-6 bg-white/5 rounded-2xl border border-brand-gold/40">
+              <span className="font-serif text-2xl text-brand-lightGold block">NAVA CREATIONS</span>
+              <span className="text-xs tracking-widest uppercase text-stone-300 block">Bengaluru Atelier Trousseau</span>
+              <p className="text-[11px] text-stone-400 max-w-xs mx-auto">
+                Hand-finished Jadau Kundan stonework &bull; Custom sized 2.2 to 2.10
+              </p>
+            </div>
           )}
         </div>
       </div>

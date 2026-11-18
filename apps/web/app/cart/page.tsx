@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
 import {
@@ -27,11 +27,26 @@ export default function CartPage() {
     formatPrice,
     totalItems,
     validateCartWithServer,
+    isValidating,
   } = useCart();
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [freeShippingThresholdPaise, setFreeShippingThresholdPaise] = useState<number>(199900);
+  const validatedOnMountRef = useRef(false);
 
   useEffect(() => {
-    if (items.length > 0) {
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.settings?.freeShippingThresholdPaise) {
+          setFreeShippingThresholdPaise(data.settings.freeShippingThresholdPaise);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!validatedOnMountRef.current && items.length > 0) {
+      validatedOnMountRef.current = true;
       validateCartWithServer().then((warns) => {
         if (warns && warns.length > 0) {
           setWarnings(warns);
@@ -116,18 +131,15 @@ export default function CartPage() {
                 <div key={item.id} className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6">
                   {/* Thumbnail */}
                   <div className="w-24 h-24 rounded-lg bg-stone-100 border border-stone-200 overflow-hidden flex-shrink-0">
-                    {item.imageUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-stone-300">
-                        <ShoppingBagIcon className="w-8 h-8" />
-                      </div>
-                    )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.imageUrl || '/branding/nava-product-placeholder.jpg'}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/branding/nava-product-placeholder.jpg';
+                      }}
+                    />
                   </div>
 
                   {/* Information */}
@@ -232,7 +244,7 @@ export default function CartPage() {
                 <div className="flex justify-between text-stone-600">
                   <span>Estimated Shipping</span>
                   <span className="text-emerald-700 font-medium">
-                    {subtotalPaise >= 199900 ? 'Free Shipping' : 'Calculated at checkout'}
+                    {subtotalPaise >= freeShippingThresholdPaise ? 'Free Shipping' : 'Calculated at checkout'}
                   </span>
                 </div>
                 <div className="flex justify-between text-stone-600">
@@ -251,10 +263,13 @@ export default function CartPage() {
               {/* Action Buttons */}
               <div className="space-y-2.5 pt-2">
                 <Link
-                  href="/checkout"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-brand-maroon text-white rounded-lg text-sm font-semibold hover:bg-brand-deepMaroon transition-all shadow-sm hover:shadow"
+                  href={isValidating ? '#' : '/checkout'}
+                  className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-brand-maroon text-white rounded-lg text-sm font-semibold hover:bg-brand-deepMaroon transition-all shadow-sm hover:shadow ${
+                    isValidating ? 'opacity-70 cursor-not-allowed pointer-events-none' : ''
+                  }`}
+                  aria-disabled={isValidating}
                 >
-                  <span>Proceed to Secure Checkout</span>
+                  <span>{isValidating ? 'Verifying Bag Inventory...' : 'Proceed to Secure Checkout'}</span>
                   <ArrowRightIcon className="w-4 h-4" />
                 </Link>
 

@@ -27,11 +27,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      orders: result.items,
+      orders: result.items.map((item) => OrderService.sanitizeOrder(item)),
       total: result.total,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to retrieve orders';
-    return NextResponse.json({ error: 'Failed to retrieve orders', message }, { status: 500 });
+    console.error('[API:AdminOrders] Database failure while retrieving orders:', message);
+    return NextResponse.json(
+      { error: 'Database failure', message: 'Failed to retrieve orders due to a database failure' },
+      { status: 500 }
+    );
   }
 }

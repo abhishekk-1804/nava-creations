@@ -11,6 +11,30 @@ jobs:
     name: Lint, Test & Production Build
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_test_postgres_password
+          POSTGRES_DB: nava_gateb_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: "postgresql://nava_app:ci_test_app_password@127.0.0.1:5432/nava_gateb_test?schema=public"
+      DIRECT_URL: "postgresql://nava_migrator:ci_test_migrator_password@127.0.0.1:5432/nava_gateb_test?schema=public"
+      ADMIN_AUTH_SECRET: "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
+      CRON_SECRET: "c1d2e3f4a5b60718293a4b5c6d7e8f90c1d2e3f4a5b60718293a4b5c6d7e8f90"
+      PORT: "3000"
+      NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -34,6 +58,30 @@ jobs:
       - name: Generate Prisma Client Artifacts
         run: pnpm run db:generate
 
+      - name: Setup PostgreSQL Roles and Test Environment
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          cat << 'EOF' > .env.test
+          NAVA_GATE_B_TEST_DB=true
+          EXPECTED_TEST_DB_HOST=127.0.0.1
+          EXPECTED_TEST_DB_NAME=nava_gateb_test
+          POSTGRES_ADMIN_PASSWORD=ci_test_postgres_password
+          NAVA_MIGRATOR_PASSWORD=ci_test_migrator_password
+          NAVA_APP_PASSWORD=ci_test_app_password
+          DATABASE_URL="postgresql://nava_app:ci_test_app_password@127.0.0.1:5432/nava_gateb_test?schema=public"
+          DIRECT_URL="postgresql://nava_migrator:ci_test_migrator_password@127.0.0.1:5432/nava_gateb_test?schema=public"
+          EOF
+          node scripts/init-test-db.js
+
+      - name: Deploy Database Migrations to Test DB
+        env:
+          DATABASE_URL: "postgresql://nava_migrator:ci_test_migrator_password@127.0.0.1:5432/nava_gateb_test?schema=public"
+          DIRECT_URL: "postgresql://nava_migrator:ci_test_migrator_password@127.0.0.1:5432/nava_gateb_test?schema=public"
+        run: pnpm --filter @nava/db exec prisma migrate deploy
+
+      - name: Seed Test Database Fixtures
+        run: node scripts/seed-test-database.js
+
       - name: Validate PostgreSQL Schema Integrity
         run: pnpm run db:validate
 
@@ -52,5 +100,5 @@ jobs:
       - name: Install Playwright Chromium Browser
         run: pnpm --filter @nava/web exec playwright install --with-deps chromium
 
-      - name: Execute E2E Smoke Tests
-        run: pnpm run test:e2e -- --project=chromium
+      - name: Execute Playwright E2E Suite
+        run: node scripts/run-e2e-suite.js e2e

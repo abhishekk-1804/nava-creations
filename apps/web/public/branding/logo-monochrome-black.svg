@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="100%" height="100%">
+  <defs>
+    <style>
+      .mono-black { fill: #000000; }
+      .mono-stroke { fill: none; stroke: #000000; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .serif-title { font-family: 'Cormorant Garamond', 'Playfair Display', serif; font-size: 54px; font-weight: 500; letter-spacing: 0.12em; fill: #000000; }
+      .sans-sub { font-family: 'DM Sans', 'Jost', sans-serif; font-size: 15px; font-weight: 500; letter-spacing: 0.38em; fill: #000000; }
+    </style>
+  </defs>
+
+  <g transform="translate(15, 0)">
+    <path class="mono-stroke" d="M 75 125 C 72 105, 82 85, 75 60 C 70 42, 60 35, 75 25" />
+    <g transform="translate(75, 55)">
+      <circle cx="0" cy="0" r="4.5" fill="#000000" />
+      <path class="mono-stroke" d="M 0 -4.5 C -6 -16, -2 -26, 0 -30 C 2 -26, 6 -16, 0 -4.5 Z" />
+      <path class="mono-stroke" d="M 4 -2 C 16 -8, 25 -4, 28 -1 C 24 3, 15 4, 4 -2 Z" />
+      <path class="mono-stroke" d="M 3 3 C 12 12, 18 20, 17 24 C 13 23, 7 15, 3 3 Z" />
+      <path class="mono-stroke" d="M -3 3 C -12 12, -18 20, -17 24 C -13 23, -7 15, -3 3 Z" />
+      <path class="mono-stroke" d="M -4 -2 C -16 -8, -25 -4, -28 -1 C -24 3, -15 4, -4 -2 Z" />
+      <circle cx="0" cy="-18" r="1.8" fill="#000000" />
+    </g>
+    <path class="mono-stroke" d="M 75 88 C 88 84, 98 88, 102 96 C 92 98, 82 94, 75 88 Z" />
+    <path class="mono-stroke" d="M 74 105 C 60 102, 52 107, 48 114 C 58 116, 68 112, 74 105 Z" />
+    <circle cx="75" cy="78" r="48" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.6" />
+  </g>
+
+  <line x1="165" y1="35" x2="165" y2="125" stroke="#000000" stroke-width="1.2" />
+
+  <g transform="translate(195, 0)">
+    <text x="0" y="82" class="serif-title">NAVA</text>
+    <line x1="2" y1="96" x2="310" y2="96" stroke="#000000" stroke-width="1.2" />
+    <circle cx="156" cy="96" r="2.8" fill="#000000" />
+    <text x="6" y="118" class="sans-sub">CREATIONS</text>
+    <text x="215" y="118" class="sans-sub" font-size="10" letter-spacing="0.25em" fill="#000000">• BENGALURU</text>
+  </g>
+</svg>

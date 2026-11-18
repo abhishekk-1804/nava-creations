@@ -20,11 +20,15 @@ function isDatabaseAvailable(): boolean {
  * Fails safely if unconfigured.
  */
 function getAdminAuthSecret(): string {
-  const secret = process.env.ADMIN_AUTH_SECRET;
-  if (!secret || secret.trim() === '' || secret.length < 16) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const secret = process.env.ADMIN_AUTH_SECRET?.trim();
+  if (!secret || secret.length < 16) {
     throw new Error('ADMIN_AUTH_SECRET must be configured in environment with at least 16 characters.');
   }
-  return secret.trim();
+  if (isProd && (secret.length < 32 || secret.toLowerCase().includes('placeholder') || secret === 'nava-default-fallback-secret-256')) {
+    throw new Error('ADMIN_AUTH_SECRET must be at least 32 characters and non-placeholder in production.');
+  }
+  return secret;
 }
 
 /**
@@ -35,6 +39,7 @@ function getAdminAuthSecret(): string {
 export async function issueAdminSession(metadata?: {
   userAgent?: string | null;
   ipAddress?: string | null;
+  userId?: string | null;
 }): Promise<{ sessionToken: string; expiresAt: Date; role: string }> {
   const secret = getAdminAuthSecret();
   const rawId = crypto.randomBytes(24).toString('hex');
@@ -52,13 +57,18 @@ export async function issueAdminSession(metadata?: {
 
   if (isDatabaseAvailable()) {
     try {
-      // Find or provision default owner-manager record
-      let adminUser = await prisma.user.findFirst({
-        where: {
-          role: { in: ['SUPER_ADMIN', 'STORE_MANAGER'] },
-          isActive: true,
-        },
-      });
+      let adminUser = metadata?.userId
+        ? await prisma.user.findUnique({ where: { id: metadata.userId } })
+        : null;
+
+      if (!adminUser) {
+        adminUser = await prisma.user.findFirst({
+          where: {
+            role: { in: ['SUPER_ADMIN', 'STORE_MANAGER'] },
+            isActive: true,
+          },
+        });
+      }
 
       if (!adminUser) {
         adminUser = await prisma.user.create({
@@ -192,6 +202,11 @@ export async function verifyAdminSession(request: Request): Promise<AdminAuthCon
         return null;
       }
     }
+  }
+
+  // Strict fail-closed: Never return fallback admin session in production
+  if (process.env.NODE_ENV === 'production') {
+    return null;
   }
 
   // Development fallback for verified HMAC signatures

@@ -3,11 +3,16 @@ import { OrderService } from '@/lib/order-service';
 import { MemoryRateLimiter } from '@/lib/rate-limiter';
 import { resolveClientIp } from '@/lib/proxy-trust';
 import { ValidationError, NotFoundError } from '@nava/shared';
+import { assertProductionSecrets } from '@/lib/env-validator';
+import { verifyCustomerSession } from '@/lib/customer-auth';
 
 const orderRateLimiter = new MemoryRateLimiter();
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Ensure production environment secrets are strictly configured before order operations
+    assertProductionSecrets();
+
     const clientIp = resolveClientIp(request).clientIp;
     const rateCheck = orderRateLimiter.check(`order-create:${clientIp}`, 10, 15 * 60 * 1000);
     if (!rateCheck.allowed) {
@@ -24,6 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const customerSession = await verifyCustomerSession(request);
+
     const order = await OrderService.createOrder({
       items: body.items,
       customer: body.customer,
@@ -31,16 +38,37 @@ export async function POST(request: NextRequest) {
       paymentMethod: body.paymentMethod || 'UPI_MERCHANT_QR',
       customerNotes: body.customerNotes,
       couponCode: body.couponCode,
+      userId: customerSession?.userId,
+      channel: body.channel || 'WEB',
     });
 
-    return NextResponse.json(
+    const guestAccessToken = order.guestAccessToken || OrderService.generateGuestAccessToken(order.orderNumber, order.createdAt);
+
+    // SECURITY (DPDP Act 2023 & Token Leakage Defense):
+    // Never disclose the raw guest access token in response payload.
+    // Instead, issue an order-scoped HttpOnly, SameSite=Lax cookie.
+    const { guestAccessToken: _token, ...sanitizedOrder } = order;
+
+    const response = NextResponse.json(
       {
         success: true,
-        order,
+        order: sanitizedOrder,
         message: 'Order created successfully.',
       },
       { status: 201 }
     );
+
+    response.cookies.set({
+      name: `nava_order_${order.orderNumber}`,
+      value: guestAccessToken,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: `/api/orders/${order.orderNumber}`,
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
+
+    return response;
   } catch (err: unknown) {
     if (err instanceof ValidationError) {
       return NextResponse.json(

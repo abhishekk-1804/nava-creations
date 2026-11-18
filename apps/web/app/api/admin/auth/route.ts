@@ -4,9 +4,15 @@ import { issueAdminSession, revokeAdminSession } from '@/lib/auth';
 import { CONFIG } from '@/lib/config';
 import { authRateLimiter } from '@/lib/rate-limiter';
 import { resolveClientIp } from '@/lib/proxy-trust';
+import { assertProductionSecrets } from '@/lib/env-validator';
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Ensure production environment secrets are strictly configured before auth operations
+    assertProductionSecrets();
+
+    // SECURITY: Production security posture is strictly governed by NODE_ENV.
+    // APP_ENV=test can NEVER downgrade production authentication or rate limiting.
     const isProd = process.env.NODE_ENV === 'production';
     const ipResolution = resolveClientIp(request);
     const clientIp = ipResolution.clientIp;
@@ -115,13 +121,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Explicit timing-safe comparison to prevent timing attacks.
-    const inputBuffer = Buffer.from(secretInput, 'utf8');
-    const secretBuffer = Buffer.from(configuredSecret.trim(), 'utf8');
+    let isValid = false;
+    let authenticatedAdminUser: { id: string; role: string } | null = null;
 
-    const isValid =
-      inputBuffer.length === secretBuffer.length &&
-      crypto.timingSafeEqual(inputBuffer, secretBuffer);
+    // Check credential-based admin login (Email + Password)
+    if (explicitAccount && secretInput) {
+      try {
+        const { prisma } = await import('@nava/db');
+        const user = await prisma.user.findFirst({
+          where: {
+            email: explicitAccount,
+            role: { in: ['SUPER_ADMIN', 'STORE_MANAGER', 'ORDER_OPERATOR', 'CATALOG_EDITOR'] },
+            isActive: true,
+          },
+        });
+
+        if (user && user.passwordHash) {
+          const { verifyPassword } = await import('@/lib/customer-auth');
+          const isPasswordValid = await verifyPassword(secretInput, user.passwordHash);
+          if (isPasswordValid) {
+            isValid = true;
+            authenticatedAdminUser = { id: user.id, role: user.role };
+          }
+        }
+      } catch (_e) {
+        // Fallback to token check
+      }
+    }
+
+    // Check token-based / secret-based login if not already authenticated
+    if (!isValid) {
+      const inputBuffer = Buffer.from(secretInput, 'utf8');
+      const secretBuffer = Buffer.from(configuredSecret.trim(), 'utf8');
+
+      isValid =
+        inputBuffer.length === secretBuffer.length &&
+        crypto.timingSafeEqual(inputBuffer, secretBuffer);
+    }
 
     if (!isValid) {
       if (ipKey) {
@@ -155,7 +191,11 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get('user-agent');
     const ipAddress = clientIp;
 
-    const session = await issueAdminSession({ userAgent, ipAddress });
+    const session = await issueAdminSession({
+      userAgent,
+      ipAddress,
+      userId: authenticatedAdminUser?.id,
+    });
 
     const response = NextResponse.json({
       success: true,

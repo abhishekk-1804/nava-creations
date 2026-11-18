@@ -11,7 +11,7 @@
  * 4. Pre-dispatch Cancellation Only: Post-dispatch cancellations require formal RTO/Return workflows.
  */
 
-import { prisma } from '@nava/db';
+import { prisma, Prisma } from '@nava/db';
 import { ReservationStateMachine, OrderStateMachine } from '@nava/domain';
 import { InsufficientStockError, ConflictError, NotFoundError, ValidationError } from '@nava/shared';
 import { isDatabaseAvailable } from './catalog-service';
@@ -124,7 +124,10 @@ export class InventoryReservationService {
    * Atomically reserves stock for a product variant.
    * Ensures that two concurrent users contesting the final piece cannot oversell.
    */
-  static async reserveStock(input: ReserveStockInput): Promise<ReservationResult> {
+  static async reserveStock(
+    input: ReserveStockInput,
+    txClient?: Prisma.TransactionClient
+  ): Promise<ReservationResult> {
     if (!input.quantity || !Number.isInteger(input.quantity) || input.quantity <= 0) {
       throw new ValidationError('Reservation quantity must be a positive integer');
     }
@@ -134,25 +137,27 @@ export class InventoryReservationService {
     const reservationId = `res_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     if (isDatabaseAvailable()) {
-      return await prisma.$transaction(async (tx) => {
-        const item = await tx.inventoryItem.findUnique({
-          where: { variantId: input.variantId },
-        });
-
-        if (!item || item.availableQty < input.quantity) {
-          throw new InsufficientStockError(
-            `Insufficient stock for variant ${input.variantId}. Available: ${item?.availableQty ?? 0}, Requested: ${input.quantity}`
-          );
-        }
-
-        // Atomic decrement of available and increment of reserved
-        await tx.inventoryItem.update({
-          where: { variantId: input.variantId },
+      const executeInTx = async (tx: Prisma.TransactionClient) => {
+        // Atomic conditional decrement: guarantees zero overselling under concurrent requests
+        const updateResult = await tx.inventoryItem.updateMany({
+          where: {
+            variantId: input.variantId,
+            availableQty: { gte: input.quantity },
+          },
           data: {
             availableQty: { decrement: input.quantity },
             reservedQty: { increment: input.quantity },
           },
         });
+
+        if (updateResult.count === 0) {
+          const current = await tx.inventoryItem.findUnique({
+            where: { variantId: input.variantId },
+          });
+          throw new InsufficientStockError(
+            `Insufficient stock for variant ${input.variantId}. Available: ${current?.availableQty ?? 0}, Requested: ${input.quantity}`
+          );
+        }
 
         const created = await tx.inventoryReservation.create({
           data: {
@@ -175,7 +180,12 @@ export class InventoryReservationService {
           expiresAt: created.expiresAt,
           orderId: created.orderId ?? undefined,
         };
-      });
+      };
+
+      if (txClient) {
+        return await executeInTx(txClient);
+      }
+      return await prisma.$transaction(executeInTx);
     }
 
     // In-memory atomic concurrency implementation with mutex serialization
@@ -345,7 +355,13 @@ export class InventoryReservationService {
   }
 
   /**
-   * Scans and releases all reservations that have elapsed their 15-minute TTL.
+   * Scans and releases all reservations that have elapsed their TTL.
+   * Secure Reservation Lifecycle (Gate 2 Remediation Phase 1):
+   * 1. Releases reservations for PENDING checkout orders where 15-minute TTL has expired.
+   * 2. Releases reservations for AWAITING_PAYMENT_VERIFICATION orders where the verification window has elapsed without confirmed bank credit.
+   * 3. Prevents permanent inventory locking from fake or unverified UTR claims.
+   * 4. Strictly protects orders that are PAYMENT_CONFIRMED, PROCESSING, SHIPPED, or DELIVERED from stock release.
+   * 5. Atomically transitions timed-out orders to CANCELLED and marks payments REJECTED.
    */
   static async releaseExpiredReservations(): Promise<number> {
     const now = new Date();
@@ -357,27 +373,106 @@ export class InventoryReservationService {
             status: 'PENDING',
             expiresAt: { lt: now },
           },
-          include: { items: true },
+          include: {
+            items: true,
+            order: {
+              include: { payments: true },
+            },
+          },
         });
 
+        let actuallyReleased = 0;
+
         for (const res of expired) {
-          for (const item of res.items) {
-            await tx.inventoryItem.update({
-              where: { variantId: item.variantId },
-              data: {
-                availableQty: { increment: item.quantity },
-                reservedQty: { decrement: item.quantity },
-              },
-            });
+          // If the order has already achieved verified payment or terminal fulfillment, do NOT expire or release
+          if (res.order) {
+            const hasVerifiedPayment = res.order.payments.some((p: { status: string }) => p.status === 'VERIFIED');
+            const isConfirmedOrFulfilled = [
+              'PAYMENT_CONFIRMED',
+              'PROCESSING',
+              'SHIPPED',
+              'OUT_FOR_DELIVERY',
+              'DELIVERED',
+            ].includes(res.order.status);
+
+            if (hasVerifiedPayment || isConfirmedOrFulfilled) {
+              // Safety: confirm the reservation so it won't be picked up again
+              await tx.inventoryReservation.update({
+                where: { id: res.id },
+                data: { status: 'CONFIRMED' },
+              });
+              continue;
+            }
           }
 
+          // Release inventory stock atomically
+          for (const item of res.items) {
+            const currentStock = await tx.inventoryItem.findUnique({
+              where: { variantId: item.variantId },
+            });
+            if (currentStock) {
+              const releaseQty = Math.min(item.quantity, Math.max(0, currentStock.reservedQty));
+              if (releaseQty > 0) {
+                await tx.inventoryItem.update({
+                  where: { variantId: item.variantId },
+                  data: {
+                    availableQty: { increment: releaseQty },
+                    reservedQty: { decrement: releaseQty },
+                  },
+                });
+              }
+            }
+          }
+
+          // Mark reservation as EXPIRED
           await tx.inventoryReservation.update({
             where: { id: res.id },
             data: { status: 'EXPIRED' },
           });
+
+          // If linked to an order, cancel the order and mark unverified payments rejected
+          if (res.order) {
+            const timeoutReason =
+              res.order.status === 'AWAITING_PAYMENT_VERIFICATION'
+                ? 'PAYMENT_VERIFICATION_TIMEOUT: Verification review window expired without confirmed bank credit'
+                : 'CHECKOUT_RESERVATION_TIMEOUT: Customer did not submit payment reference within window';
+
+            await tx.order.update({
+              where: { id: res.order.id },
+              data: { status: 'CANCELLED' },
+            });
+
+            await tx.payment.updateMany({
+              where: {
+                orderId: res.order.id,
+                status: { in: ['INITIATED', 'AWAITING_VERIFICATION'] },
+              },
+              data: { status: 'REJECTED' },
+            });
+
+            await tx.auditLog.create({
+              data: {
+                userId: null,
+                action: 'ORDER_TIMEOUT_CANCELLED',
+                entity: 'Order',
+                entityId: res.order.id,
+                newValues: {
+                  orderNumber: res.order.orderNumber,
+                  previousStatus: res.order.status,
+                  reason: timeoutReason,
+                  releasedItems: res.items.map((i: { variantId: string; quantity: number }) => ({
+                    variantId: i.variantId,
+                    qty: i.quantity,
+                  })),
+                },
+              },
+            });
+          }
+
+          actuallyReleased++;
         }
 
-        return expired.length;
+        return actuallyReleased;
       });
     }
 
@@ -385,10 +480,27 @@ export class InventoryReservationService {
       let releasedCount = 0;
       for (const res of memoryReservations.values()) {
         if (res.status === 'PENDING' && res.expiresAt.getTime() < now.getTime()) {
+          if (res.orderId) {
+            let linkedOrder: { id: string; status: string; orderNumber: string } | undefined;
+            for (const ord of (globalThis as unknown as { __nava_memory_orders__?: Map<string, { id: string; status: string; orderNumber: string }> }).__nava_memory_orders__?.values() || []) {
+              if (ord.id === res.orderId) {
+                linkedOrder = ord;
+                break;
+              }
+            }
+            if (linkedOrder && ['PAYMENT_CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(linkedOrder.status)) {
+              res.status = 'CONFIRMED';
+              continue;
+            }
+            if (linkedOrder) {
+              linkedOrder.status = 'CANCELLED';
+            }
+          }
+
           const item = memoryStock.get(res.variantId);
           if (item) {
             item.availableQty += res.quantity;
-            item.reservedQty -= res.quantity;
+            item.reservedQty = Math.max(0, item.reservedQty - res.quantity);
           }
           res.status = 'EXPIRED';
           releasedCount += 1;

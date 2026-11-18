@@ -41,6 +41,8 @@ export function resolveClientIp(
   request: Request,
   overrideOptions?: { trustProxy?: boolean; proxyProvider?: 'cloudflare' | 'standard' }
 ): ClientIpResult {
+  // SECURITY: Production security posture is strictly governed by NODE_ENV.
+  // APP_ENV=test can NEVER downgrade proxy trust validation in production.
   const isProd = process.env.NODE_ENV === 'production';
   const trustProxy = overrideOptions?.trustProxy ?? (process.env.TRUST_PROXY === 'true');
   const proxyProvider = overrideOptions?.proxyProvider ?? process.env.PROXY_PROVIDER ?? 'standard';

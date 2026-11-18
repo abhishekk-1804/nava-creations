@@ -1,22 +1,23 @@
 import { test, expect } from '@playwright/test';
-import crypto from 'node:crypto';
 
 test.describe('Work Packages E2E: Promotions, Studio Settings, Taxonomy & Fulfillment', () => {
-  const ADMIN_SECRET = 'placeholder_minimum_32_character_cryptographic_secret';
+  const ADMIN_SECRET = process.env.ADMIN_AUTH_SECRET || 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
   const COOKIE_NAME = 'nava_admin_session';
 
-  function makeSessionToken(rawId: string, expiryTimestamp: number, secret: string) {
-    const expiryStr = expiryTimestamp.toString();
-    const hmac = crypto.createHmac('sha256', secret);
-    hmac.update(`${rawId}.${expiryStr}`);
-    const signature = hmac.digest('hex');
-    return `${rawId}.${expiryStr}.${signature}`;
+  async function getAdminSessionCookie(request: any): Promise<string> {
+    const res = await request.post('/api/admin/auth', {
+      data: { token: ADMIN_SECRET },
+    });
+    const setCookie = res.headers()['set-cookie'];
+    if (setCookie) {
+      const match = setCookie.match(/nava_admin_session=([^;]+)/);
+      if (match && match[1]) return match[1];
+    }
+    return '';
   }
 
-  function getValidAdminCookieHeader() {
-    const rawId = 'abcdef0123456789abcdef0123456789abcdef0123456789';
-    const futureExpiry = Date.now() + 24 * 3600 * 1000;
-    const token = makeSessionToken(rawId, futureExpiry, ADMIN_SECRET);
+  async function getValidAdminCookieHeader(request: any): Promise<string> {
+    const token = await getAdminSessionCookie(request);
     return `${COOKIE_NAME}=${token}`;
   }
 
@@ -77,7 +78,7 @@ test.describe('Work Packages E2E: Promotions, Studio Settings, Taxonomy & Fulfil
   test('WP-SETTINGS 2.2: Authenticated GET and PATCH /api/admin/settings works correctly', async ({
     request,
   }) => {
-    const cookieHeader = getValidAdminCookieHeader();
+    const cookieHeader = await getValidAdminCookieHeader(request);
 
     // GET settings
     const getRes = await request.get('/api/admin/settings', {
@@ -111,7 +112,7 @@ test.describe('Work Packages E2E: Promotions, Studio Settings, Taxonomy & Fulfil
   // 3. Admin Merchandising: Categories & Collections API
   // ---------------------------------------------------------------------------
   test('WP-MERCH 3.1: Admin Categories CRUD operations', async ({ request }) => {
-    const cookieHeader = getValidAdminCookieHeader();
+    const cookieHeader = await getValidAdminCookieHeader(request);
 
     // GET categories
     const getRes = await request.get('/api/admin/catalog/categories', {
@@ -152,7 +153,7 @@ test.describe('Work Packages E2E: Promotions, Studio Settings, Taxonomy & Fulfil
   });
 
   test('WP-MERCH 3.2: Admin Collections CRUD operations', async ({ request }) => {
-    const cookieHeader = getValidAdminCookieHeader();
+    const cookieHeader = await getValidAdminCookieHeader(request);
 
     // GET collections
     const getRes = await request.get('/api/admin/catalog/collections', {
@@ -203,18 +204,17 @@ test.describe('Work Packages E2E: Promotions, Studio Settings, Taxonomy & Fulfil
 
   test('WP-FULFILL 4.2: Authenticated visit renders printable atelier packing slip', async ({
     page,
+    request,
     context,
   }) => {
     // Set valid session cookie
-    const rawId = 'abcdef0123456789abcdef0123456789abcdef0123456789';
-    const futureExpiry = Date.now() + 24 * 3600 * 1000;
-    const token = makeSessionToken(rawId, futureExpiry, ADMIN_SECRET);
+    const token = await getAdminSessionCookie(request);
 
     await context.addCookies([
       {
         name: COOKIE_NAME,
         value: token,
-        domain: 'localhost',
+        domain: '127.0.0.1',
         path: '/',
         httpOnly: true,
         sameSite: 'Lax',
@@ -237,17 +237,16 @@ test.describe('Work Packages E2E: Promotions, Studio Settings, Taxonomy & Fulfil
   // ---------------------------------------------------------------------------
   test('WP-SETTINGS 5.1: Authenticated admin settings UI displays all form sections', async ({
     page,
+    request,
     context,
   }) => {
-    const rawId = 'abcdef0123456789abcdef0123456789abcdef0123456789';
-    const futureExpiry = Date.now() + 24 * 3600 * 1000;
-    const token = makeSessionToken(rawId, futureExpiry, ADMIN_SECRET);
+    const token = await getAdminSessionCookie(request);
 
     await context.addCookies([
       {
         name: COOKIE_NAME,
         value: token,
-        domain: 'localhost',
+        domain: '127.0.0.1',
         path: '/',
         httpOnly: true,
         sameSite: 'Lax',

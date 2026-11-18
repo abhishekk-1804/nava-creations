@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminSession } from '@/lib/auth';
 import { OrderService } from '@/lib/order-service';
-import { ValidationError, NotFoundError } from '@nava/shared';
+import { ValidationError, NotFoundError, ConflictError } from '@nava/shared';
 
 export async function POST(
   request: NextRequest,
@@ -37,10 +37,13 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      order: verified,
+      order: OrderService.sanitizeOrder(verified),
       message: 'Payment verified successfully and credited to order.',
     });
   } catch (err: unknown) {
+    if (err instanceof ConflictError) {
+      return NextResponse.json({ error: 'Conflict', message: err.message }, { status: 409 });
+    }
     if (err instanceof ValidationError) {
       return NextResponse.json({ error: 'Validation failed', message: err.message }, { status: 422 });
     }

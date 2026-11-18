@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CatalogService } from '@/lib/catalog-service';
+import { CatalogService, isDatabaseAvailable } from '@/lib/catalog-service';
 import { SAMPLE_PRODUCTS } from '@/lib/sample-data';
+import { ProductDto } from '@nava/domain';
 
 interface CartValidateInputItem {
   productId: string;
   variantId: string;
   quantity: number;
+  pricePaise?: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -35,9 +37,20 @@ export async function POST(request: NextRequest) {
     let subtotalPaise = 0;
     let totalItems = 0;
 
-    // Fetch catalogue to resolve authoritative prices and inventory
+    // Fetch authoritative catalogue from database
     const productsResult = await CatalogService.getPublishedProducts({ limit: 100 });
-    const allProducts = productsResult.items.length > 0 ? productsResult.items : SAMPLE_PRODUCTS;
+    const isDbLive = isDatabaseAvailable();
+    const isProd = process.env.NODE_ENV === 'production';
+
+    // Strict security: Never fallback to demo products in production
+    let allProducts: ProductDto[] = [];
+    if (productsResult.items && productsResult.items.length > 0) {
+      allProducts = productsResult.items;
+    } else if (!isProd && !isDbLive && process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+      allProducts = SAMPLE_PRODUCTS;
+    } else {
+      allProducts = [];
+    }
 
     for (const raw of rawItems) {
       if (!raw.productId || typeof raw.productId !== 'string') {
@@ -68,21 +81,31 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      // Check variant existence
-      const variant = raw.variantId
-        ? product.variants?.find((v) => v.id === raw.variantId)
-        : product.variants?.[0];
-
-      if (raw.variantId && !variant) {
-        warnings.push(`Requested variant "${raw.variantId}" for "${product.name}" does not exist and was adjusted.`);
+      // Check variant existence: Reject invalid variants instead of silently substituting another variant
+      const activeVariant = product.variants?.find((v) => v.id === raw.variantId);
+      if (!activeVariant) {
+        warnings.push(
+          `Requested variant "${raw.variantId || 'Standard'}" for "${product.name}" does not exist and was removed from the bag.`
+        );
+        continue;
       }
-      const activeVariant = variant || product.variants?.[0];
-      const authoritativePricePaise = activeVariant?.pricePaise || product.pricePaise;
-      const authoritativeMrpPaise = activeVariant?.mrpPaise || product.compareAtPricePaise;
-      const authoritativeStock = activeVariant?.availableStock ?? (product.isAvailable ? 10 : 0);
+
+      const authoritativePricePaise = activeVariant.pricePaise || product.pricePaise;
+      const authoritativeMrpPaise = activeVariant.mrpPaise || product.compareAtPricePaise;
+      const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+      const authoritativeStock = activeVariant.availableStock ?? (isDemoMode && !isProd ? (product.isAvailable ? 10 : 0) : 0);
+
+      // Reconcile price differences with customer-facing warning
+      if (raw.pricePaise !== undefined && raw.pricePaise !== authoritativePricePaise) {
+        const oldPriceRupees = Math.round(raw.pricePaise / 100);
+        const newPriceRupees = Math.round(authoritativePricePaise / 100);
+        warnings.push(
+          `Price for "${product.name}" (${activeVariant.size || 'Standard'}) was updated from ₹${oldPriceRupees} to ₹${newPriceRupees}.`
+        );
+      }
 
       if (authoritativeStock <= 0) {
-        warnings.push(`"${product.name}" (${activeVariant?.size || 'Standard'}) is currently sold out.`);
+        warnings.push(`"${product.name}" (${activeVariant.size || 'Standard'}) is currently sold out and was removed.`);
         continue;
       }
 
@@ -97,12 +120,12 @@ export async function POST(request: NextRequest) {
       totalItems += finalQty;
 
       validatedItems.push({
-        id: `${product.id}_${activeVariant?.id || 'standard'}`,
+        id: `${product.id}_${activeVariant.id || 'standard'}`,
         productId: product.id,
-        variantId: activeVariant?.id || 'standard',
+        variantId: activeVariant.id || 'standard',
         name: product.name,
-        size: activeVariant?.size || null,
-        sku: activeVariant?.sku || product.sku || product.id,
+        size: activeVariant.size || null,
+        sku: activeVariant.sku || product.sku || product.id,
         pricePaise: authoritativePricePaise,
         compareAtPricePaise: authoritativeMrpPaise,
         imageUrl: product.images?.[0]?.url || null,

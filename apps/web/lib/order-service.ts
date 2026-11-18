@@ -10,16 +10,22 @@
  */
 
 import { prisma } from '@nava/db';
+import crypto from 'node:crypto';
+
+// Dynamic development fallback secret; in production ADMIN_AUTH_SECRET is strictly required
+const devFallbackGuestSecret = crypto.randomBytes(32).toString('hex');
 import {
   OrderStateMachine,
   OrderStatus,
   PaymentStatus,
 } from '@nava/domain';
-import { ValidationError, NotFoundError } from '@nava/shared';
+import { ValidationError, NotFoundError, ConflictError } from '@nava/shared';
 import { isDatabaseAvailable, CatalogService } from './catalog-service';
 import { PaymentService, UpiPaymentInstructionsResult, CodOrderResult } from './payment-service';
 import { InventoryReservationService } from './inventory-reservation-service';
 import { PromotionService } from './promotion-service';
+import { SettingsService } from './settings-service';
+import { CONFIG, buildWhatsAppLink } from './config';
 
 export interface CreateOrderItemInput {
   variantId: string;
@@ -49,6 +55,8 @@ export interface CreateOrderInput {
   paymentMethod: 'UPI_MERCHANT_QR' | 'COD';
   customerNotes?: string;
   couponCode?: string;
+  userId?: string;
+  channel?: 'WEB' | 'WHATSAPP';
 }
 
 export interface OrderItemDto {
@@ -75,6 +83,7 @@ export interface OrderPaymentDto {
   verifiedByUserId?: string | null;
   verificationNotes?: string | null;
   courierAwb?: string | null;
+  gatewayRefundId?: string | null;
 }
 
 export interface OrderDto {
@@ -98,6 +107,9 @@ export interface OrderDto {
   items: OrderItemDto[];
   payment?: OrderPaymentDto;
   paymentInstructions?: UpiPaymentInstructionsResult | CodOrderResult;
+  guestAccessToken?: string;
+  channel?: 'WEB' | 'WHATSAPP';
+  whatsappConciergeUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -260,13 +272,67 @@ export class OrderService {
   }
 
   /**
+   * Generates a deterministic stateless HMAC guest access token.
+   * Format: HMAC-SHA256(ADMIN_AUTH_SECRET, `${orderNumber}:${createdAt.getTime()}`)
+   * Fails closed in production if ADMIN_AUTH_SECRET is absent or weak.
+   */
+  static generateGuestAccessToken(orderNumber: string, createdAt: Date): string {
+    const isProd = process.env.NODE_ENV === 'production';
+    const secret = process.env.ADMIN_AUTH_SECRET?.trim();
+
+    if (!secret || secret.length < 32) {
+      if (isProd) {
+        throw new Error('ADMIN_AUTH_SECRET must be configured with at least 32 characters in production.');
+      }
+    } else if (isProd && (secret.toLowerCase().includes('placeholder') || secret === 'nava-default-fallback-secret-256')) {
+      throw new Error('ADMIN_AUTH_SECRET is configured with an insecure placeholder value in production.');
+    }
+
+    const effectiveSecret = secret || devFallbackGuestSecret;
+    return crypto
+      .createHmac('sha256', effectiveSecret)
+      .update(`${orderNumber.trim()}:${createdAt.getTime()}`)
+      .digest('hex');
+  }
+
+  /**
+   * Verifies a guest access token using constant-time comparison.
+   */
+  static verifyGuestAccessToken(orderNumber: string, createdAt: Date, token?: string | null): boolean {
+    if (!token || typeof token !== 'string') return false;
+    const cleanToken = token.trim();
+    if (cleanToken.length !== 64) return false;
+    const expected = this.generateGuestAccessToken(orderNumber, createdAt);
+    try {
+      const tokenBuf = Buffer.from(cleanToken, 'hex');
+      const expectedBuf = Buffer.from(expected, 'hex');
+      if (tokenBuf.length !== expectedBuf.length) return false;
+      return crypto.timingSafeEqual(tokenBuf, expectedBuf);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Sanitizes an order object so that sensitive internal tokens (e.g. guestAccessToken)
+   * are never returned in public or administrative API response payloads.
+   */
+  static sanitizeOrder<T extends Partial<OrderDto>>(order: T): Omit<T, 'guestAccessToken'> {
+    const { guestAccessToken: _token, ...sanitized } = order;
+    return sanitized as Omit<T, 'guestAccessToken'>;
+  }
+
+  /**
    * Validates customer details and address format for Indian logistics.
    */
   static validateAddress(address: CustomerAddressInput): void {
+    if (!address) {
+      throw new ValidationError('Shipping address is required.');
+    }
     if (!address.name || address.name.trim().length < 2) {
       throw new ValidationError('Customer name must be at least 2 characters.');
     }
-    const cleanPhone = address.phone.replace(/[\s-]/g, '');
+    const cleanPhone = (address.phone || '').replace(/[\s-]/g, '');
     if (!/^(?:\+91)?[6-9]\d{9}$/.test(cleanPhone)) {
       throw new ValidationError('Please provide a valid 10-digit Indian mobile number.');
     }
@@ -276,8 +342,9 @@ export class OrderService {
     if (!address.city || address.city.trim().length < 2) {
       throw new ValidationError('City name is required.');
     }
-    if (!/^\d{6}$/.test(address.postalCode.trim())) {
-      throw new ValidationError('Please enter a valid 6-digit Indian PIN code.');
+    const cleanPostal = (address.postalCode || '').trim();
+    if (!/^[1-9][0-9]{5}$/.test(cleanPostal)) {
+      throw new ValidationError('Please enter a valid 6-digit Indian PIN code (must start with digits 1-9).');
     }
   }
 
@@ -328,15 +395,9 @@ export class OrderService {
         unitPricePaise,
         totalPaise,
       });
-
-      // 2. Concurrency-safe inventory reservation
-      await InventoryReservationService.reserveStock({
-        variantId: variant.id,
-        quantity: item.quantity,
-      });
     }
 
-    // 3. Promotional discounts & coupon application
+    // 2. Promotional discounts & coupon validation
     let discountPaise = 0;
     let appliedCouponCode: string | null = null;
 
@@ -347,17 +408,17 @@ export class OrderService {
       }
       discountPaise = discountCalc.discountPaise;
       appliedCouponCode = discountCalc.couponCode;
-      await PromotionService.incrementUsage(appliedCouponCode);
     }
 
-    // 4. Indian shipping charge policy: Free above ₹1,999 (199900 paise), else ₹150 (15000 paise)
+    // 3. Dynamic Authoritative Shipping Calculation (SettingsService)
     const netSubtotal = Math.max(0, subtotalPaise - discountPaise);
-    const shippingPaise = netSubtotal >= 199900 ? 0 : 15000;
+    const settings = await SettingsService.getSettings();
+    const shippingPaise = SettingsService.calculateShipping(netSubtotal, settings);
     const totalPaise = netSubtotal + shippingPaise;
     const orderNumber = this.generateOrderNumber();
     const paymentRef = `PAY-${orderNumber}`;
 
-    // 5. Determine initial statuses
+    // 4. Determine initial statuses
     let initialOrderStatus: OrderStatus;
     let initialPaymentStatus: PaymentStatus;
     let paymentInstructions: UpiPaymentInstructionsResult | CodOrderResult | undefined;
@@ -372,7 +433,23 @@ export class OrderService {
         amountPaise: totalPaise,
       });
     } else {
-      // Cash on Delivery
+      // Cash on Delivery — Fail-Closed Invariant Validation (Gate C 3C)
+      const isCodEnabled = settings.codEnabled && CONFIG.payment.codEnabled;
+      const isPolicyApproved = CONFIG.payment.codPolicyApproved;
+      const maxCodPaise = settings.codMaxPaise || CONFIG.payment.codMaxPaise || 500000;
+
+      if (!isCodEnabled) {
+        throw new ValidationError('Cash on Delivery is currently disabled by store management.');
+      }
+      if (!isPolicyApproved) {
+        throw new ValidationError('Cash on Delivery policy is not approved by store management.');
+      }
+      if (totalPaise > maxCodPaise) {
+        throw new ValidationError(
+          `Cash on Delivery is only permitted for orders up to ₹${(maxCodPaise / 100).toLocaleString('en-IN')}. Current total: ₹${(totalPaise / 100).toLocaleString('en-IN')}. Please select UPI QR payment.`
+        );
+      }
+
       initialOrderStatus = 'PENDING_PAYMENT';
       initialPaymentStatus = 'PENDING_COLLECTION';
 
@@ -382,6 +459,16 @@ export class OrderService {
         customerPhone: input.shippingAddress.phone,
         shippingPostalCode: input.shippingAddress.postalCode,
       });
+    }
+
+    const orderChannel = input.channel || 'WEB';
+    let customerNotes = input.customerNotes || null;
+    let whatsappConciergeUrl: string | undefined;
+
+    if (orderChannel === 'WHATSAPP') {
+      customerNotes = customerNotes ? `[CHANNEL: WHATSAPP] ${customerNotes}` : '[CHANNEL: WHATSAPP]';
+      const msg = `Order ${orderNumber} - NAVA Creations: Hi! I have placed an artisanal order (${orderNumber}) for ₹${(totalPaise / 100).toFixed(2)}. Please confirm receipt.`;
+      whatsappConciergeUrl = buildWhatsAppLink(msg, settings.whatsappNumber);
     }
 
     const orderDto: OrderDto = {
@@ -398,7 +485,9 @@ export class OrderService {
       taxMode: 'UNREGISTERED',
       shippingAddress: input.shippingAddress,
       billingAddress: input.shippingAddress,
-      customerNotes: input.customerNotes || null,
+      customerNotes,
+      channel: orderChannel,
+      whatsappConciergeUrl,
       items: resolvedItems,
       payment: {
         id: `pay_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -410,16 +499,36 @@ export class OrderService {
         isDuplicateClaim: false,
       },
       paymentInstructions,
+      guestAccessToken: this.generateGuestAccessToken(orderNumber, new Date()),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    // 5. Dual persistence: Prisma Postgres (live) + Structured Memory (dev/offline)
+    // 5. Unified Interactive Database Transaction (Fail-Closed, Zero Phantom Holds)
     if (isDatabaseAvailable()) {
-      try {
-        const createdOrder = await prisma.order.create({
+      return await prisma.$transaction(async (tx) => {
+        // Step A: Concurrency-Safe Stock Reservation with Deterministic Sorting (ARCH-03 Fix)
+        const sortedItems = [...resolvedItems].sort((a, b) => a.variantId.localeCompare(b.variantId));
+        const reservationIds: string[] = [];
+
+        for (const item of sortedItems) {
+          const res = await InventoryReservationService.reserveStock(
+            { variantId: item.variantId, quantity: item.quantity },
+            tx
+          );
+          reservationIds.push(res.id);
+        }
+
+        // Step B: Atomic Coupon Usage Increment within Same Transaction (ARCH-01 Fix)
+        if (appliedCouponCode) {
+          await PromotionService.incrementUsage(appliedCouponCode, tx);
+        }
+
+        // Step C: Insert Order, Items, and Payment (Satisfying foreign key first - ARCH-02 Fix)
+        const createdOrder = await tx.order.create({
           data: {
             orderNumber: orderDto.orderNumber,
+            userId: input.userId || null,
             status: orderDto.status,
             paymentMethod: orderDto.paymentMethod,
             subtotalPaise: orderDto.subtotalPaise,
@@ -451,18 +560,44 @@ export class OrderService {
             },
           },
         });
+
+        // Step D: Link Reservations to the Newly Created Order
+        await tx.inventoryReservation.updateMany({
+          where: { id: { in: reservationIds } },
+          data: { orderId: createdOrder.id },
+        });
+
         orderDto.id = createdOrder.id;
-      } catch (err) {
-        // Fallback to memory store if live database query failed in development
-        if (process.env.NODE_ENV === 'production') {
-          throw err;
-        }
-      }
+        orderDto.createdAt = createdOrder.createdAt;
+        orderDto.updatedAt = createdOrder.updatedAt;
+        orderDto.guestAccessToken = this.generateGuestAccessToken(orderDto.orderNumber, createdOrder.createdAt);
+
+        // Sync local memory cache for immediate queries
+        memoryOrders.set(orderDto.orderNumber, orderDto);
+
+        return orderDto;
+      });
     }
 
-    // Always store in memory registry for immediate local querying
-    memoryOrders.set(orderDto.orderNumber, orderDto);
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'Database service is unavailable. Order creation cannot proceed in production without persistent database.'
+      );
+    }
 
+    // In-Memory Fallback Path (dev/offline mode without database)
+    for (const item of resolvedItems) {
+      await InventoryReservationService.reserveStock({
+        variantId: item.variantId,
+        quantity: item.quantity,
+      });
+    }
+
+    if (appliedCouponCode) {
+      await PromotionService.incrementUsage(appliedCouponCode);
+    }
+
+    memoryOrders.set(orderDto.orderNumber, orderDto);
     return orderDto;
   }
 
@@ -474,8 +609,13 @@ export class OrderService {
 
     if (isDatabaseAvailable()) {
       try {
-        const order = await prisma.order.findUnique({
-          where: { orderNumber },
+        const order = await prisma.order.findFirst({
+          where: {
+            OR: [
+              { orderNumber },
+              { id: orderNumber },
+            ],
+          },
           include: {
             items: true,
             payments: true,
@@ -524,21 +664,38 @@ export class OrderService {
                   verifiedByUserId: payment.verifiedByUserId,
                   verificationNotes: payment.verificationNotes,
                   courierAwb: payment.courierAwb,
+                  gatewayRefundId: (payment as any).refunds?.[0]?.gatewayRefundId || null,
                 }
               : undefined,
+            guestAccessToken: this.generateGuestAccessToken(order.orderNumber, order.createdAt),
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
           };
         }
-      } catch (_e) {
-        // Fallback to memory
+      } catch (err: unknown) {
+        console.error('[OrderService:getOrder] Database query failed:', err instanceof Error ? err.message : String(err));
+        if (process.env.NODE_ENV === 'production') {
+          throw err;
+        }
       }
+    } else if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database service is unavailable.');
     }
 
     const byNumber = memoryOrders.get(orderNumber);
-    if (byNumber) return byNumber;
+    if (byNumber) {
+      if (!byNumber.guestAccessToken) {
+        byNumber.guestAccessToken = this.generateGuestAccessToken(byNumber.orderNumber, byNumber.createdAt);
+      }
+      return byNumber;
+    }
     for (const ord of memoryOrders.values()) {
-      if (ord.id === orderNumber || ord.orderNumber === orderNumber) return ord;
+      if (ord.id === orderNumber || ord.orderNumber === orderNumber) {
+        if (!ord.guestAccessToken) {
+          ord.guestAccessToken = this.generateGuestAccessToken(ord.orderNumber, ord.createdAt);
+        }
+        return ord;
+      }
     }
     return null;
   }
@@ -552,31 +709,95 @@ export class OrderService {
       throw new NotFoundError(`Order ${orderNumber} not found.`);
     }
 
+    // Guard: Prevent modifying UTR if order is cancelled
+    if (order.status === 'CANCELLED') {
+      throw new ValidationError(`Cannot submit UPI reference: Order ${orderNumber} has been cancelled.`);
+    }
+
+    // Guard: Prevent modifying UTR if order is already payment confirmed or fulfilled
+    if (order.status === 'PAYMENT_CONFIRMED' || order.status === 'SHIPPED' || order.status === 'DELIVERED') {
+      throw new ValidationError('Cannot submit UPI reference: Payment for this order is already confirmed.');
+    }
+
+    // Guard: Prevent re-submission if already verified
+    if (order.payment?.status === 'VERIFIED') {
+      throw new ValidationError('Payment for this order has already been verified.');
+    }
+
+    const normUtr = rawUtr.trim().toUpperCase();
     const verificationResult = PaymentService.submitUpiTransactionReference({
       orderNumber,
-      claimedUtr: rawUtr,
+      claimedUtr: normUtr,
     });
 
+    const verificationWindowHours = CONFIG.payment.verificationWindowHours || 24;
+    const verificationExpiresAt = new Date(Date.now() + verificationWindowHours * 60 * 60 * 1000);
+
+    let isDuplicateClaim = verificationResult.isDuplicateClaim;
+
+    if (isDatabaseAvailable()) {
+      await prisma.$transaction(async (tx) => {
+        // Database-level transaction advisory lock: serializes concurrent UTR claims across all instances
+        await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock(hashtext($1))', 'utr_claim_' + normUtr);
+
+        // Database-authoritative duplicate protection:
+        // Check if another active order has already claimed or verified this UTR
+        const duplicatePayment = await tx.payment.findFirst({
+          where: {
+            OR: [
+              { verifiedTransactionId: normUtr },
+              {
+                claimedUtr: normUtr,
+                orderId: { not: order.id },
+                order: {
+                  status: { notIn: ['CANCELLED'] },
+                },
+              },
+            ],
+          },
+          include: { order: true },
+        });
+
+        if (duplicatePayment) {
+          isDuplicateClaim = true;
+          // Database partial unique index (payments_claimed_utr_active_unique) strictly forbids
+          // duplicate active claims across distinct orders in PostgreSQL.
+          throw new ConflictError(
+            `The transaction reference "${normUtr}" has already been claimed by another active order (${duplicatePayment.order.orderNumber}). It cannot be reused.`
+          );
+        }
+
+        await tx.payment.updateMany({
+          where: { orderId: order.id },
+          data: {
+            claimedUtr: normUtr,
+            isDuplicateClaim,
+            status: 'AWAITING_VERIFICATION',
+          },
+        });
+
+        // Extend reservation TTL for the authoritative verification review window
+        await tx.inventoryReservation.updateMany({
+          where: { orderId: order.id, status: 'PENDING' },
+          data: { expiresAt: verificationExpiresAt },
+        });
+
+        await tx.order.update({
+          where: { id: order.id },
+          data: { status: 'AWAITING_PAYMENT_VERIFICATION' },
+        });
+      });
+    } else if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database service is unavailable.');
+    }
+
     if (order.payment) {
-      order.payment.claimedUtr = verificationResult.claimedUtr;
-      order.payment.isDuplicateClaim = verificationResult.isDuplicateClaim;
+      order.payment.claimedUtr = normUtr;
+      order.payment.isDuplicateClaim = isDuplicateClaim;
       order.payment.status = 'AWAITING_VERIFICATION';
     }
     order.status = 'AWAITING_PAYMENT_VERIFICATION';
     order.updatedAt = new Date();
-
-    if (isDatabaseAvailable()) {
-      try {
-        await prisma.payment.updateMany({
-          where: { orderId: order.id },
-          data: {
-            claimedUtr: verificationResult.claimedUtr,
-            isDuplicateClaim: verificationResult.isDuplicateClaim,
-            status: 'AWAITING_VERIFICATION',
-          },
-        });
-      } catch (_e) {}
-    }
 
     memoryOrders.set(order.orderNumber, order);
     return order;
@@ -584,6 +805,9 @@ export class OrderService {
 
   /**
    * Store Owner / Manager verifies payment against authoritative bank credit records.
+   * Fail-closed: Requires database availability; executes atomic interactive transaction;
+   * records durable audit log; maps duplicate transactions to ConflictError (HTTP 409);
+   * prevents premature in-memory state mutation.
    */
   static async verifyPayment(
     orderNumber: string,
@@ -599,9 +823,27 @@ export class OrderService {
       throw new NotFoundError(`Order ${orderNumber} not found.`);
     }
 
+    // Fail closed: financial verification requires authoritative database connection
+    if (!isDatabaseAvailable()) {
+      throw new Error('DATABASE_UNAVAILABLE: Financial payment verification requires an active database connection.');
+    }
+
+    // Guard: Prevent verifying cancelled orders
+    if (order.status === 'CANCELLED') {
+      throw new ValidationError(`Cannot verify payment: Order ${orderNumber} is cancelled.`);
+    }
+
+    // Guard: Amount verification integrity
+    if (input.amountPaise !== order.totalPaise) {
+      throw new ValidationError(
+        `Verified amount (${input.amountPaise} paise) does not match order total amount (${order.totalPaise} paise).`
+      );
+    }
+
+    const normVerifiedId = input.verifiedTransactionId.trim().toUpperCase();
     const result = PaymentService.verifyUpiPayment({
       orderNumber: order.orderNumber,
-      verifiedTransactionId: input.verifiedTransactionId,
+      verifiedTransactionId: normVerifiedId,
       verifiedByUserId: input.verifiedByUserId,
       amountPaise: input.amountPaise,
       verificationNotes: input.notes,
@@ -617,36 +859,132 @@ export class OrderService {
       throw new ValidationError(orderTransition.error.message);
     }
 
+    // Atomic interactive database transaction
+    try {
+      await prisma.$transaction(async (tx) => {
+        // Database-level transaction advisory lock: serializes concurrent UTR verification across all instances
+        await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock(hashtext($1))', 'utr_claim_' + normVerifiedId);
+
+        // Find the specific pending payment record eligible for verification
+        const existingPayment = await tx.payment.findFirst({
+          where: {
+            orderId: order.id,
+            status: { in: ['INITIATED', 'AWAITING_VERIFICATION'] },
+          },
+        });
+
+        if (!existingPayment) {
+          throw new NotFoundError(
+            `No pending payment record found for order ${order.orderNumber} eligible for verification.`
+          );
+        }
+
+        // Record authoritative bank transaction reference on payment record
+        // (Customer-claimed UTR and authoritative bank settlement ref are both preserved for audit)
+
+        // Update Order Status
+        await tx.order.update({
+          where: { orderNumber },
+          data: { status: 'PAYMENT_CONFIRMED' },
+        });
+
+        // Update the exact payment record by unique ID
+        await tx.payment.update({
+          where: { id: existingPayment.id },
+          data: {
+            status: 'VERIFIED',
+            verifiedTransactionId: normVerifiedId,
+            verifiedAt: result.verifiedAt,
+            verifiedByUserId: result.verifiedByUserId,
+            verificationNotes: input.notes || null,
+          },
+        });
+
+        // Step E: Enforce HELD_STOCK_UNAVAILABLE guard on linked inventory reservations
+        const linkedReservations = await tx.inventoryReservation.findMany({
+          where: { orderId: order.id },
+        });
+
+        const isStockExpiredOrMissing =
+          linkedReservations.length === 0 ||
+          linkedReservations.some(
+            (r) =>
+              r.status === 'EXPIRED' ||
+              r.status === 'RELEASED' ||
+              (r.status === 'PENDING' && r.expiresAt < new Date())
+          );
+
+        if (isStockExpiredOrMissing) {
+          // Guard: transition pending reservation to HELD_STOCK_UNAVAILABLE
+          await tx.inventoryReservation.updateMany({
+            where: { orderId: order.id, status: 'PENDING' },
+            data: { status: 'HELD_STOCK_UNAVAILABLE' as any },
+          });
+
+          throw new ConflictError(
+            `Cannot verify payment for order ${order.orderNumber}: The stock reservation has expired and held stock is no longer secured (HELD_STOCK_UNAVAILABLE). Manual inventory restock or allocation required.`
+          );
+        }
+
+        // Transition linked inventory reservation from PENDING to CONFIRMED
+        await tx.inventoryReservation.updateMany({
+          where: { orderId: order.id, status: 'PENDING' },
+          data: { status: 'CONFIRMED' },
+        });
+
+        // Durable audit log persisted within transaction boundary
+        await tx.auditLog.create({
+          data: {
+            userId: input.verifiedByUserId,
+            action: 'PAYMENT_VERIFIED',
+            entity: 'Payment',
+            entityId: existingPayment.id,
+            oldValues: { status: existingPayment.status },
+            newValues: {
+              status: 'VERIFIED',
+              verifiedTransactionId: normVerifiedId,
+              orderNumber,
+            },
+          },
+        });
+      });
+    } catch (error: any) {
+      // Map Prisma unique constraint violation (duplicate verifiedTransactionId) to ConflictError
+      if (error?.code === 'P2002') {
+        try {
+          await prisma.auditLog.create({
+            data: {
+              userId: input.verifiedByUserId,
+              action: 'PAYMENT_VERIFICATION_REJECTED',
+              entity: 'Order',
+              entityId: order.id,
+              newValues: {
+                attemptedTransactionId: normVerifiedId,
+                reason: 'DUPLICATE_TRANSACTION_ID',
+                errorCode: 'P2002',
+              },
+            },
+          });
+        } catch (_logErr) {}
+
+        throw new ConflictError(
+          `Bank transaction reference "${normVerifiedId}" has already been verified and credited to another order.`
+        );
+      }
+      // Re-throw all other database errors; execution halts before in-memory mutation
+      throw error;
+    }
+
+    // In-memory state updated ONLY AFTER database transaction commits
     order.status = orderTransition.value.to;
     if (order.payment) {
       order.payment.status = 'VERIFIED';
-      order.payment.verifiedTransactionId = result.verifiedTransactionId;
+      order.payment.verifiedTransactionId = normVerifiedId;
       order.payment.verifiedAt = result.verifiedAt;
       order.payment.verifiedByUserId = result.verifiedByUserId;
       order.payment.verificationNotes = input.notes || null;
     }
     order.updatedAt = new Date();
-
-    if (isDatabaseAvailable()) {
-      try {
-        await prisma.$transaction([
-          prisma.order.update({
-            where: { orderNumber },
-            data: { status: 'PAYMENT_CONFIRMED' },
-          }),
-          prisma.payment.updateMany({
-            where: { orderId: order.id },
-            data: {
-              status: 'VERIFIED',
-              verifiedTransactionId: result.verifiedTransactionId,
-              verifiedAt: result.verifiedAt,
-              verifiedByUserId: result.verifiedByUserId,
-              verificationNotes: input.notes || null,
-            },
-          }),
-        ]);
-      } catch (_e) {}
-    }
 
     memoryOrders.set(order.orderNumber, order);
     return order;
@@ -670,17 +1008,19 @@ export class OrderService {
       throw new NotFoundError(`Order ${orderNumber} not found.`);
     }
 
-    // Enforce domain state machine transition rules
-    const transition = OrderStateMachine.transition(order.status, newStatus, {
-      performedByUserId: metadata?.updatedBy || 'admin',
-      reason: metadata?.reason,
-    });
+    // Enforce domain state machine transition rules if status is changing
+    if (order.status !== newStatus) {
+      const transition = OrderStateMachine.transition(order.status, newStatus, {
+        performedByUserId: metadata?.updatedBy || 'admin',
+        reason: metadata?.reason,
+      });
 
-    if (transition.isFailure) {
-      throw new ValidationError(transition.error.message);
+      if (transition.isFailure) {
+        throw new ValidationError(transition.error.message);
+      }
+
+      order.status = transition.value.to;
     }
-
-    order.status = transition.value.to;
     if (metadata?.courierAwb) {
       order.courierAwb = metadata.courierAwb;
     }
@@ -710,7 +1050,14 @@ export class OrderService {
             rtoAwb: metadata?.rtoAwb || undefined,
           },
         });
-      } catch (_e) {}
+      } catch (err: unknown) {
+        console.error('[OrderService:updateOrderStatus] Database query failed:', err instanceof Error ? err.message : String(err));
+        if (process.env.NODE_ENV === 'production') {
+          throw err;
+        }
+      }
+    } else if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database service is unavailable.');
     }
 
     memoryOrders.set(order.orderNumber, order);
@@ -719,6 +1066,8 @@ export class OrderService {
 
   /**
    * Lists orders for administrative oversight.
+   * Authoritatively queries Prisma PostgreSQL when database is available,
+   * falling back to in-memory store in offline/development mode.
    */
   static async listOrders(filters?: {
     status?: OrderStatus;
@@ -727,11 +1076,106 @@ export class OrderService {
     limit?: number;
     page?: number;
   }): Promise<{ items: OrderDto[]; total: number }> {
-    initializeSampleOrders();
-
     const limit = filters?.limit ?? 20;
     const page = filters?.page ?? 1;
 
+    if (isDatabaseAvailable()) {
+      try {
+        const where: Record<string, unknown> = {};
+        if (filters?.status) {
+          where.status = filters.status;
+        }
+        if (filters?.paymentMethod) {
+          where.paymentMethod = filters.paymentMethod;
+        }
+        if (filters?.search && filters.search.trim() !== '') {
+          const q = filters.search.trim();
+          where.OR = [
+            { orderNumber: { contains: q, mode: 'insensitive' } },
+            { payments: { some: { claimedUtr: { contains: q, mode: 'insensitive' } } } },
+            { payments: { some: { verifiedTransactionId: { contains: q, mode: 'insensitive' } } } },
+          ];
+        }
+
+        const [total, dbOrders] = await Promise.all([
+          prisma.order.count({ where }),
+          prisma.order.findMany({
+            where,
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              items: true,
+              payments: true,
+            },
+          }),
+        ]);
+
+        const items: OrderDto[] = dbOrders.map((order) => {
+          const payment = order.payments[0];
+          return {
+            id: order.id,
+            orderNumber: order.orderNumber,
+            userId: order.userId,
+            status: order.status,
+            paymentMethod: order.paymentMethod as 'UPI_MERCHANT_QR' | 'COD' | 'NET_BANKING_DIRECT',
+            totalPaise: order.totalPaise,
+            subtotalPaise: order.subtotalPaise,
+            taxPaise: order.taxPaise,
+            shippingPaise: order.shippingPaise,
+            discountPaise: order.discountPaise,
+            couponCode: null,
+            taxMode: order.taxMode,
+            shippingAddress: order.shippingAddress as unknown as CustomerAddressInput,
+            billingAddress: order.billingAddress as unknown as CustomerAddressInput,
+            courierAwb: payment?.courierAwb || null,
+            rtoAwb: order.rtoAwb || null,
+            items: order.items.map((i) => ({
+              id: i.id,
+              variantId: i.variantId,
+              title: i.title,
+              sku: i.sku,
+              quantity: i.quantity,
+              unitPricePaise: i.unitPricePaise,
+              totalPaise: i.totalPaise,
+            })),
+            payment: payment
+              ? {
+                  id: payment.id,
+                  method: payment.method,
+                  provider: payment.provider,
+                  paymentReference: payment.paymentReference,
+                  amountPaise: payment.amountPaise,
+                  status: payment.status,
+                  claimedUtr: payment.claimedUtr,
+                  verifiedTransactionId: payment.verifiedTransactionId,
+                  isDuplicateClaim: payment.isDuplicateClaim,
+                  verifiedAt: payment.verifiedAt,
+                  verifiedByUserId: payment.verifiedByUserId,
+                  verificationNotes: payment.verificationNotes,
+                  courierAwb: payment.courierAwb,
+                  gatewayRefundId: (payment as any).refunds?.[0]?.gatewayRefundId || null,
+                }
+              : undefined,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+          };
+        });
+
+        return { items, total };
+      } catch (err: unknown) {
+        // SECURITY REQUIREMENT: Never swallow database errors or silently return empty array
+        const safeErrorMsg = err instanceof Error ? err.message : 'Unknown database error';
+        console.error('[OrderService.listOrders] PostgreSQL query execution failed:', safeErrorMsg);
+        throw new Error('Database error while retrieving orders');
+      }
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database connection is not available in production environment');
+    }
+
+    initializeSampleOrders();
     let ordersList = Array.from(memoryOrders.values());
 
     if (filters?.status) {
@@ -756,6 +1200,6 @@ export class OrderService {
     const total = ordersList.length;
     const paginated = ordersList.slice((page - 1) * limit, page * limit);
 
-    return { items: paginated, total };
+    return { items: paginated.map((item) => this.sanitizeOrder(item) as OrderDto), total };
   }
 }

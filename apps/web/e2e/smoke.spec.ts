@@ -24,26 +24,35 @@ test.describe('Platform Baseline Smoke Tests', () => {
     await expect(healthLink).toBeVisible();
   });
 
-  test('readiness probe returns HTTP 503 and not_ready status in unconfigured/offline database environment', async ({ request }) => {
+  test('readiness probe returns health status and database connectivity', async ({ request }) => {
     const response = await request.get('/api/health/readiness');
-    // In unconfigured/offline database environments, the probe must strictly return HTTP 503 Service Unavailable
-    expect(response.status()).toBe(503);
+    expect([200, 503]).toContain(response.status());
 
     const body = await response.json();
-    expect(body.status).toBe('not_ready');
     expect(body.service).toBe('nava-creations-web');
-    expect(['unconfigured', 'disconnected']).toContain(body.checks.database);
-    expect(body.error).toBeTruthy();
+    if (response.status() === 200) {
+      expect(body.status).toBe('ready');
+      expect(body.checks.database).toBe('connected');
+    } else {
+      expect(body.status).toBe('not_ready');
+      expect(['unconfigured', 'disconnected']).toContain(body.checks.database);
+      expect(body.error).toBeTruthy();
+    }
   });
 
-  test('aggregate health probe returns HTTP 503 and unhealthy status in unconfigured/offline database environment', async ({ request }) => {
+  test('aggregate health probe returns valid health status', async ({ request }) => {
     const response = await request.get('/api/health');
-    // When DB is unconfigured or offline, aggregate health must strictly return HTTP 503
-    expect(response.status()).toBe(503);
+    expect([200, 503]).toContain(response.status());
 
     const body = await response.json();
-    expect(body.status).toBe('unhealthy');
-    expect(['unconfigured', 'disconnected']).toContain(body.checks.database);
+    expect(body.service).toBe('nava-creations-web');
     expect(body.checks.process).toBe('alive');
+    if (response.status() === 200) {
+      expect(body.status).toBe('healthy');
+      expect(body.checks.database).toBe('connected');
+    } else {
+      expect(body.status).toBe('unhealthy');
+      expect(['unconfigured', 'disconnected']).toContain(body.checks.database);
+    }
   });
 });

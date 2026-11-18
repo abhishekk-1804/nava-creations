@@ -179,7 +179,14 @@ export default function AdminCollectionsPage() {
                 <div className="h-40 bg-stone-100 overflow-hidden relative">
                   {col.coverImageUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={col.coverImageUrl} alt={col.name} className="w-full h-full object-cover" />
+                    <img
+                      src={col.coverImageUrl}
+                      alt={col.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/branding/nava-product-placeholder.jpg';
+                      }}
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-stone-300">
                       <TagIcon className="w-8 h-8" />

@@ -9,7 +9,10 @@ import {
   ChevronRightIcon,
   AlertCircleIcon,
   CheckIcon,
+  RefreshCwIcon,
+  WhatsAppIcon,
 } from '@/components/icons';
+import { buildWhatsAppLink } from '@/lib/config';
 import { OrderDto } from '@/lib/order-service';
 
 interface OrderTrackingPageProps {
@@ -31,7 +34,8 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`/api/orders/${orderNumber}`);
+        const url = `/api/orders/${orderNumber}`;
+        const res = await fetch(url);
         if (!res.ok) {
           throw new Error('Order not found');
         }
@@ -63,7 +67,9 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
     try {
       const res = await fetch(`/api/orders/${orderNumber}/submit-utr`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ claimedUtr: cleanUtr }),
       });
 
@@ -147,7 +153,9 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
             </h1>
             <span
               className={`text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider ${
-                isPaymentVerified || order.status === 'PAYMENT_CONFIRMED' || order.status === 'PROCESSING'
+                order.status === 'CANCELLED'
+                  ? 'bg-red-100 text-red-900 border border-red-200'
+                  : isPaymentVerified || order.status === 'PAYMENT_CONFIRMED' || order.status === 'PROCESSING'
                   ? 'bg-emerald-100 text-emerald-800'
                   : order.status === 'AWAITING_PAYMENT_VERIFICATION'
                   ? 'bg-amber-100 text-amber-900'
@@ -158,7 +166,7 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
             </span>
           </div>
           <p className="text-xs text-stone-500">
-            Placed on {new Date(order.createdAt).toLocaleDateString('en-IN', { dateStyle: 'long' })} &bull; Direct dispatch from Bengaluru Studio
+            Placed on {new Date(order.createdAt).toLocaleDateString('en-IN', { dateStyle: 'long' })} &bull; Dispatched from Bengaluru Workshop
           </p>
         </div>
 
@@ -173,7 +181,57 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Payment Verification & Instructions */}
         <div className="lg:col-span-7 space-y-6">
-          {isUpi ? (
+          {order.status === 'CANCELLED' ? (
+            <div className="bg-white rounded-xl border border-red-200 p-6 sm:p-8 shadow-sm space-y-5">
+              <div className="flex items-center gap-3 text-red-700">
+                <AlertCircleIcon className="w-6 h-6 flex-shrink-0" />
+                <h2 className="font-serif text-lg font-medium text-stone-900">
+                  Order Cancelled — Inventory Reservation Released
+                </h2>
+              </div>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                This order was cancelled because the checkout lease or payment verification window elapsed without confirmed bank settlement. Any temporary stock holds have been returned to our studio workshop.
+              </p>
+              {/* Refund Notice Banner if payment had been submitted */}
+              {(order.payment?.status === 'REFUNDED' || order.payment?.status === 'PARTIALLY_REFUNDED') && (
+                <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-900 space-y-1">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <RefreshCwIcon className="w-5 h-5 text-purple-700" />
+                    <span>
+                      {order.payment.status === 'REFUNDED'
+                        ? 'Manual Bank Refund Initiated'
+                        : 'Partial Refund Initiated'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-purple-800 pl-7 leading-relaxed">
+                    Our atelier team has recorded a manual bank IMPS/NEFT or UPI refund. Estimated 1–3 business days for interbank settlement (operational estimate subject to bank processing and owner policy confirmation; not an automated or statutory guarantee).
+                  </p>
+                  {order.payment?.gatewayRefundId && (
+                    <p className="text-[11px] text-purple-900 pl-7 font-mono font-medium">
+                      Bank Settlement Ref: {order.payment.gatewayRefundId}
+                    </p>
+                  )}
+                </div>
+              )}
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Link
+                  href="/shop"
+                  className="px-5 py-2.5 bg-brand-maroon text-white text-xs font-semibold rounded-lg hover:bg-brand-deepMaroon transition-colors"
+                >
+                  Browse Workshop to Re-order
+                </Link>
+                <a
+                  href={buildWhatsAppLink(`Hello NAVA Atelier, inquiring about cancelled order ${order.orderNumber}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 border border-stone-300 text-stone-700 text-xs font-semibold rounded-lg hover:bg-stone-50 transition-colors inline-flex items-center gap-1.5"
+                >
+                  <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+                  <span>Contact Atelier Support</span>
+                </a>
+              </div>
+            </div>
+          ) : isUpi ? (
             <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-6">
               <div className="flex items-center justify-between border-b border-stone-100 pb-4">
                 <h2 className="font-serif text-lg font-medium text-stone-900">
@@ -183,6 +241,28 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
                   Zero Transaction Surcharge
                 </span>
               </div>
+
+              {/* Refund Notice Banner */}
+              {(order.payment?.status === 'REFUNDED' || order.payment?.status === 'PARTIALLY_REFUNDED') && (
+                <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-900 space-y-1">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <RefreshCwIcon className="w-5 h-5 text-purple-700" />
+                    <span>
+                      {order.payment.status === 'REFUNDED'
+                        ? 'Manual Bank Refund Initiated'
+                        : 'Partial Refund Initiated'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-purple-800 pl-7 leading-relaxed">
+                    A manual refund transfer has been recorded by our atelier team. Interbank settlement via NEFT/IMPS/UPI typically reflects in your source account within an estimated 1–3 business days (operational estimate subject to bank processing and owner policy confirmation; not an automated or statutory guarantee).
+                  </p>
+                  {order.payment?.gatewayRefundId && (
+                    <p className="text-[11px] text-purple-900 pl-7 font-mono font-medium">
+                      Bank Settlement Ref: {order.payment.gatewayRefundId}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {isPaymentVerified ? (
                 <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 space-y-2">
@@ -220,7 +300,7 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
                             Merchant Name
                           </span>
                           <span className="font-medium text-stone-800">
-                            NAVA CREATIONS STUDIO
+                            NAVA CREATIONS
                           </span>
                         </div>
                         <div>
@@ -413,7 +493,7 @@ export default function OrderTrackingPage({ params }: OrderTrackingPageProps) {
             </div>
             <div className="flex items-center gap-2">
               <TruckIcon className="w-4 h-4 text-brand-maroon flex-shrink-0" />
-              <span>Packaged in secure velvet boxes for zero transit distortion.</span>
+              <span>Packaged in sturdy keepsake boxes for transit protection.</span>
             </div>
           </div>
         </div>

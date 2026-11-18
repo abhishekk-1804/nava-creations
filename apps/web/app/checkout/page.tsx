@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
@@ -66,9 +66,93 @@ export default function CheckoutPage() {
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
 
+  // Authoritative Dynamic Shipping Configuration
+  const [shippingConfig, setShippingConfig] = useState({
+    freeShippingThresholdPaise: 199900,
+    standardShippingFeePaise: 15000,
+  });
+
+  // Customer Authentication & Saved Addresses Integration
+  const [customerUser, setCustomerUser] = useState<{ id: string; name: string; email: string; phone?: string | null } | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<Array<{
+    id: string;
+    recipientName: string;
+    phone: string;
+    streetLine1: string;
+    streetLine2?: string | null;
+    city: string;
+    state: string;
+    postalCode: string;
+    isDefault: boolean;
+  }>>([]);
+
+  useEffect(() => {
+    // Check if customer is authenticated
+    fetch('/api/auth/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.user) {
+          setCustomerUser(data.user);
+          setFormData((prev) => ({
+            ...prev,
+            name: prev.name || data.user.name || '',
+            email: prev.email || data.user.email || '',
+            phone: prev.phone || data.user.phone || '',
+          }));
+
+          // Fetch saved addresses
+          fetch('/api/customer/addresses')
+            .then((res) => (res.ok ? res.json() : null))
+            .then((addrData) => {
+              if (addrData?.addresses && addrData.addresses.length > 0) {
+                setSavedAddresses(addrData.addresses);
+                const defaultAddr = addrData.addresses.find((a: { isDefault: boolean }) => a.isDefault) || addrData.addresses[0];
+                if (defaultAddr) {
+                  const stateMatch = INDIAN_STATES.find(
+                    (s) => s.name.toLowerCase() === defaultAddr.state.toLowerCase()
+                  );
+                  setFormData((prev) => ({
+                    ...prev,
+                    name: prev.name || defaultAddr.recipientName,
+                    phone: prev.phone || defaultAddr.phone,
+                    addressLine1: defaultAddr.streetLine1,
+                    addressLine2: defaultAddr.streetLine2 || '',
+                    city: defaultAddr.city,
+                    stateName: defaultAddr.state,
+                    stateCode: stateMatch?.code || '29',
+                    postalCode: defaultAddr.postalCode,
+                  }));
+                }
+              }
+            })
+            .catch(() => {});
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.settings) {
+          setShippingConfig({
+            freeShippingThresholdPaise: data.settings.freeShippingThresholdPaise ?? 199900,
+            standardShippingFeePaise: data.settings.standardShippingFeePaise ?? 15000,
+          });
+        }
+      })
+      .catch(() => {
+        // Silently preserve safe fallback configuration
+      });
+  }, []);
+
   const discountPaise = appliedCoupon ? appliedCoupon.discountPaise : 0;
   const netSubtotalPaise = Math.max(0, subtotalPaise - discountPaise);
-  const shippingPaise = netSubtotalPaise >= 199900 ? 0 : 15000;
+  const shippingPaise =
+    netSubtotalPaise >= shippingConfig.freeShippingThresholdPaise
+      ? 0
+      : shippingConfig.standardShippingFeePaise;
   const totalPayablePaise = netSubtotalPaise + shippingPaise;
 
   const handleApplyCoupon = async (e?: React.FormEvent) => {
@@ -163,8 +247,13 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!/^\d{6}$/.test(formData.postalCode.trim())) {
-      setErrorMessage('Please enter a valid 6-digit Indian PIN code.');
+    if (!formData.stateName || formData.stateName.trim().length < 2) {
+      setErrorMessage('Please specify your state.');
+      return;
+    }
+
+    if (!/^[1-9][0-9]{5}$/.test(formData.postalCode.trim())) {
+      setErrorMessage('Please enter a valid 6-digit Indian PIN code (must start with digits 1-9).');
       return;
     }
 
@@ -212,7 +301,7 @@ export default function CheckoutPage() {
         throw new Error(data.message || data.error || 'Failed to place order');
       }
 
-      // Order created successfully
+      // Order created successfully; order-scoped HttpOnly cookie was set by server response
       clearCart();
       router.push(`/orders/${data.order.orderNumber}`);
     } catch (err: unknown) {
@@ -278,9 +367,23 @@ export default function CheckoutPage() {
         <div className="lg:col-span-7 space-y-6">
           {/* Section 1: Customer Contact */}
           <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-4">
-            <h2 className="font-serif text-lg font-medium text-stone-900 border-b border-stone-100 pb-3">
-              1. Customer Information
-            </h2>
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h2 className="font-serif text-lg font-medium text-stone-900">
+                1. Customer Information
+              </h2>
+              {customerUser ? (
+                <span className="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">
+                  Logged in as {customerUser.name}
+                </span>
+              ) : (
+                <Link
+                  href="/login?redirect=/checkout"
+                  className="text-xs text-brand-maroon hover:underline font-medium"
+                >
+                  Sign in for saved addresses &rarr;
+                </Link>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1">
@@ -333,6 +436,60 @@ export default function CheckoutPage() {
             <h2 className="font-serif text-lg font-medium text-stone-900 border-b border-stone-100 pb-3">
               2. Shipping Address (Pan-India Courier)
             </h2>
+
+            {savedAddresses.length > 0 && (
+              <div className="p-3 bg-brand-cream/30 border border-brand-sand rounded-xl space-y-2">
+                <span className="text-xs font-semibold text-stone-700 block">
+                  Select from Saved Addresses:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {savedAddresses.map((addr) => {
+                    const isSelected =
+                      formData.addressLine1 === addr.streetLine1 &&
+                      formData.postalCode === addr.postalCode;
+                    return (
+                      <button
+                        key={addr.id}
+                        type="button"
+                        onClick={() => {
+                          const stateMatch = INDIAN_STATES.find(
+                            (s) => s.name.toLowerCase() === addr.state.toLowerCase()
+                          );
+                          setFormData((prev) => ({
+                            ...prev,
+                            name: addr.recipientName,
+                            phone: addr.phone,
+                            addressLine1: addr.streetLine1,
+                            addressLine2: addr.streetLine2 || '',
+                            city: addr.city,
+                            stateName: addr.state,
+                            stateCode: stateMatch?.code || '29',
+                            postalCode: addr.postalCode,
+                          }));
+                        }}
+                        className={`p-2.5 text-left rounded-lg text-xs border transition-all ${
+                          isSelected
+                            ? 'bg-white border-brand-maroon ring-1 ring-brand-maroon'
+                            : 'bg-white/80 border-stone-200 hover:border-brand-gold'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-stone-900">{addr.recipientName}</span>
+                          {addr.isDefault && (
+                            <span className="text-[10px] bg-brand-sand/50 text-brand-maroon px-1.5 py-0.2 rounded font-semibold">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-stone-500 text-[11px] truncate">
+                          {addr.streetLine1}, {addr.city}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1">
@@ -601,14 +758,30 @@ export default function CheckoutPage() {
               )}
             </button>
 
+            <p className="text-[11px] text-stone-500 text-center">
+              By confirming your order, you agree to our{' '}
+              <Link href="/policies/terms" target="_blank" className="underline hover:text-brand-maroon">
+                Terms
+              </Link>
+              ,{' '}
+              <Link href="/policies/privacy" target="_blank" className="underline hover:text-brand-maroon">
+                Privacy
+              </Link>
+              , and{' '}
+              <Link href="/policies/returns" target="_blank" className="underline hover:text-brand-maroon">
+                Return Policy
+              </Link>
+              .
+            </p>
+
             <div className="bg-brand-cream/60 rounded-lg p-3 space-y-2 text-[11px] text-stone-600 border border-brand-sand/60">
               <div className="flex items-center gap-2">
                 <ShieldCheckIcon className="w-4 h-4 text-brand-maroon flex-shrink-0" />
-                <span>Zero gateway fees. Server-authoritative integer paise.</span>
+                <span>Direct UPI / Cash on Delivery. Server-authoritative integer paise.</span>
               </div>
               <div className="flex items-center gap-2">
                 <TruckIcon className="w-4 h-4 text-brand-maroon flex-shrink-0" />
-                <span>Velvet box packaging for complete transit safety.</span>
+                <span>Protective keepsake box packaging for safe delivery.</span>
               </div>
             </div>
           </div>

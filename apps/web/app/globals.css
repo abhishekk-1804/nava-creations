@@ -31,3 +31,19 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #7A5813;
 }
+
+/* Print Stylesheet for Clean Lookbook & Invoice Export */
+@media print {
+  header,
+  footer,
+  aside,
+  nav[aria-label="Breadcrumb"],
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #1C1917 !important;
+  }
+}

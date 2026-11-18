@@ -4,9 +4,9 @@ import { CartProvider } from '@/lib/cart-context';
 import { StorefrontShell } from '@/components/storefront-shell';
 
 export const metadata: Metadata = {
-  title: 'NAVA CREATIONS — Handcrafted Bangles & Bridal Accessories | Bengaluru',
+  title: 'NAVA CREATIONS Bengaluru | Bespoke Bridal Bangles & Kundan Jewellery',
   description:
-    'Sovereign Indian accessories, handcrafted bangles, regal Kundan work, bridal jewellery, and return gifts based in Bengaluru, Karnataka.',
+    'Sovereign Indian accessories, handcrafted bangles, regal Kundan work, bespoke bridal chudas, and return gifts based in Bengaluru, Karnataka.',
   keywords: [
     'Handmade Bangles Bengaluru',
     'Bridal Bangles',
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
     'Return Gifts Bangalore',
     'Silk Thread Bangles',
     'Indian Wedding Accessories',
+    'Bridal Chuda 2026',
+    'Kundan Kadas',
   ],
 };
 
@@ -29,7 +31,7 @@ export default function RootLayout({
     description:
       'Bespoke handcrafted bangles, bridal jewellery, and Indian festive accessories atelier in Bengaluru.',
     url: process.env.NEXT_PUBLIC_APP_URL || 'https://navacreations.com',
-    telephone: '+91-98860-00000',
+    telephone: '+91 72046 28513',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Bengaluru',

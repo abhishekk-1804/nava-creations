@@ -15,6 +15,7 @@ export interface RateLimitResult {
   remaining: number;
   resetInSeconds: number;
   backend: RateLimitBackend;
+  simulationTag?: string;
   degraded?: boolean;
 }
 
@@ -120,7 +121,7 @@ export class HybridRateLimiter {
   ): Promise<RateLimitResult> {
     if (!this.isRedisConfigured()) {
       const res = this.memory.check(key, maxAttempts, windowSeconds * 1000);
-      return { ...res, backend: 'memory' };
+      return { ...res, backend: 'memory', simulationTag: '[UNIT_SIMULATION_ONLY]' };
     }
 
     const url = process.env.UPSTASH_REDIS_REST_URL!;

@@ -3,10 +3,11 @@ import path from 'path';
 
 test.describe('Storefront UI & Admin Dashboard Functional Tests', () => {
   const screenshotsDir = path.resolve(process.cwd(), '../../docs/screenshots');
+  const ADMIN_SECRET = process.env.ADMIN_AUTH_SECRET || 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
 
   test('Homepage renders hero, categories, featured products and captures screenshot', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('h1')).toContainText('Timeless Artistry in Every Bangle.');
+    await expect(page.locator('h1')).toContainText('Heirloom Bangles, Crafted for Your Sacred Moments.');
     await expect(page.locator('text=Shop by Category')).toBeVisible();
     await expect(page.locator('text=Featured Pieces')).toBeVisible();
 
@@ -23,8 +24,8 @@ test.describe('Storefront UI & Admin Dashboard Functional Tests', () => {
   });
 
   test('Product detail page renders gallery, size selector, price, and captures screenshot', async ({ page }) => {
-    await page.goto('/products/regal-kundan-bridal-chuda-kada-set');
-    await expect(page.locator('h1')).toContainText('Regal Kundan Bridal Chuda & Kada Set');
+    await page.goto('/products/royal-heritage-bridal-kundan-chuda-set');
+    await expect(page.locator('h1')).toContainText('Royal Heritage Bridal Kundan Chuda Set');
     await expect(page.locator('text=Select Bangle Size:')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Add to Bag' })).toBeVisible();
 
@@ -32,7 +33,7 @@ test.describe('Storefront UI & Admin Dashboard Functional Tests', () => {
   });
 
   test('Cart workflow: add product, open drawer, view cart page, and capture screenshot', async ({ page }) => {
-    await page.goto('/products/regal-kundan-bridal-chuda-kada-set');
+    await page.goto('/products/royal-heritage-bridal-kundan-chuda-set');
     // Click Add to Bag
     await page.getByRole('button', { name: 'Add to Bag' }).click();
 
@@ -42,7 +43,7 @@ test.describe('Storefront UI & Admin Dashboard Functional Tests', () => {
     // Navigate to /cart
     await page.goto('/cart');
     await expect(page.locator('h1')).toContainText('Your Shopping Bag');
-    await expect(page.locator('text=Regal Kundan Bridal Chuda & Kada Set')).toBeVisible();
+    await expect(page.locator('text=Royal Heritage Bridal Kundan Chuda Set')).toBeVisible();
     await expect(page.locator('text=Order on WhatsApp')).toBeVisible();
 
     await page.screenshot({ path: path.join(screenshotsDir, 'cart.png'), fullPage: true });
@@ -67,7 +68,8 @@ test.describe('Storefront UI & Admin Dashboard Functional Tests', () => {
 
   test('Admin Dashboard Overview renders metrics cards and captures screenshot', async ({ page }) => {
     await page.goto('/admin/login');
-    await page.locator('input[type="password"]').fill('placeholder_minimum_32_character_cryptographic_secret');
+    await page.getByRole('button', { name: 'Auth Token' }).click();
+    await page.locator('input[type="password"]').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: 'Authenticate Studio Session' }).click();
     await expect(page).toHaveURL(/\/admin/);
 
@@ -79,7 +81,8 @@ test.describe('Storefront UI & Admin Dashboard Functional Tests', () => {
 
   test('Admin Products page renders catalog table and captures screenshot', async ({ page }) => {
     await page.goto('/admin/login');
-    await page.locator('input[type="password"]').fill('placeholder_minimum_32_character_cryptographic_secret');
+    await page.getByRole('button', { name: 'Auth Token' }).click();
+    await page.locator('input[type="password"]').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: 'Authenticate Studio Session' }).click();
     await expect(page).toHaveURL(/\/admin$/);
     await page.goto('/admin/products');

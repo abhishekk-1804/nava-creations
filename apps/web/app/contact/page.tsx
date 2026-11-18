@@ -9,7 +9,7 @@ import {
   CheckIcon,
   AlertCircleIcon,
 } from '@/components/icons';
-import { CONFIG, buildWhatsAppLink } from '@/lib/config';
+import { CONFIG, buildWhatsAppLink, buildPhoneCallLink } from '@/lib/config';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -107,32 +107,50 @@ export default function ContactPage() {
 
           <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4 shadow-sm">
             <h2 className="font-serif text-lg font-medium text-stone-900">
-              Direct Inquiries
+              Direct Atelier Inquiries
             </h2>
             <div className="space-y-3">
+              {/* Primary WhatsApp Concierge */}
               <a
-                href={buildWhatsAppLink('Hello NAVA Creations! I would like to enquire about your jewellery collections.')}
+                href={buildWhatsAppLink('Hello NAVA Creations Bengaluru! I would like to consult with your Bridal Concierge regarding bespoke bangles.')}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 bg-emerald-50 text-emerald-800 rounded-lg hover:bg-emerald-100 transition-colors text-xs font-medium"
+                className="flex items-center gap-3 p-3 bg-emerald-50 text-emerald-800 rounded-lg hover:bg-emerald-100 transition-colors text-xs font-medium border border-emerald-200"
               >
                 <WhatsAppIcon className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                 <div>
-                  <span className="block font-semibold">WhatsApp Studio</span>
-                  <span className="text-[11px] text-emerald-700">{CONFIG.whatsapp.displayNumber}</span>
+                  <span className="block font-semibold">Primary WhatsApp Concierge</span>
+                  <span className="text-[11px] text-emerald-700 font-bold">{CONFIG.whatsapp.displayNumber}</span>
+                  <span className="text-[10px] text-emerald-600 block">Orders &bull; Sizing Verification</span>
                 </div>
               </a>
 
+              {/* Secondary Studio / Bridal Desk */}
+              <a
+                href={buildPhoneCallLink()}
+                className="flex items-center gap-3 p-3 bg-amber-50 text-amber-900 rounded-lg hover:bg-amber-100 transition-colors text-xs font-medium border border-amber-200"
+              >
+                <div className="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center text-amber-900 font-bold text-xs shrink-0">
+                  &#9742;
+                </div>
+                <div>
+                  <span className="block font-semibold">Studio &bull; Bridal Appointments</span>
+                  <span className="text-[11px] text-amber-900 font-bold">{CONFIG.studioDesk.displayNumber}</span>
+                  <span className="text-[10px] text-amber-700 block">Direct Atelier Phone Consultation</span>
+                </div>
+              </a>
+
+              {/* Instagram Workshop */}
               <a
                 href={CONFIG.social.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 bg-stone-50 text-stone-800 rounded-lg hover:bg-stone-100 transition-colors text-xs font-medium"
+                className="flex items-center gap-3 p-3 bg-stone-50 text-stone-800 rounded-lg hover:bg-stone-100 transition-colors text-xs font-medium border border-stone-200"
               >
                 <InstagramIcon className="w-5 h-5 text-brand-maroon flex-shrink-0" />
                 <div>
-                  <span className="block font-semibold">Instagram DM</span>
-                  <span className="text-[11px] text-stone-600">@{CONFIG.social.instagramHandle}</span>
+                  <span className="block font-semibold">Instagram Workshop</span>
+                  <span className="text-[11px] text-stone-600 font-medium">@{CONFIG.social.instagramHandle}</span>
                 </div>
               </a>
             </div>

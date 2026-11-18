@@ -10,6 +10,8 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
+          burgundy: '#4A1525',
+          wine: '#4A1525',
           maroon: '#5C1D38',
           deepMaroon: '#3D1022',
           gold: '#C5A059',

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ProductDto } from '@nava/domain';
 import { useCart } from '@/lib/cart-context';
@@ -28,6 +28,17 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const images = product.images && product.images.length > 0 ? product.images : [];
   const activeImage = images[activeImageIndex] || null;
+  const DEFAULT_PLACEHOLDER = '/branding/nava-product-placeholder.jpg';
+  const [mainImgSrc, setMainImgSrc] = useState<string>(activeImage?.url || DEFAULT_PLACEHOLDER);
+
+  const targetUrl = product.images?.[activeImageIndex]?.url;
+  useEffect(() => {
+    if (targetUrl) {
+      setMainImgSrc(targetUrl);
+    } else {
+      setMainImgSrc(DEFAULT_PLACEHOLDER);
+    }
+  }, [targetUrl]);
 
   const variants = product.variants && product.variants.length > 0 ? product.variants : [];
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
@@ -81,19 +92,17 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
         <div className="space-y-4">
           {/* Main Preview Container */}
           <div className="relative aspect-square rounded-xl bg-brand-cream/50 border border-stone-200/80 overflow-hidden shadow-sm">
-            {activeImage?.url ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={activeImage.url}
-                alt={activeImage.altText || product.name}
-                className="w-full h-full object-cover object-center"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-stone-300">
-                <ShoppingBagIcon className="w-16 h-16 mb-2" />
-                <span className="text-sm text-stone-400">Photo Coming Soon</span>
-              </div>
-            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={mainImgSrc}
+              alt={activeImage?.altText || product.name}
+              className="w-full h-full object-cover object-center"
+              onError={() => {
+                if (mainImgSrc !== DEFAULT_PLACEHOLDER) {
+                  setMainImgSrc(DEFAULT_PLACEHOLDER);
+                }
+              }}
+            />
 
             {/* Badges */}
             <div className="absolute top-4 left-4 flex flex-col gap-1.5">
@@ -117,7 +126,10 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
                 <button
                   key={img.id || idx}
                   type="button"
-                  onClick={() => setActiveImageIndex(idx)}
+                  onClick={() => {
+                    setActiveImageIndex(idx);
+                    setMainImgSrc(img.url);
+                  }}
                   className={`w-20 h-20 rounded-lg border-2 overflow-hidden flex-shrink-0 transition-all ${
                     activeImageIndex === idx
                       ? 'border-brand-maroon shadow-sm'
@@ -125,7 +137,14 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt="Thumbnail" className="w-full h-full object-cover" />
+                  <img
+                    src={img.url}
+                    alt={img.altText || 'Thumbnail'}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = DEFAULT_PLACEHOLDER;
+                    }}
+                  />
                 </button>
               ))}
             </div>

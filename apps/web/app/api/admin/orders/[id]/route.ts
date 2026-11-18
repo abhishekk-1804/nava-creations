@@ -19,7 +19,7 @@ export async function GET(
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ success: true, order });
+  return NextResponse.json({ success: true, order: OrderService.sanitizeOrder(order) });
 }
 
 export async function PATCH(
@@ -58,7 +58,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      order: updated,
+      order: OrderService.sanitizeOrder(updated),
       message: 'Order updated successfully',
     });
   } catch (err: unknown) {

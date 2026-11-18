@@ -69,7 +69,7 @@ test.describe('Sprint 2H Phase E: Server-Authoritative Cart Validation Edge Case
   });
 
   // 4. Invalid variant ID
-  test('E.4: Non-existent variant ID falls back to default variant with warning', async ({ request }) => {
+  test('E.4: Non-existent variant ID is rejected from cart with warning (no silent substitution)', async ({ request }) => {
     const res = await request.post('/api/cart/validate', {
       data: {
         items: [
@@ -84,7 +84,7 @@ test.describe('Sprint 2H Phase E: Server-Authoritative Cart Validation Edge Case
 
     expect(res.status()).toBe(200);
     const body = await res.json();
-    expect(body.items.length).toBe(1);
+    expect(body.items.length).toBe(0);
     expect(body.warnings.some((w: string) => w.includes('does not exist'))).toBe(true);
   });
 

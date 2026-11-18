@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { LockIcon, ArrowRightIcon, AlertCircleIcon, CheckIcon } from '@/components/icons';
 
 export default function AdminLoginPage() {
+  const [authMode, setAuthMode] = useState<'credentials' | 'token'>('credentials');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,10 +19,15 @@ export default function AdminLoginPage() {
     setError(null);
 
     try {
+      const payload =
+        authMode === 'credentials'
+          ? { email: email.trim(), password }
+          : { token: token.trim() };
+
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: token.trim() }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -36,6 +44,13 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fillSeedAdmin = () => {
+    setAuthMode('credentials');
+    setEmail('admin@nava-creations.internal');
+    setPassword('Admin@Nava2026!');
+    setError(null);
   };
 
   return (
@@ -57,6 +72,32 @@ export default function AdminLoginPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         <div className="bg-stone-800/90 border border-stone-700/80 py-8 px-6 sm:px-10 rounded-xl shadow-2xl backdrop-blur-sm space-y-6">
+          {/* Mode Switcher Tabs */}
+          <div className="flex border-b border-stone-700 pb-2 gap-4 text-xs">
+            <button
+              type="button"
+              onClick={() => { setAuthMode('credentials'); setError(null); }}
+              className={`pb-1 font-medium transition-colors border-b-2 ${
+                authMode === 'credentials'
+                  ? 'border-brand-gold text-brand-lightGold'
+                  : 'border-transparent text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              Email &amp; Password
+            </button>
+            <button
+              type="button"
+              onClick={() => { setAuthMode('token'); setError(null); }}
+              className={`pb-1 font-medium transition-colors border-b-2 ${
+                authMode === 'token'
+                  ? 'border-brand-gold text-brand-lightGold'
+                  : 'border-transparent text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              Auth Token
+            </button>
+          </div>
+
           {error && (
             <div className="p-3 bg-red-950/80 border border-red-800 text-red-200 rounded text-xs flex items-center gap-2">
               <AlertCircleIcon className="w-4 h-4 flex-shrink-0" />
@@ -72,22 +113,54 @@ export default function AdminLoginPage() {
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-stone-300 mb-1.5 uppercase tracking-wider">
-                Administrative Secret Key / Token
-              </label>
-              <input
-                type="password"
-                required
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                placeholder="Enter 32-character admin auth secret"
-                className="w-full px-4 py-2.5 bg-stone-900 border border-stone-700 rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none focus:border-brand-gold font-mono"
-              />
-              <span className="text-[10px] text-stone-500 block mt-1">
-                Enter the secret configured in ADMIN_AUTH_SECRET
-              </span>
-            </div>
+            {authMode === 'credentials' ? (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1.5 uppercase tracking-wider">
+                    Admin Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@nava-creations.internal"
+                    className="w-full px-4 py-2.5 bg-stone-900 border border-stone-700 rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none focus:border-brand-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1.5 uppercase tracking-wider">
+                    Admin Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    className="w-full px-4 py-2.5 bg-stone-900 border border-stone-700 rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none focus:border-brand-gold"
+                  />
+                </div>
+              </>
+            ) : (
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1.5 uppercase tracking-wider">
+                  Administrative Secret Key / Token
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  placeholder="Enter 32-character admin auth secret"
+                  className="w-full px-4 py-2.5 bg-stone-900 border border-stone-700 rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none focus:border-brand-gold font-mono"
+                />
+                <span className="text-[10px] text-stone-500 block mt-1">
+                  Enter the secret configured in ADMIN_AUTH_SECRET
+                </span>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -99,7 +172,18 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          <div className="pt-4 border-t border-stone-700 text-center">
+          {/* Quick Prototype Helper */}
+          <div className="pt-3 border-t border-stone-700/80">
+            <button
+              type="button"
+              onClick={fillSeedAdmin}
+              className="w-full py-1.5 px-3 bg-stone-900/80 hover:bg-stone-900 text-[11px] text-brand-lightGold border border-brand-gold/30 rounded transition-colors"
+            >
+              Use Seed Admin: admin@nava-creations.internal
+            </button>
+          </div>
+
+          <div className="pt-2 border-t border-stone-700 text-center">
             <Link
               href="/"
               className="text-xs text-stone-400 hover:text-white transition-colors"

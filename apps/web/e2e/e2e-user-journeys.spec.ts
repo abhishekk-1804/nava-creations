@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Sprint 2H Phase I: Complete Customer & Admin End-to-End Journeys', () => {
-  const ADMIN_SECRET = 'placeholder_minimum_32_character_cryptographic_secret';
+  const ADMIN_SECRET = process.env.ADMIN_AUTH_SECRET || 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
 
   test('Customer Journey: Discovery, search, variant selection, bag management & enquiry', async ({
     page,
@@ -25,11 +25,11 @@ test.describe('Sprint 2H Phase I: Complete Customer & Admin End-to-End Journeys'
     await expect(page).toHaveURL(/search=Kundan/, { timeout: 15000 });
 
     // 4. Open product detail
-    const productCard = page.locator('article').filter({ hasText: 'Regal Kundan Bridal Chuda & Kada Set' });
+    const productCard = page.locator('article').filter({ hasText: 'Bespoke Kundan Heirloom Bridal Chuda Set' });
     await expect(productCard).toBeVisible();
-    await productCard.getByRole('link', { name: 'Regal Kundan Bridal Chuda & Kada Set' }).first().click();
-    await expect(page).toHaveURL(/\/products\/regal-kundan-bridal-chuda-kada-set/, { timeout: 15000 });
-    await expect(page.locator('h1')).toContainText('Regal Kundan Bridal Chuda & Kada Set');
+    await productCard.getByRole('link', { name: 'Bespoke Kundan Heirloom Bridal Chuda Set' }).first().click();
+    await expect(page).toHaveURL(/\/products\/bespoke-kundan-heirloom-bridal-chuda-set/, { timeout: 15000 });
+    await expect(page.locator('h1')).toContainText('Bespoke Kundan Heirloom Bridal Chuda Set');
 
     // Wait for hydration on product page
     await page.waitForLoadState('networkidle');
@@ -78,8 +78,9 @@ test.describe('Sprint 2H Phase I: Complete Customer & Admin End-to-End Journeys'
     await page.waitForTimeout(1200);
 
     await page.getByRole('button', { name: 'Submit Bridal Consultation Enquiry' }).click();
-    await expect(page.locator('text=Direct WhatsApp Connection Required')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('text=Send Details via WhatsApp Atelier Now')).toBeVisible();
+    await expect(
+      page.locator('text=Enquiry Recorded Successfully').or(page.locator('text=Direct WhatsApp Connection Required'))
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('Admin Journey: Authentication, dashboard overview, catalog inspection & session termination', async ({

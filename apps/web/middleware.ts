@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { assertProductionSecrets } from './lib/env-validator';
 
 /**
  * Next.js Edge Middleware for NAVA CREATIONS
@@ -6,9 +7,24 @@ import { NextRequest, NextResponse } from 'next/server';
  * Enforces security boundaries and route protection:
  * 1. Restricts unauthenticated access to /admin hierarchy.
  * 2. Injects security response headers (CSP, HSTS, frame options).
+ * 3. Enforces fail-closed production environment configuration before sensitive routes.
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // 0. Fail-closed Production Environment Verification for API and Admin routes
+  if (process.env.NODE_ENV === 'production' && (pathname.startsWith('/api/') || pathname.startsWith('/admin'))) {
+    try {
+      assertProductionSecrets();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Configuration error';
+      console.error('[SECURITY FATAL] Production secrets check failed:', msg);
+      return NextResponse.json(
+        { error: 'Server Configuration Error', message: 'Production security preconditions not satisfied.' },
+        { status: 500 }
+      );
+    }
+  }
 
   // 1. Administrative Route Protection
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
@@ -27,8 +43,22 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (pathname.startsWith('/api/orders') || pathname.startsWith('/orders')) {
+    response.headers.set('Referrer-Policy', 'no-referrer');
+  } else {
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  }
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  // Enforce noindex on private administrative, order-tracking, checkout, and API routes
+  if (
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/orders') ||
+    pathname.startsWith('/checkout') ||
+    pathname.startsWith('/api')
+  ) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  }
 
   if (process.env.NODE_ENV === 'production') {
     response.headers.set(

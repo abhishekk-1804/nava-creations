@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { CatalogService } from '@/lib/catalog-service';
-import { PlusIcon, ShoppingBagIcon } from '@/components/admin-icons';
+import { PlusIcon } from '@/components/admin-icons';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,14 +65,15 @@ export default async function AdminProductsPage() {
                       <td className="p-3.5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded bg-stone-100 border border-stone-200 overflow-hidden flex-shrink-0">
-                            {thumb ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img src={thumb} alt={p.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-stone-300">
-                                <ShoppingBagIcon className="w-4 h-4" />
-                              </div>
-                            )}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={thumb || '/branding/nava-product-placeholder.jpg'}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = '/branding/nava-product-placeholder.jpg';
+                              }}
+                            />
                           </div>
                           <div>
                             <span className="font-semibold text-stone-900 block leading-tight">

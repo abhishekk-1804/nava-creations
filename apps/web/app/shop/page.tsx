@@ -171,7 +171,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           <div className="flex items-center gap-2">
             {hasPrevPage && (
               <Link
-                href={`/shop?page=${page - 1}${categoryId ? `&category=${categoryId}` : ''}${search ? `&search=${search}` : ''}`}
+                href={`/shop?page=${page - 1}${categoryId ? `&category=${categoryId}` : ''}${collectionId ? `&collection=${collectionId}` : ''}${search ? `&search=${encodeURIComponent(search)}` : ''}${isFeatured ? '&featured=true' : ''}`}
                 className="px-4 py-2 border border-stone-300 rounded text-stone-800 hover:bg-stone-50"
               >
                 Previous
@@ -179,7 +179,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             )}
             {hasNextPage && (
               <Link
-                href={`/shop?page=${page + 1}${categoryId ? `&category=${categoryId}` : ''}${search ? `&search=${search}` : ''}`}
+                href={`/shop?page=${page + 1}${categoryId ? `&category=${categoryId}` : ''}${collectionId ? `&collection=${collectionId}` : ''}${search ? `&search=${encodeURIComponent(search)}` : ''}${isFeatured ? '&featured=true' : ''}`}
                 className="px-4 py-2 bg-brand-maroon text-white rounded font-medium hover:bg-brand-deepMaroon"
               >
                 Next Page

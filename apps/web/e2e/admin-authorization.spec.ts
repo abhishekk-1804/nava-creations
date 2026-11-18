@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import crypto from 'node:crypto';
 
 test.describe('Sprint 2H Phase B: Admin Authentication & Authorization Verification', () => {
-  const ADMIN_SECRET = 'placeholder_minimum_32_character_cryptographic_secret';
+  const ADMIN_SECRET = process.env.ADMIN_AUTH_SECRET || 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
   const COOKIE_NAME = 'nava_admin_session';
 
   // Helper to construct a signed session token
