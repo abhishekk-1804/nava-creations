@@ -137,8 +137,12 @@ export function getSupabaseServerClient(request?: Request): SupabaseClient | nul
  * Derives secret key for signing local customer test sessions.
  */
 function getCustomerAuthSecret(): string {
-  const secret = process.env.CUSTOMER_AUTH_SECRET || process.env.ADMIN_AUTH_SECRET;
+  const secret = process.env.CUSTOMER_AUTH_SECRET;
   if (!secret || secret.trim().length < 16) {
+    if (process.env.NODE_ENV === 'production') {
+      const adminSecret = process.env.ADMIN_AUTH_SECRET || '';
+      return crypto.createHmac('sha256', adminSecret).update('nava_customer_session_isolated_namespace').digest('hex');
+    }
     return 'nava-customer-dev-fallback-secret-256-bit-key!!';
   }
   return secret.trim();

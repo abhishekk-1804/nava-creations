@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminSession } from '@/lib/auth';
-import { OrderService } from '@/lib/order-service';
+import { OrderService, OrderDto } from '@/lib/order-service';
 import { OrderStatus } from '@nava/domain';
 import { ValidationError, NotFoundError } from '@nava/shared';
 
@@ -49,12 +49,20 @@ export async function PATCH(
 
     const targetStatus = (body.status as OrderStatus) || order.status;
 
-    const updated = await OrderService.updateOrderStatus(id, targetStatus, {
-      courierAwb: body.courierAwb,
-      rtoAwb: body.rtoAwb,
-      updatedBy: session.userId,
-      reason: body.reason,
-    });
+    let updated: OrderDto;
+    if (targetStatus === 'CANCELLED') {
+      updated = await OrderService.rejectPayment(id, {
+        reason: body.reason || 'Admin cancelled order',
+        rejectedByUserId: session.userId,
+      });
+    } else {
+      updated = await OrderService.updateOrderStatus(id, targetStatus, {
+        courierAwb: body.courierAwb,
+        rtoAwb: body.rtoAwb,
+        updatedBy: session.userId,
+        reason: body.reason,
+      });
+    }
 
     return NextResponse.json({
       success: true,

@@ -57,6 +57,7 @@ export interface CreateOrderInput {
   couponCode?: string;
   userId?: string;
   channel?: 'WEB' | 'WHATSAPP';
+  idempotencyKey?: string;
 }
 
 export interface OrderItemDto {
@@ -117,13 +118,31 @@ export interface OrderDto {
 // Global singleton in-memory persistent order repository for test execution & offline development
 const globalForOrders = globalThis as unknown as {
   __nava_memory_orders__?: Map<string, OrderDto>;
+  __nava_idempotency_store__?: Map<string, { order: OrderDto; timestamp: number }>;
+  __nava_inflight_idempotency__?: Map<string, Promise<OrderDto>>;
 };
 
 if (!globalForOrders.__nava_memory_orders__) {
   globalForOrders.__nava_memory_orders__ = new Map<string, OrderDto>();
 }
+if (!globalForOrders.__nava_idempotency_store__) {
+  globalForOrders.__nava_idempotency_store__ = new Map();
+}
+if (!globalForOrders.__nava_inflight_idempotency__) {
+  globalForOrders.__nava_inflight_idempotency__ = new Map();
+}
 
 const memoryOrders = globalForOrders.__nava_memory_orders__;
+const idempotencyStore = globalForOrders.__nava_idempotency_store__;
+const inFlightIdempotency = globalForOrders.__nava_inflight_idempotency__;
+
+function sanitizeText(input: string): string {
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/javascript:/gi, '')
+    .trim();
+}
 
 // Helper to seed sample initial orders for admin UI preview if empty
 function initializeSampleOrders() {
@@ -350,8 +369,40 @@ export class OrderService {
 
   /**
    * Creates and persists a customer order with server-authoritative pricing and stock reservation.
+   * Guarantees idempotency across concurrent duplicate submissions and sequential replays.
    */
   static async createOrder(input: CreateOrderInput): Promise<OrderDto> {
+    const cleanKey = input.idempotencyKey?.trim();
+    if (cleanKey) {
+      const cached = idempotencyStore.get(cleanKey);
+      if (cached && Date.now() - cached.timestamp < 24 * 60 * 60 * 1000) {
+        return cached.order;
+      }
+      const inFlight = inFlightIdempotency.get(cleanKey);
+      if (inFlight) {
+        return await inFlight;
+      }
+    }
+
+    const orderPromise = this.executeCreateOrder(input);
+    if (cleanKey) {
+      inFlightIdempotency.set(cleanKey, orderPromise);
+    }
+
+    try {
+      const orderDto = await orderPromise;
+      if (cleanKey) {
+        idempotencyStore.set(cleanKey, { order: orderDto, timestamp: Date.now() });
+      }
+      return orderDto;
+    } finally {
+      if (cleanKey) {
+        inFlightIdempotency.delete(cleanKey);
+      }
+    }
+  }
+
+  private static async executeCreateOrder(input: CreateOrderInput): Promise<OrderDto> {
     if (!input.items || input.items.length === 0) {
       throw new ValidationError('Order must contain at least one item.');
     }
@@ -363,7 +414,7 @@ export class OrderService {
     let subtotalPaise = 0;
 
     for (const item of input.items) {
-      if (!item.quantity || item.quantity <= 0) {
+      if (!item.quantity || item.quantity <= 0 || !Number.isInteger(item.quantity)) {
         throw new ValidationError('Item quantity must be a positive integer.');
       }
       if (item.quantity > 20) {
@@ -424,6 +475,11 @@ export class OrderService {
     let paymentInstructions: UpiPaymentInstructionsResult | CodOrderResult | undefined;
 
     if (input.paymentMethod === 'UPI_MERCHANT_QR') {
+      if (!PaymentService.isUpiConfigured()) {
+        throw new ValidationError(
+          'Merchant UPI collection is not yet configured or approved by the business owner. Please select Cash on Delivery or contact our atelier via WhatsApp.'
+        );
+      }
       initialOrderStatus = 'AWAITING_PAYMENT_VERIFICATION';
       initialPaymentStatus = 'INITIATED';
 
@@ -462,7 +518,7 @@ export class OrderService {
     }
 
     const orderChannel = input.channel || 'WEB';
-    let customerNotes = input.customerNotes || null;
+    let customerNotes = input.customerNotes ? sanitizeText(input.customerNotes) : null;
     let whatsappConciergeUrl: string | undefined;
 
     if (orderChannel === 'WHATSAPP') {
@@ -776,7 +832,19 @@ export class OrderService {
           },
         });
 
-        // Extend reservation TTL for the authoritative verification review window
+        // Guard: Prevent resuscitating an already-expired reservation
+        const activeReservations = await tx.inventoryReservation.findMany({
+          where: { orderId: order.id, status: 'PENDING' },
+        });
+
+        const hasExpired = activeReservations.some((r) => r.expiresAt < new Date());
+        if (activeReservations.length === 0 || hasExpired) {
+          throw new ConflictError(
+            `Cannot submit transaction reference: The inventory reservation for order ${order.orderNumber} has expired. Please place a new order.`
+          );
+        }
+
+        // Extend reservation TTL for the authoritative verification review window (24 hours)
         await tx.inventoryReservation.updateMany({
           where: { orderId: order.id, status: 'PENDING' },
           data: { expiresAt: verificationExpiresAt },
@@ -932,6 +1000,17 @@ export class OrderService {
           data: { status: 'CONFIRMED' },
         });
 
+        // Transition inventory items: reserved_qty -> allocated_sold_qty
+        for (const item of order.items) {
+          await tx.inventoryItem.updateMany({
+            where: { variantId: item.variantId },
+            data: {
+              reservedQty: { decrement: item.quantity },
+              allocatedSoldQty: { increment: item.quantity },
+            },
+          });
+        }
+
         // Durable audit log persisted within transaction boundary
         await tx.auditLog.create({
           data: {
@@ -986,6 +1065,99 @@ export class OrderService {
     }
     order.updatedAt = new Date();
 
+    memoryOrders.set(order.orderNumber, order);
+    return order;
+  }
+
+  /**
+   * Store Owner / Manager rejects an unverified or invalid payment reference.
+   * Atomically cancels the order, sets payment status to REJECTED (unlocking UTR),
+   * releases reserved stock back to availableQty, and records an audit log.
+   */
+  static async rejectPayment(
+    orderNumber: string,
+    input: { reason: string; rejectedByUserId: string }
+  ): Promise<OrderDto> {
+    const order = await this.getOrder(orderNumber);
+    if (!order) {
+      throw new NotFoundError(`Order ${orderNumber} not found.`);
+    }
+
+    if (!isDatabaseAvailable()) {
+      throw new Error('DATABASE_UNAVAILABLE: Payment rejection requires an active database connection.');
+    }
+
+    if (['SHIPPED', 'DELIVERED', 'CLOSED'].includes(order.status)) {
+      throw new ConflictError(`Cannot reject payment: Order ${orderNumber} is already in state ${order.status}.`);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Update Order Status to CANCELLED
+      await tx.order.update({
+        where: { orderNumber },
+        data: { status: 'CANCELLED' },
+      });
+
+      // 2. Update Payment Status to REJECTED (unlocks claimed_utr from partial unique index)
+      await tx.payment.updateMany({
+        where: { orderId: order.id },
+        data: {
+          status: 'REJECTED',
+          verificationNotes: input.reason || 'Admin rejected payment reference',
+        },
+      });
+
+      // 3. Release linked inventory reservations back to available_qty
+      const linkedReservations = await tx.inventoryReservation.findMany({
+        where: { orderId: order.id, status: 'PENDING' },
+      });
+
+      for (const res of linkedReservations) {
+        const resItems = await tx.inventoryReservationItem.findMany({
+          where: { reservationId: res.id },
+        });
+        for (const item of resItems) {
+          await tx.inventoryItem.update({
+            where: { variantId: item.variantId },
+            data: {
+              availableQty: { increment: item.quantity },
+              reservedQty: { decrement: item.quantity },
+            },
+          });
+        }
+      }
+
+      await tx.inventoryReservation.updateMany({
+        where: { orderId: order.id, status: 'PENDING' },
+        data: { status: 'RELEASED' },
+      });
+
+      // 4. Audit Log
+      await tx.auditLog.create({
+        data: {
+          userId: input.rejectedByUserId,
+          action: 'PAYMENT_REJECTED',
+          entity: 'Order',
+          entityId: order.id,
+          newValues: {
+            status: 'CANCELLED',
+            paymentStatus: 'REJECTED',
+            reason: input.reason,
+            orderNumber,
+          },
+        },
+      });
+    });
+
+    if (order.payment?.claimedUtr) {
+      PaymentService.releaseUtrClaim(order.payment.claimedUtr);
+    }
+
+    order.status = 'CANCELLED';
+    if (order.payment) {
+      order.payment.status = 'REJECTED';
+    }
+    order.updatedAt = new Date();
     memoryOrders.set(order.orderNumber, order);
     return order;
   }

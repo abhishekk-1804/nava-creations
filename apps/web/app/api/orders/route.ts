@@ -30,6 +30,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const customerSession = await verifyCustomerSession(request);
+    const idempotencyKey =
+      request.headers.get('idempotency-key') ||
+      request.headers.get('x-idempotency-key') ||
+      body.idempotencyKey;
 
     const order = await OrderService.createOrder({
       items: body.items,
@@ -40,6 +44,7 @@ export async function POST(request: NextRequest) {
       couponCode: body.couponCode,
       userId: customerSession?.userId,
       channel: body.channel || 'WEB',
+      idempotencyKey: idempotencyKey || undefined,
     });
 
     const guestAccessToken = order.guestAccessToken || OrderService.generateGuestAccessToken(order.orderNumber, order.createdAt);

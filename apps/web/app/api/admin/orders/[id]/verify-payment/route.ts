@@ -16,6 +16,18 @@ export async function POST(
     const { id } = await params;
     const body = await request.json();
 
+    if (body.action === 'REJECT' || body.status === 'REJECTED') {
+      const rejected = await OrderService.rejectPayment(id, {
+        reason: body.reason || body.notes || 'Admin rejected payment reference',
+        rejectedByUserId: session.userId,
+      });
+      return NextResponse.json({
+        success: true,
+        order: OrderService.sanitizeOrder(rejected),
+        message: 'Payment reference rejected and reserved stock released.',
+      });
+    }
+
     if (!body.verifiedTransactionId || body.verifiedTransactionId.trim() === '') {
       return NextResponse.json(
         { error: 'Authoritative bank transaction reference ID is required' },

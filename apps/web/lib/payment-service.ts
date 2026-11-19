@@ -122,16 +122,25 @@ export class PaymentService {
   }
 
   /**
+   * Unlocks a claimed UTR reference when an order is cancelled or payment rejected.
+   */
+  static releaseUtrClaim(claimedUtr: string): void {
+    const norm = (claimedUtr || '').trim().toUpperCase();
+    if (norm) {
+      claimedUtrRegistry.delete(norm);
+    }
+  }
+
+  /**
    * Checks whether sovereign merchant UPI collection details are configured and approved.
    */
   static isUpiConfigured(): boolean {
     if (this.testMerchantConfig) {
-      return this.testMerchantConfig.isMerchantConfirmed && Boolean(this.testMerchantConfig.upiVpa);
+      return this.testMerchantConfig.isMerchantConfirmed && Boolean(this.testMerchantConfig.upiVpa && this.testMerchantConfig.upiVpa !== 'UNCONFIGURED_MERCHANT_VPA');
     }
-    if (process.env.NODE_ENV !== 'production') {
-      return true;
-    }
-    return CONFIG.payment.isMerchantConfirmed && Boolean(CONFIG.payment.upiVpa && CONFIG.payment.upiVpa.trim() !== '');
+    const upiVpa = CONFIG.payment.upiVpa;
+    const isApproved = CONFIG.payment.isMerchantConfirmed;
+    return Boolean(isApproved && upiVpa && upiVpa.trim() !== '' && upiVpa !== 'UNCONFIGURED_MERCHANT_VPA');
   }
 
   /**
@@ -431,6 +440,10 @@ export class PaymentService {
       throw new Error('Cash on Delivery (COD) is currently disabled');
     }
 
+    if (!CONFIG.payment.codPolicyApproved) {
+      throw new Error('Cash on Delivery policy is not approved by store management.');
+    }
+
     if (!input.amountPaise || !Number.isInteger(input.amountPaise) || input.amountPaise <= 0) {
       throw new Error('Order amount must be a positive integer in paise');
     }
@@ -443,9 +456,6 @@ export class PaymentService {
     const courierChargePaise = CONFIG.payment.codCourierChargePaise;
     const totalPaise = input.amountPaise + courierChargePaise;
     const rupees = (totalPaise / 100).toFixed(2);
-    const policyNotice = CONFIG.payment.codPolicyApproved
-      ? ''
-      : ' [Provisional policy threshold applied pending formal business-owner sign-off]';
 
     return {
       orderNumber: input.orderNumber,
@@ -455,7 +465,7 @@ export class PaymentService {
       paymentMethod: 'COD',
       status: 'PENDING_COLLECTION',
       customerState: 'AWAITING_PAYMENT',
-      instructions: `Cash on Delivery confirmed. Please keep exact cash of ₹${rupees} ready at delivery.${policyNotice}`,
+      instructions: `Cash on Delivery confirmed. Please keep exact cash of ₹${rupees} ready at delivery.`,
     };
   }
 
