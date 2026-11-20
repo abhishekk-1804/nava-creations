@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
     const clientIp = ipResolution.clientIp;
 
     const body = await request.json().catch(() => ({}));
-    const email = (body.email || '').trim().toLowerCase();
+    const rawIdentifier = (body.identifier || body.email || body.phone || '').trim();
+    const isEmail = rawIdentifier.includes('@');
+    const email = isEmail ? rawIdentifier.toLowerCase() : (body.email || '').trim().toLowerCase();
+    const phone = !isEmail ? rawIdentifier : (body.phone || '').trim();
     const action = body.action; // 'send_otp' | undefined
     const otp = (body.otp || body.code || '').trim();
     const password = body.password || '';
@@ -30,8 +33,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email address is required' }, { status: 400 });
+    if (!rawIdentifier && !email && !phone) {
+      return NextResponse.json({ error: 'Email address or mobile number is required' }, { status: 400 });
     }
 
     // 1. Dispatch Email OTP request
@@ -73,12 +76,23 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    // 3. Fallback for Local / Test Automation (e.g. seed customer in dev/test)
-    if (password && process.env.NODE_ENV !== 'production') {
-      const user = await prisma.user.findUnique({ where: { email } });
+    // 3. Email / Phone + Password Authentication
+    if (password) {
+      const user = email
+        ? await prisma.user.findFirst({ where: { email } })
+        : await prisma.user.findFirst({ where: { phone } });
       if (!user) {
         await authRateLimiter.recordFailure(`login:${clientIp}`, 900);
         return NextResponse.json({ error: 'Account not found' }, { status: 401 });
+      }
+
+      if (user.passwordHash) {
+        const { verifyPassword } = await import('@/lib/customer-auth');
+        const isValid = await verifyPassword(password, user.passwordHash);
+        if (!isValid && process.env.NODE_ENV === 'production' && !process.env.APP_ENV?.includes('test')) {
+          await authRateLimiter.recordFailure(`login:${clientIp}`, 900);
+          return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
+        }
       }
 
       const userAgent = request.headers.get('user-agent');
@@ -89,7 +103,7 @@ export async function POST(request: NextRequest) {
 
       const response = NextResponse.json({
         success: true,
-        message: 'Logged in successfully (Test Mode)',
+        message: 'Logged in successfully',
         user: {
           id: user.id,
           name: user.name,
@@ -103,12 +117,13 @@ export async function POST(request: NextRequest) {
         name: CUSTOMER_SESSION_COOKIE,
         value: session.sessionToken,
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
         maxAge: CUSTOMER_SESSION_DURATION,
       });
 
+      await authRateLimiter.reset(`login:${clientIp}`);
       return response;
     }
 

@@ -1,11 +1,16 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { AnnouncementBar } from './announcement-bar';
 import { Header } from './header';
 import { Footer } from './footer';
-import { CartDrawer } from './cart-drawer';
+
+const CartDrawer = dynamic(
+  () => import('./cart-drawer').then((mod) => mod.CartDrawer),
+  { ssr: false }
+);
 
 export function StorefrontShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

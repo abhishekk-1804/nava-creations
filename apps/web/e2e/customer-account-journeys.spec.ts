@@ -33,19 +33,15 @@ test.describe.serial('NAVA Prototype — Customer Account & Order Lifecycle End-
     await expect(page.locator(`text=${testCustomerEmail}`)).toBeVisible();
   });
 
-  test('CJ-3: Customer Passwordless OTP Login & Logout Lifecycle', async ({ page }) => {
+  test('CJ-3: Customer Credentials Login & Logout Lifecycle', async ({ page }) => {
     // Start at login page
     await page.goto('/login');
     await expect(page.locator('text=Customer Account Login')).toBeVisible();
 
-    // Fill customer email to request OTP
-    await page.fill('input[type="email"]', 'customer@nava-creations.in');
-    await page.click('button:has-text("Send One-Time Passcode")');
-
-    // Wait for OTP input to appear
-    await expect(page.locator('input[placeholder="123456"]')).toBeVisible({ timeout: 10000 });
-    await page.fill('input[placeholder="123456"]', '123456');
-    await page.click('button:has-text("Verify & Sign In")');
+    // Fill customer email and password
+    await page.fill('input[name="identifier"]', 'customer@nava-creations.in');
+    await page.fill('input[name="password"]', 'Password123!');
+    await page.click('button:has-text("Sign In")');
 
     await expect(page).toHaveURL(/\/account/, { timeout: 10000 });
     await expect(page.locator('h1:has-text("Welcome back")')).toBeVisible();
@@ -88,7 +84,7 @@ test.describe.serial('NAVA Prototype — Customer Account & Order Lifecycle End-
 
     // 2. Browse catalogue
     await page.goto('/shop');
-    await expect(page.locator('text=Handcrafted Accessories')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'Handcrafted Accessories' })).toBeVisible({ timeout: 10000 });
 
     // 3. Click first product card
     const firstProduct = page.locator('a[href^="/products/"]').first();
@@ -165,7 +161,7 @@ test.describe.serial('NAVA Prototype — Customer Account & Order Lifecycle End-
 
     // 3. Confirm redirected to Admin Overview
     await expect(page).toHaveURL(/\/admin$/, { timeout: 10000 });
-    await expect(page.locator('text=Studio Overview')).toBeVisible();
+    await expect(page.locator('text=Studio Overview').first()).toBeVisible();
 
     // 4. Navigate to Admin Orders
     await page.goto('/admin/orders');
@@ -237,7 +233,7 @@ test.describe.serial('NAVA Prototype — Customer Account & Order Lifecycle End-
     // 1. Create a guest order with customer's email and phone
     const guestOrderRes = await request.post('/api/orders', {
       data: {
-        items: [{ variantId: 'var-1-28', quantity: 1 }],
+        items: [{ variantId: 'var-1-24', quantity: 1 }],
         customer: {
           name: 'Priya Sharma Guest',
           phone: '+919876543210',
@@ -306,5 +302,48 @@ test.describe.serial('NAVA Prototype — Customer Account & Order Lifecycle End-
     });
     // Already claimed by Priya, so must reject with 409 Conflict
     expect(crossClaimRes.status()).toBe(409);
+  });
+
+  test('CJ-10: Defensive rendering on /account when user has null name and phone', async ({ page }) => {
+    // 1. Authenticate customer first
+    await page.goto('/login');
+    await page.click('button:has-text("Prototype Mode: Instant Seed Login")');
+    await expect(page).toHaveURL('http://localhost:3000/account', { timeout: 10000 });
+
+    // 2. Intercept /api/auth/me to return a user with null name and null phone
+    await page.route('**/api/auth/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          authenticated: true,
+          user: {
+            id: 'mock-null-user-id',
+            name: null,
+            email: 'nameless.customer@example.com',
+            phone: null,
+            role: 'CUSTOMER',
+            createdAt: '2026-11-20T10:00:00.000Z',
+          },
+        }),
+      });
+    });
+
+    // 3. Reload account page to trigger /api/auth/me with null fields
+    await page.reload();
+    await expect(page).toHaveURL(/\/account/);
+
+    // Avatar initial should safely fallback to 'N' from email nameless.customer
+    const avatar = page.locator('.w-14.h-14.rounded-full');
+    await expect(avatar).toHaveText('N');
+
+    // Heading should fall back safely to email
+    await expect(page.locator('h1:has-text("Welcome back, nameless.customer@example.com")')).toBeVisible();
+
+    // Profile tab should show safe fallbacks
+    await page.click('button:has-text("Profile Information")');
+    await expect(page.locator('text=Customer (Name not set)')).toBeVisible();
+    await expect(page.locator('text=nameless.customer@example.com').first()).toBeVisible();
+    await expect(page.locator('text=Not provided').first()).toBeVisible();
   });
 });

@@ -13,11 +13,11 @@ import {
 
 interface CustomerUser {
   id: string;
-  name: string;
-  email: string;
+  name?: string | null;
+  email?: string | null;
   phone?: string | null;
-  role: string;
-  createdAt: string;
+  role?: string | null;
+  createdAt?: string | null;
 }
 
 interface Address {
@@ -226,14 +226,14 @@ export default function CustomerAccountPage() {
         <div className="bg-white border border-brand-sand rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-brand-sand/60 border border-brand-gold/40 flex items-center justify-center text-brand-maroon text-xl font-serif font-bold">
-              {user.name.charAt(0).toUpperCase()}
+              {(user?.name || user?.email || 'C').charAt(0).toUpperCase()}
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-serif font-semibold text-stone-900">
-                Welcome back, {user.name}
+                Welcome back, {user?.name || user?.email || 'Customer'}
               </h1>
               <p className="text-xs text-stone-500 mt-0.5">
-                {user.email} {user.phone ? `\u2022 ${user.phone}` : ''}
+                {user?.email || 'Customer Account'} {user?.phone ? `\u2022 ${user.phone}` : ''}
               </p>
             </div>
           </div>
@@ -251,7 +251,7 @@ export default function CustomerAccountPage() {
         {/* Tab Navigation */}
         <div className="flex border-b border-brand-sand space-x-8">
           <button
-            onClick={() => setActiveTab('orders')}
+            onClick={() => React.startTransition(() => setActiveTab('orders'))}
             className={`pb-3 text-sm font-medium tracking-wide transition-colors border-b-2 ${
               activeTab === 'orders'
                 ? 'border-brand-maroon text-brand-maroon'
@@ -261,7 +261,7 @@ export default function CustomerAccountPage() {
             My Orders ({orders.length})
           </button>
           <button
-            onClick={() => setActiveTab('addresses')}
+            onClick={() => React.startTransition(() => setActiveTab('addresses'))}
             className={`pb-3 text-sm font-medium tracking-wide transition-colors border-b-2 ${
               activeTab === 'addresses'
                 ? 'border-brand-maroon text-brand-maroon'
@@ -271,7 +271,7 @@ export default function CustomerAccountPage() {
             Saved Addresses
           </button>
           <button
-            onClick={() => setActiveTab('profile')}
+            onClick={() => React.startTransition(() => setActiveTab('profile'))}
             className={`pb-3 text-sm font-medium tracking-wide transition-colors border-b-2 ${
               activeTab === 'profile'
                 ? 'border-brand-maroon text-brand-maroon'
@@ -302,6 +302,7 @@ export default function CustomerAccountPage() {
                 </p>
                 <Link
                   href="/shop"
+                  prefetch={true}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-maroon text-white rounded-xl text-xs font-medium hover:bg-brand-deepMaroon transition-colors"
                 >
                   <span>Explore Catalogue</span>
@@ -633,14 +634,18 @@ export default function CustomerAccountPage() {
                 <span className="text-xs text-stone-400 uppercase tracking-wider block">
                   Account Name
                 </span>
-                <span className="text-sm font-medium text-stone-800">{user.name}</span>
+                <span className="text-sm font-medium text-stone-800">
+                  {user?.name || 'Customer (Name not set)'}
+                </span>
               </div>
 
               <div>
                 <span className="text-xs text-stone-400 uppercase tracking-wider block">
                   Email Address
                 </span>
-                <span className="text-sm font-medium text-stone-800">{user.email}</span>
+                <span className="text-sm font-medium text-stone-800">
+                  {user?.email || 'Not provided'}
+                </span>
               </div>
 
               <div>
@@ -648,7 +653,7 @@ export default function CustomerAccountPage() {
                   Phone Number
                 </span>
                 <span className="text-sm font-medium text-stone-800">
-                  {user.phone || 'Not provided'}
+                  {user?.phone || 'Not provided'}
                 </span>
               </div>
 
@@ -657,7 +662,7 @@ export default function CustomerAccountPage() {
                   Account Role
                 </span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded bg-brand-cream text-brand-maroon inline-block mt-0.5">
-                  {user.role}
+                  {user?.role || 'CUSTOMER'}
                 </span>
               </div>
 
@@ -666,11 +671,13 @@ export default function CustomerAccountPage() {
                   Member Since
                 </span>
                 <span className="text-sm text-stone-600">
-                  {new Date(user.createdAt).toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {user?.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    : 'Recently Joined'}
                 </span>
               </div>
             </div>

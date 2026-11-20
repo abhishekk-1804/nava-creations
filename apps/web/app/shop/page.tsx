@@ -117,6 +117,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         <Link
           href="/shop"
+          prefetch={true}
           className={`px-3 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
             !categoryId
               ? 'bg-brand-maroon text-white font-medium'
@@ -129,6 +130,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           <Link
             key={c.id}
             href={`/categories/${c.slug}`}
+            prefetch={true}
             className={`px-3 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
               categoryId === c.id
                 ? 'bg-brand-maroon text-white font-medium'

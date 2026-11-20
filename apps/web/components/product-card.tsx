@@ -65,6 +65,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Image Container */}
       <Link
         href={`/products/${product.slug}`}
+        prefetch={true}
         className="relative block aspect-square overflow-hidden bg-brand-cream/50"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -168,6 +169,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
             <Link
               href={`/products/${product.slug}`}
+              prefetch={true}
               className="min-h-[44px] px-4 py-2.5 bg-brand-maroon hover:bg-brand-deepMaroon text-white text-xs font-semibold rounded-xl transition-colors shadow-sm flex items-center justify-center"
             >
               View Piece

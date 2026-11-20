@@ -52,13 +52,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            <a
+            <Link
               href="/"
-              onClick={(e) => {
-                e.preventDefault();
-                window.location.assign('/');
-              }}
+              prefetch={true}
               className="inline-block group cursor-pointer"
             >
               <span className="font-serif text-2xl tracking-[0.18em] font-medium text-white block group-hover:text-brand-lightGold transition-colors">
@@ -67,7 +63,7 @@ export function Footer() {
               <span className="text-[10px] tracking-[0.3em] uppercase text-brand-lightGold block -mt-1 font-medium">
                 Bengaluru &bull; Atelier
               </span>
-            </a>
+            </Link>
             <p className="text-xs text-stone-400 mt-4 max-w-sm leading-relaxed">
               Curated handmade bangles, royal Kundan jewellery, and bespoke wedding accessories crafted with devotion in Bengaluru, Karnataka.
             </p>
@@ -124,27 +120,27 @@ export function Footer() {
             </h5>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/categories/handmade-bangles" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/categories/handmade-bangles" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Handmade Bangles
                 </Link>
               </li>
               <li>
-                <Link href="/categories/bridal-jewellery" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/categories/bridal-jewellery" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Bridal Sets &amp; Chuda
                 </Link>
               </li>
               <li>
-                <Link href="/categories/kundan-artistry" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/categories/kundan-artistry" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Kundan Artistry
                 </Link>
               </li>
               <li>
-                <Link href="/categories/hair-accessories" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/categories/hair-accessories" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Hair Accessories
                 </Link>
               </li>
               <li>
-                <Link href="/categories/return-gifts" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/categories/return-gifts" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Return Gifts &amp; Favours
                 </Link>
               </li>
@@ -158,27 +154,27 @@ export function Footer() {
             </h5>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/collections/bridal-edit-2026" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/collections/bridal-edit-2026" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Bridal Edit 2026
                 </Link>
               </li>
               <li>
-                <Link href="/lookbook/bridal-edit-2026" className="text-brand-gold hover:text-white font-semibold transition-colors">
+                <Link href="/lookbook/bridal-edit-2026" prefetch={true} className="text-brand-gold hover:text-white font-semibold transition-colors">
                   ✦ 2026 Bridal Lookbook
                 </Link>
               </li>
               <li>
-                <Link href="/collections/bestsellers" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/collections/bestsellers" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Bengaluru Bestsellers
                 </Link>
               </li>
               <li>
-                <Link href="/collections/festive-return-gifts" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/collections/festive-return-gifts" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Festive Return Gifts
                 </Link>
               </li>
               <li>
-                <Link href="/shop" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/shop" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   View All Products
                 </Link>
               </li>
@@ -192,32 +188,32 @@ export function Footer() {
             </h5>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/about" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/about" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   About NAVA Workshop
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/contact" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Contact &amp; Support
                 </Link>
               </li>
               <li>
-                <Link href="/policies/shipping" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/policies/shipping" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Shipping &amp; Delivery Policy
                 </Link>
               </li>
               <li>
-                <Link href="/policies/returns" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/policies/returns" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Returns &amp; Replacements
                 </Link>
               </li>
               <li>
-                <Link href="/policies/terms" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/policies/terms" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Terms &amp; Conditions
                 </Link>
               </li>
               <li>
-                <Link href="/policies/privacy" className="hover:text-brand-lightGold transition-colors">
+                <Link href="/policies/privacy" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Privacy Policy
                 </Link>
               </li>

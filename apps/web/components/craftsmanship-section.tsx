@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { ShieldCheckIcon, SparklesIcon, TruckIcon } from './icons';
-import { BangleSizeGuideModal } from './bangle-size-guide-modal';
+
+const BangleSizeGuideModal = dynamic(
+  () => import('./bangle-size-guide-modal').then((mod) => mod.BangleSizeGuideModal),
+  { ssr: false }
+);
 
 export function CraftsmanshipSection() {
   const [modalOpen, setModalOpen] = useState(false);

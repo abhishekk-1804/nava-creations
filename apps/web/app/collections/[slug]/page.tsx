@@ -24,11 +24,11 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center text-xs text-stone-500 gap-1.5">
-        <Link href="/" className="hover:text-brand-maroon">
+        <Link href="/" prefetch={true} className="hover:text-brand-maroon">
           Home
         </Link>
         <ChevronRightIcon className="w-3.5 h-3.5" />
-        <Link href="/shop" className="hover:text-brand-maroon">
+        <Link href="/shop" prefetch={true} className="hover:text-brand-maroon">
           Collections
         </Link>
         <ChevronRightIcon className="w-3.5 h-3.5" />

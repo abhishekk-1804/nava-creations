@@ -73,7 +73,7 @@ export default function CheckoutPage() {
   });
 
   // Customer Authentication & Saved Addresses Integration
-  const [customerUser, setCustomerUser] = useState<{ id: string; name: string; email: string; phone?: string | null } | null>(null);
+  const [customerUser, setCustomerUser] = useState<{ id: string; name?: string | null; email?: string | null; phone?: string | null } | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<Array<{
     id: string;
     recipientName: string;
@@ -95,9 +95,9 @@ export default function CheckoutPage() {
           setCustomerUser(data.user);
           setFormData((prev) => ({
             ...prev,
-            name: prev.name || data.user.name || '',
-            email: prev.email || data.user.email || '',
-            phone: prev.phone || data.user.phone || '',
+            name: prev.name || data.user?.name || '',
+            email: prev.email || data.user?.email || '',
+            phone: prev.phone || data.user?.phone || '',
           }));
 
           // Fetch saved addresses
@@ -322,6 +322,7 @@ export default function CheckoutPage() {
         </p>
         <Link
           href="/shop"
+          prefetch={true}
           className="inline-flex items-center gap-2 px-6 py-2.5 bg-brand-maroon text-white rounded text-xs font-semibold hover:bg-brand-deepMaroon transition-colors"
         >
           <span>Explore Jewellery</span>
@@ -335,11 +336,11 @@ export default function CheckoutPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center text-xs text-stone-500 gap-1.5">
-        <Link href="/" className="hover:text-brand-maroon">
+        <Link href="/" prefetch={true} className="hover:text-brand-maroon">
           Home
         </Link>
         <ChevronRightIcon className="w-3.5 h-3.5" />
-        <Link href="/cart" className="hover:text-brand-maroon">
+        <Link href="/cart" prefetch={true} className="hover:text-brand-maroon">
           Shopping Bag
         </Link>
         <ChevronRightIcon className="w-3.5 h-3.5" />
@@ -373,11 +374,12 @@ export default function CheckoutPage() {
               </h2>
               {customerUser ? (
                 <span className="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">
-                  Logged in as {customerUser.name}
+                  Logged in as {customerUser.name || customerUser.email || 'Customer'}
                 </span>
               ) : (
                 <Link
                   href="/login?redirect=/checkout"
+                  prefetch={true}
                   className="text-xs text-brand-maroon hover:underline font-medium"
                 >
                   Sign in for saved addresses &rarr;

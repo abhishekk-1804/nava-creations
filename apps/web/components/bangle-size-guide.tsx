@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BangleSizeGuideModal } from './bangle-size-guide-modal';
+import dynamic from 'next/dynamic';
+
+const BangleSizeGuideModal = dynamic(
+  () => import('./bangle-size-guide-modal').then((mod) => mod.BangleSizeGuideModal),
+  { ssr: false }
+);
 
 export function BangleSizeGuide() {
   const [isOpen, setIsOpen] = useState(false);

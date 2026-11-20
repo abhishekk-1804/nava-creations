@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { buildWhatsAppLink } from '@/lib/config';
 import {
@@ -17,6 +17,7 @@ import {
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { totalItems, openDrawer } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -34,7 +35,7 @@ export function Header() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/shop?search=${encodeURIComponent(searchQuery.trim())}`;
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
     }
   };
@@ -56,15 +57,11 @@ export function Header() {
               </button>
             </div>
 
-            {/* Brand Logo / Wordmark (Full page reload always) */}
+            {/* Brand Logo / Wordmark */}
             <div className="flex-1 lg:flex-none text-center lg:text-left">
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a
+              <Link
                 href="/"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.location.assign('/');
-                }}
+                prefetch={true}
                 className="inline-block group focus:outline-none cursor-pointer"
                 aria-label="NAVA CREATIONS Bengaluru Home"
               >
@@ -74,7 +71,7 @@ export function Header() {
                 <span className="text-[10px] tracking-[0.32em] uppercase text-brand-darkGold font-medium block -mt-1">
                   Bengaluru &bull; Atelier
                 </span>
-              </a>
+              </Link>
             </div>
 
             {/* Desktop Navigation Links */}
@@ -85,6 +82,7 @@ export function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={true}
                     className={`text-sm tracking-wide transition-all py-1 ${
                       isActive
                         ? 'text-brand-maroon font-semibold border-b-2 border-brand-gold'
@@ -113,6 +111,7 @@ export function Header() {
               {/* Customer Account */}
               <Link
                 href="/account"
+                prefetch={true}
                 className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-stone-700 hover:text-brand-maroon hover:bg-brand-cream/80 transition-colors focus:outline-none"
                 aria-label="My Account"
                 title="My Account"
@@ -180,14 +179,10 @@ export function Header() {
           <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-brand-ivory shadow-xl z-50 flex flex-col justify-between p-6 overflow-y-auto">
             <div>
               <div className="flex items-center justify-between pb-6 border-b border-brand-sand">
-                {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a
+                <Link
                   href="/"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setMobileMenuOpen(false);
-                    window.location.assign('/');
-                  }}
+                  prefetch={true}
+                  onClick={() => setMobileMenuOpen(false)}
                   className="block focus:outline-none cursor-pointer"
                 >
                   <span className="font-serif text-xl tracking-[0.18em] font-semibold text-brand-maroon block">
@@ -196,7 +191,7 @@ export function Header() {
                   <span className="text-[9px] tracking-widest uppercase text-brand-darkGold block">
                     Bengaluru Atelier
                   </span>
-                </a>
+                </Link>
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
@@ -209,6 +204,7 @@ export function Header() {
               <nav className="mt-6 space-y-2">
                 <Link
                   href="/account"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between py-3 px-3 rounded bg-brand-cream/50 hover:bg-brand-cream text-brand-maroon font-medium text-base transition-colors"
                 >
@@ -222,6 +218,7 @@ export function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={true}
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center justify-between py-3 px-3 rounded hover:bg-brand-cream text-stone-800 hover:text-brand-maroon text-base font-medium transition-colors"
                   >
@@ -237,6 +234,7 @@ export function Header() {
                 </span>
                 <Link
                   href="/collections/bridal-edit-2026"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-sm text-stone-700 hover:text-brand-maroon py-1.5"
                 >
@@ -244,6 +242,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/collections/kundan-artistry"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-sm text-stone-700 hover:text-brand-maroon py-1.5"
                 >
@@ -251,6 +250,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/collections/bestsellers"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-sm text-stone-700 hover:text-brand-maroon py-1.5"
                 >
@@ -258,6 +258,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/collections/festive-return-gifts"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-sm text-stone-700 hover:text-brand-maroon py-1.5"
                 >

@@ -2,8 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { ArrowRightIcon, SparklesIcon, ShieldCheckIcon } from './icons';
-import { BangleSizeGuideModal } from './bangle-size-guide-modal';
+
+const BangleSizeGuideModal = dynamic(
+  () => import('./bangle-size-guide-modal').then((mod) => mod.BangleSizeGuideModal),
+  { ssr: false }
+);
 
 export function HeroShowcase() {
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
@@ -38,6 +44,7 @@ export function HeroShowcase() {
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Link
                   href="/shop"
+                  prefetch={true}
                   className="px-8 py-3.5 bg-brand-maroon text-white rounded-lg text-sm font-semibold hover:bg-brand-deepMaroon transition-all shadow-sm hover:shadow-md flex items-center gap-2 group"
                 >
                   <span>Explore Atelier Pieces</span>
@@ -46,6 +53,7 @@ export function HeroShowcase() {
 
                 <Link
                   href="/collections/bridal-edit-2026"
+                  prefetch={true}
                   className="px-7 py-3.5 bg-white border border-brand-gold/60 text-stone-800 rounded-lg text-sm font-semibold hover:border-brand-maroon hover:text-brand-maroon transition-all shadow-xs"
                 >
                   Bridal Edit 2026
@@ -92,10 +100,12 @@ export function HeroShowcase() {
 
                   {/* Arched Illustration Frame */}
                   <div className="w-full aspect-square rounded-2xl bg-[#1C060E] border border-brand-gold/30 p-2 mb-5 overflow-hidden flex items-center justify-center relative shadow-inner">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src="/branding/sample-chuda-1.jpg"
                       alt="Royal Heritage Bridal Kundan Chuda Set"
+                      width={480}
+                      height={480}
+                      priority={true}
                       className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-stone-900/90 backdrop-blur-sm py-1.5 px-3 rounded-lg text-[10px] text-brand-lightGold text-center border border-brand-gold/30 font-medium">

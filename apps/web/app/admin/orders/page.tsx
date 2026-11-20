@@ -229,7 +229,7 @@ export default function AdminOrdersPage() {
           ].map((tab) => (
             <button
               key={tab.value}
-              onClick={() => setStatusFilter(tab.value)}
+              onClick={() => React.startTransition(() => setStatusFilter(tab.value))}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 statusFilter === tab.value
                   ? 'bg-brand-maroon text-white shadow-sm'

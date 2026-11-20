@@ -73,7 +73,7 @@ export default function CartPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center text-xs text-stone-500 gap-1.5">
-        <Link href="/" className="hover:text-brand-maroon">
+        <Link href="/" prefetch={true} className="hover:text-brand-maroon">
           Home
         </Link>
         <ChevronRightIcon className="w-3.5 h-3.5" />
@@ -116,6 +116,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/shop"
+            prefetch={true}
             className="inline-flex items-center gap-2 px-8 py-3 bg-brand-maroon text-white rounded text-sm font-medium hover:bg-brand-deepMaroon transition-colors"
           >
             <span>Explore Accessories</span>
@@ -216,7 +217,7 @@ export default function CartPage() {
             </div>
 
             <div className="flex justify-between items-center text-xs text-stone-500 pt-2">
-              <Link href="/shop" className="hover:text-brand-maroon underline">
+              <Link href="/shop" prefetch={true} className="hover:text-brand-maroon underline">
                 &larr; Continue Shopping
               </Link>
               <button
@@ -264,6 +265,7 @@ export default function CartPage() {
               <div className="space-y-2.5 pt-2">
                 <Link
                   href={isValidating ? '#' : '/checkout'}
+                  prefetch={true}
                   className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-brand-maroon text-white rounded-lg text-sm font-semibold hover:bg-brand-deepMaroon transition-all shadow-sm hover:shadow ${
                     isValidating ? 'opacity-70 cursor-not-allowed pointer-events-none' : ''
                   }`}

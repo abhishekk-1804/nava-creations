@@ -156,6 +156,7 @@ function RegisterForm() {
               Already have an account?{' '}
               <Link
                 href={`/login?redirect=${encodeURIComponent(redirectUrl)}`}
+                prefetch={true}
                 className="text-brand-maroon font-semibold hover:underline"
               >
                 Sign In with Email OTP

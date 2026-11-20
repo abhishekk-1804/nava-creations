@@ -127,8 +127,10 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
                   key={img.id || idx}
                   type="button"
                   onClick={() => {
-                    setActiveImageIndex(idx);
-                    setMainImgSrc(img.url);
+                    React.startTransition(() => {
+                      setActiveImageIndex(idx);
+                      setMainImgSrc(img.url);
+                    });
                   }}
                   className={`w-20 h-20 rounded-lg border-2 overflow-hidden flex-shrink-0 transition-all ${
                     activeImageIndex === idx
@@ -218,7 +220,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
                       <button
                         key={v.id}
                         type="button"
-                        onClick={() => setSelectedVariantId(v.id)}
+                        onClick={() => React.startTransition(() => setSelectedVariantId(v.id))}
                         disabled={vOutOfStock}
                         className={`p-3 text-left rounded-lg border transition-all ${
                           isSelected

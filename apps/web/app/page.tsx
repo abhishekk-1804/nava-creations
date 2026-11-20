@@ -41,6 +41,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/shop"
+            prefetch={true}
             className="text-xs font-semibold uppercase tracking-wider text-brand-maroon hover:text-brand-deepMaroon flex items-center gap-1 group"
           >
             <span>View All</span>
@@ -53,6 +54,7 @@ export default async function HomePage() {
             <Link
               key={cat.id}
               href={`/categories/${cat.slug}`}
+              prefetch={true}
               className="group relative block bg-white p-6 rounded-xl border border-stone-200/80 shadow-sm hover:shadow-md hover:border-brand-gold/50 transition-all text-center"
             >
               <div className="w-12 h-12 mx-auto rounded-full bg-brand-cream flex items-center justify-center text-brand-maroon mb-4 group-hover:scale-110 transition-transform">
@@ -82,6 +84,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/shop"
+            prefetch={true}
             className="text-xs font-semibold uppercase tracking-wider text-brand-maroon hover:text-brand-deepMaroon flex items-center gap-1 group"
           >
             <span>Browse All ({featuredProducts.length}+)</span>

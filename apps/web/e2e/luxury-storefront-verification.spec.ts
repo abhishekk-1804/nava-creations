@@ -27,8 +27,8 @@ test.describe('NAVA CREATIONS — Luxury Storefront & Conversion Verification Su
     // Check announcement bar
     const announcementBar = page.locator('aside[aria-label="Store Announcement"]');
     await expect(announcementBar).toBeVisible();
-    await expect(announcementBar).toContainText('Bengaluru Bridal Atelier');
-    await expect(announcementBar).toContainText('WhatsApp Concierge: +91 72046 28513');
+    await expect(announcementBar).toContainText("India's Premier Handcrafted Bangle Atelier");
+    await expect(announcementBar).toContainText('+91 72046 28513');
 
     // Check brand mark in header
     const brandMark = page.locator('header a[aria-label="NAVA CREATIONS Bengaluru Home"]');
@@ -49,8 +49,8 @@ test.describe('NAVA CREATIONS — Luxury Storefront & Conversion Verification Su
     await page.goto('http://localhost:3000/');
 
     // Eyebrow and Headline
-    await expect(page.locator('text=✦ BENGALURU ATELIER • BESPOKE BRIDAL & FESTIVE')).toBeVisible();
-    await expect(page.locator('h1')).toContainText('Heirloom Bangles, Crafted for Your Sacred Moments.');
+    await expect(page.locator('text=✦ BENGALURU ATELIER • BESPOKE BRIDAL & FESTIVE').first()).toBeVisible();
+    await expect(page.locator('h1').first()).toContainText('Heirloom Bangles, Crafted for Your Sacred Moments.');
 
     // Right-column Arched Luxury Showcase Card
     await expect(page.locator('text=The 2026 Bridal Chuda')).toBeVisible();
@@ -78,7 +78,7 @@ test.describe('NAVA CREATIONS — Luxury Storefront & Conversion Verification Su
     await page.goto('http://localhost:3000/');
 
     // Check Featured Pieces section
-    await expect(page.locator('text=Featured Pieces')).toBeVisible();
+    await expect(page.locator('text=Featured Pieces').first()).toBeVisible();
 
     // Verify Bridal Chuda Set card
     const chudaCard = page.locator('article', { hasText: 'Bridal Chuda Set' });
@@ -103,7 +103,7 @@ test.describe('NAVA CREATIONS — Luxury Storefront & Conversion Verification Su
     await page.goto('http://localhost:3000/');
 
     // Check Bridal Edit 2026 banner on homepage
-    await expect(page.locator('text=BRIDAL TROUSSEAU • 2026')).toBeVisible();
+    await expect(page.locator('text=BRIDAL TROUSSEAU • 2026').first()).toBeVisible();
     await expect(page.getByText('Pillar I', { exact: true })).toBeVisible();
     await expect(page.getByText('Bridal Chuda Sets', { exact: true })).toBeVisible();
     await expect(page.getByText('Pillar II', { exact: true })).toBeVisible();
@@ -119,7 +119,7 @@ test.describe('NAVA CREATIONS — Luxury Storefront & Conversion Verification Su
 
     // Navigate to /collections/bridal-edit-2026
     await page.goto('http://localhost:3000/collections/bridal-edit-2026');
-    await expect(page.locator('h1')).toContainText('Bridal Edit 2026');
+    await expect(page.locator('h1').first()).toContainText('Bridal Edit 2026');
     await expect(page.getByRole('link', { name: 'Download 2026 Lookbook (PDF)' })).toBeVisible();
   });
 
@@ -127,9 +127,9 @@ test.describe('NAVA CREATIONS — Luxury Storefront & Conversion Verification Su
     await page.goto('http://localhost:3000/lookbook/bridal-edit-2026');
 
     // Header & Story
-    await expect(page.locator('h1')).toContainText('Bridal Edit 2026: Heirloom Trousseau Guide');
-    await expect(page.locator('text=Jadau Kundan stonework')).toBeVisible();
-    await expect(page.locator('text=1-micron 22K electro-gold plating')).toBeVisible();
+    await expect(page.locator('h1').first()).toContainText('Bridal Edit 2026: Heirloom Trousseau Guide');
+    await expect(page.locator('text=Jadau Kundan stonework').first()).toBeVisible();
+    await expect(page.locator('text=1-micron 22K electro-gold plating').first()).toBeVisible();
 
     // Sizing table
     await expect(page.locator('text=Official Bangle Wrist-Sizing Guide (2.2 – 2.10)')).toBeVisible();
