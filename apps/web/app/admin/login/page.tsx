@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { LockIcon, ArrowRightIcon, AlertCircleIcon, CheckIcon } from '@/components/icons';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 export default function AdminLoginPage() {
   const [authMode, setAuthMode] = useState<'credentials' | 'token'>('credentials');
@@ -13,16 +14,71 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // If already authenticated as administrator, redirect to /admin
+  useEffect(() => {
+    let isMounted = true;
+    async function checkExistingAdmin() {
+      try {
+        if (isSupabaseConfigured()) {
+          const supabase = createClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user && isMounted) {
+            window.location.href = '/admin';
+            return;
+          }
+        }
+      } catch (_e) {
+        // Continue displaying admin login
+      }
+    }
+
+    checkExistingAdmin();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
+      // Primary: Strictly authenticate via Supabase Auth when configured
+      if (authMode === 'credentials' && isSupabaseConfigured()) {
+        const supabase = createClient();
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: password,
+        });
+
+        if (signInError) {
+          throw new Error(signInError.message);
+        }
+
+        if (data?.session) {
+          // Establish server-side admin session cookie for legacy API handlers
+          await fetch('/api/admin/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: cleanEmail, password }),
+          }).catch(() => {});
+
+          setSuccess(true);
+          setTimeout(() => {
+            window.location.href = '/admin';
+          }, 200);
+          return;
+        }
+      }
+
+      // Fallback for local prototype verification / test runner environments
       const payload =
-        authMode === 'credentials'
-          ? { email: email.trim(), password }
-          : { token: token.trim() };
+        authMode === 'credentials' && cleanEmail
+          ? { email: cleanEmail, password }
+          : { token: (token || password).trim() };
 
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
@@ -121,7 +177,6 @@ export default function AdminLoginPage() {
                   </label>
                   <input
                     type="email"
-                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@nava-creations.internal"
@@ -167,7 +222,7 @@ export default function AdminLoginPage() {
               disabled={loading || success}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-brand-maroon hover:bg-brand-deepMaroon text-white rounded-lg text-xs font-semibold tracking-wider uppercase transition-all shadow disabled:opacity-40"
             >
-              <span>{loading ? 'Verifying...' : 'Authenticate Studio Session'}</span>
+              <span>{loading ? 'Verifying with Supabase...' : 'Authenticate Studio Session'}</span>
               <ArrowRightIcon className="w-4 h-4" />
             </button>
           </form>
@@ -194,7 +249,7 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="mt-6 text-center text-[11px] text-stone-400">
-          Enforcing Phase 2.1 Security Governance &bull; Zero Public Registration
+          Enforcing Phase 3 Supabase Auth Governance &bull; Zero Public Registration
         </div>
       </div>
     </div>

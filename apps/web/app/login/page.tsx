@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowRightIcon, AlertCircleIcon, CheckIcon, UserIcon, ShieldCheckIcon } from '@/components/icons';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 function LoginForm() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/account';
 
-  const [activeTab, setActiveTab] = useState<'email_otp' | 'google' | 'phone_otp' | 'guest_track'>('email_otp');
+  const [activeTab, setActiveTab] = useState<'email_otp' | 'google' | 'guest_track'>('email_otp');
   const [email, setEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
-  const [phone, setPhone] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
   const [guestToken, setGuestToken] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,29 +21,78 @@ function LoginForm() {
   const [success, setSuccess] = useState<string | null>(null);
   const [testOtpHint, setTestOtpHint] = useState<string | null>(null);
 
-  // Send OTP
+  // If already authenticated, automatically redirect customer to /account
+  useEffect(() => {
+    let isMounted = true;
+    async function checkExistingAuth() {
+      try {
+        if (isSupabaseConfigured()) {
+          const supabase = createClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user && isMounted) {
+            window.location.href = redirectUrl;
+            return;
+          }
+        }
+
+        const res = await fetch('/api/auth/me');
+        if (res.ok && isMounted) {
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            window.location.href = redirectUrl;
+          }
+        }
+      } catch (_e) {
+        // Continue to display login form
+      }
+    }
+
+    checkExistingAuth();
+    return () => {
+      isMounted = false;
+    };
+  }, [redirectUrl]);
+
+  // Send Email OTP via Supabase Auth (or test fallback)
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
+    const cleanEmail = email.trim().toLowerCase();
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), action: 'send_otp' }),
-      });
+      if (isSupabaseConfigured()) {
+        const supabase = createClient();
+        const origin = window.location.origin;
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          email: cleanEmail,
+          options: {
+            emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirectUrl)}`,
+          },
+        });
+        if (otpError) throw otpError;
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to dispatch verification code');
-      }
+        setOtpSent(true);
+        setSuccess(`Verification passcode dispatched to ${cleanEmail}. Check your inbox.`);
+      } else {
+        // Prototype / Automated test fallback
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, action: 'send_otp' }),
+        });
 
-      setOtpSent(true);
-      setSuccess(data.message || 'Verification passcode sent to your email.');
-      if (data.testOtp) {
-        setTestOtpHint(data.testOtp);
-        setOtpCode(data.testOtp);
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to dispatch verification code');
+        }
+
+        setOtpSent(true);
+        setSuccess(data.message || 'Verification passcode sent to your email.');
+        if (data.testOtp) {
+          setTestOtpHint(data.testOtp);
+          setOtpCode(data.testOtp);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send OTP');
@@ -52,19 +101,41 @@ function LoginForm() {
     }
   };
 
-  // Verify OTP
+  // Verify Email OTP passcode
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanOtp = otpCode.trim();
+
     try {
+      if (isSupabaseConfigured()) {
+        const supabase = createClient();
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          email: cleanEmail,
+          token: cleanOtp,
+          type: 'email',
+        });
+        if (verifyError) throw verifyError;
+
+        if (data?.session) {
+          setSuccess('Authenticated successfully. Redirecting to your account...');
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 300);
+          return;
+        }
+      }
+
+      // Fallback for prototype mode / test runners
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: email.trim(),
-          otp: otpCode.trim(),
+          email: cleanEmail,
+          otp: cleanOtp,
         }),
       });
 
@@ -84,27 +155,22 @@ function LoginForm() {
     }
   };
 
-  // Google OAuth
+  // Google OAuth via Supabase PKCE flow
   const handleGoogleSignIn = async () => {
     setError(null);
     setLoading(true);
     try {
-      // In production with Supabase configured:
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-        );
+      if (isSupabaseConfigured()) {
+        const supabase = createClient();
+        const origin = window.location.origin;
         const { error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(redirectUrl)}`,
+            redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirectUrl)}`,
           },
         });
         if (oauthError) throw oauthError;
       } else {
-        // Fallback for prototype testing without live Supabase cloud
         setError('Google OAuth provider requires live Supabase client credentials in environment.');
       }
     } catch (err) {
@@ -162,7 +228,7 @@ function LoginForm() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         <div className="bg-white border border-brand-sand py-8 px-6 sm:px-10 rounded-2xl shadow-sm space-y-6">
           {/* Method Tabs */}
-          <div className="flex border-b border-stone-200 gap-4 text-xs font-medium pb-2">
+          <div className="flex border-b border-stone-200 gap-4 text-xs font-medium pb-2 items-center">
             <button
               type="button"
               onClick={() => { setActiveTab('email_otp'); setError(null); }}
@@ -185,16 +251,15 @@ function LoginForm() {
             >
               Google
             </button>
+            {/* Phone (SMS) - Disabled for Phase 3 with tooltip */}
             <button
               type="button"
-              onClick={() => { setActiveTab('phone_otp'); setError(null); }}
-              className={`pb-1 transition-colors ${
-                activeTab === 'phone_otp'
-                  ? 'border-b-2 border-brand-maroon text-brand-maroon font-semibold'
-                  : 'text-stone-500 hover:text-stone-800'
-              }`}
+              disabled
+              title="SMS Gateway integration planned for Phase 4"
+              className="pb-1 text-stone-300 cursor-not-allowed flex items-center gap-1 opacity-60"
             >
-              Phone (SMS)
+              <span>Phone (SMS)</span>
+              <span className="text-[9px] bg-stone-100 text-stone-400 px-1 py-0.2 rounded font-mono">Phase 4</span>
             </button>
             <button
               type="button"
@@ -307,7 +372,7 @@ function LoginForm() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full py-3 px-4 border border-stone-300 hover:border-stone-400 bg-white text-stone-700 font-medium text-xs rounded-xl tracking-wider transition-colors shadow-sm flex items-center justify-center gap-3"
+                className="w-full py-3 px-4 border border-stone-300 hover:border-stone-400 bg-white text-stone-700 font-medium text-xs rounded-xl tracking-wider transition-colors shadow-sm flex items-center justify-center gap-3 disabled:opacity-60"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path
@@ -327,42 +392,7 @@ function LoginForm() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>Continue with Google</span>
-              </button>
-            </div>
-          )}
-
-          {/* TAB 3: PHONE OTP (SMS) */}
-          {activeTab === 'phone_otp' && (
-            <div className="space-y-4">
-              <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-600 text-xs flex items-start gap-2.5">
-                <ShieldCheckIcon className="w-4 h-4 text-stone-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <strong className="text-stone-800 block">SMS Gateway Pending Integration</strong>
-                  <span>Phone OTP is scheduled for activation in Stage 2. Please use Email OTP or Google Sign-In above.</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1.5">
-                  Mobile Number (India)
-                </label>
-                <input
-                  type="tel"
-                  disabled
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+91 98765 43210 (Temporarily Disabled)"
-                  className="w-full px-4 py-2.5 text-sm bg-stone-100 border border-stone-200 rounded-xl text-stone-400 cursor-not-allowed"
-                />
-              </div>
-
-              <button
-                type="button"
-                disabled
-                className="w-full py-3 px-4 bg-stone-300 text-stone-500 font-medium text-xs rounded-xl tracking-wider uppercase cursor-not-allowed"
-              >
-                SMS Gateway Offline
+                <span>{loading ? 'Connecting to Google...' : 'Continue with Google'}</span>
               </button>
             </div>
           )}
