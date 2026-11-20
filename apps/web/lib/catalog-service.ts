@@ -858,6 +858,32 @@ export class CatalogService {
     }
 
     if (!collection || collection.status !== 'PUBLISHED') {
+      // Fallback: check if an active category matching this slug exists to present as a curated collection
+      const allCategories = await this.getAllCategoriesFlat(true);
+      const matchingCat = allCategories.find((c: CategoryDto) => c.slug === cleanSlug);
+      if (matchingCat && matchingCat.isActive) {
+        const catCollection: CollectionDto = {
+          id: `col-${matchingCat.id}`,
+          name: matchingCat.name,
+          slug: matchingCat.slug,
+          description: matchingCat.description || `Curated artisanal collection featuring handcrafted ${matchingCat.name}.`,
+          coverImageUrl: 'https://images.unsplash.com/photo-1611591475850-53818e69234b?auto=format&fit=crop&w=1200&q=80',
+          status: 'PUBLISHED',
+          displayOrder: 99,
+        };
+
+        const productsResult = await this.getPublishedProducts({
+          categoryId: matchingCat.id,
+          page: options.page,
+          limit: options.limit,
+        });
+
+        return {
+          collection: catCollection,
+          products: productsResult,
+        };
+      }
+
       return null;
     }
 

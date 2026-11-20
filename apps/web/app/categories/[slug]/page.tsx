@@ -11,8 +11,9 @@ interface CategoryPageProps {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const categories = await CatalogService.getCategories();
-  const currentCategory = categories.find((c) => c.slug === slug);
+  const allCategories = await CatalogService.getAllCategoriesFlat(true);
+  const currentCategory = allCategories.find((c) => c.slug === slug)
+    || (await CatalogService.getCategories()).find((c) => c.slug === slug);
 
   if (!currentCategory) {
     notFound();

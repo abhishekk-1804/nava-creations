@@ -74,6 +74,16 @@ export const SAMPLE_COLLECTIONS: CollectionDto[] = [
     displayOrder: 3,
     productCount: 3,
   },
+  {
+    id: 'col-kundan-artistry',
+    name: 'Kundan Artistry',
+    slug: 'kundan-artistry',
+    description: 'Traditional Jadau and Kundan stonework set in antique gold finish by master Bengaluru artisans.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1611591475850-53818e69234b?auto=format&fit=crop&w=1200&q=80',
+    status: 'PUBLISHED',
+    displayOrder: 4,
+    productCount: 3,
+  },
 ];
 
 export const SAMPLE_PRODUCTS: (ProductDto & { isDevelopmentPlaceholder?: boolean })[] = [
@@ -152,6 +162,7 @@ export const SAMPLE_PRODUCTS: (ProductDto & { isDevelopmentPlaceholder?: boolean
     collections: [
       { id: 'col-bridal-2026', name: 'Bridal Edit 2026', slug: 'bridal-edit-2026' },
       { id: 'col-bestsellers', name: 'Bengaluru Bestsellers', slug: 'bestsellers' },
+      { id: 'col-kundan-artistry', name: 'Kundan Artistry', slug: 'kundan-artistry' },
     ],
     createdAt: '2026-11-01T10:00:00.000Z',
     updatedAt: '2026-11-10T14:30:00.000Z',

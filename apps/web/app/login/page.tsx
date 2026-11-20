@@ -413,6 +413,12 @@ function LoginForm() {
             </div>
           )}
 
+          {/* Security Notice: Passwordless OTP Helper */}
+          <div className="pt-1 flex items-center justify-center gap-1.5 text-center text-xs text-stone-600 font-medium bg-brand-cream/60 py-2 px-3 rounded-xl border border-brand-sand/70">
+            <ShieldCheckIcon className="w-4 h-4 text-brand-darkGold flex-shrink-0" />
+            <span>For security, we use passwordless OTP login.</span>
+          </div>
+
           {/* Footer Actions */}
           <div className="pt-4 border-t border-stone-100 space-y-3">
             <div className="flex items-center justify-between text-xs text-stone-500">
@@ -436,6 +442,17 @@ function LoginForm() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Discrete Admin Gateway Link for Store Owners & Management */}
+        <div className="mt-6 text-center">
+          <Link
+            href="/admin/login"
+            className="inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-brand-maroon transition-colors py-1.5 px-3.5 rounded-full hover:bg-white/80 border border-transparent hover:border-brand-sand shadow-none hover:shadow-sm"
+          >
+            <span>Studio Admin Login</span>
+            <span aria-hidden="true">&rarr;</span>
+          </Link>
         </div>
       </div>
     </div>

@@ -26,7 +26,7 @@ export function Header() {
     { label: 'Shop All', href: '/shop' },
     { label: 'Handmade Bangles', href: '/categories/handmade-bangles' },
     { label: 'Bridal Sets', href: '/categories/bridal-jewellery' },
-    { label: 'Kundan Artistry', href: '/categories/kundan-artistry' },
+    { label: 'Kundan Artistry', href: '/collections/kundan-artistry' },
     { label: 'Return Gifts', href: '/categories/return-gifts' },
     { label: 'Contact & Studio', href: '/contact' },
   ];
@@ -241,6 +241,13 @@ export function Header() {
                   className="block text-sm text-stone-700 hover:text-brand-maroon py-1.5"
                 >
                   &bull; Bridal Edit 2026
+                </Link>
+                <Link
+                  href="/collections/kundan-artistry"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-sm text-stone-700 hover:text-brand-maroon py-1.5"
+                >
+                  &bull; Kundan Artistry
                 </Link>
                 <Link
                   href="/collections/bestsellers"

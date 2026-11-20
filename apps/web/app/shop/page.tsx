@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { CatalogService } from '@/lib/catalog-service';
 import { ProductCard } from '@/components/product-card';
-import { SearchIcon, ChevronRightIcon } from '@/components/icons';
+import { SearchIcon, ChevronRightIcon, ArrowRightIcon } from '@/components/icons';
 
 interface ShopPageProps {
   searchParams: Promise<{
@@ -142,17 +142,36 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
       {/* Product Grid or Empty State */}
       {products.length === 0 ? (
-        <div className="py-20 text-center bg-white rounded-lg border border-stone-200 p-8">
-          <h3 className="font-serif text-xl text-stone-800 mb-2">No pieces found</h3>
-          <p className="text-xs text-stone-500 max-w-sm mx-auto mb-6">
-            We couldn&apos;t find any accessories matching your selected search or filter criteria.
+        <div className="py-16 sm:py-20 text-center bg-brand-cream/40 rounded-2xl border border-brand-sand p-8 sm:p-12 max-w-2xl mx-auto space-y-5">
+          <div className="w-12 h-12 rounded-full bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center text-brand-darkGold mx-auto">
+            <SearchIcon className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-[11px] uppercase tracking-widest text-brand-darkGold font-semibold block mb-1">
+              Atelier Catalogue Update
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 font-normal">
+              No pieces found
+            </h3>
+          </div>
+          <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
+            We couldn&apos;t find any pieces matching your current filter. Our Bengaluru artisans craft bespoke bridal chuda, kadas, and custom sizes (2.2 &ndash; 2.10) to order.
           </p>
-          <Link
-            href="/shop"
-            className="px-6 py-2 bg-brand-maroon text-white text-xs font-medium rounded hover:bg-brand-deepMaroon transition-colors"
-          >
-            Clear All Filters
-          </Link>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/contact"
+              className="w-full sm:w-auto px-6 py-3 bg-brand-maroon hover:bg-brand-deepMaroon text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              <span>Request Bespoke Order</span>
+              <ArrowRightIcon className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              href="/shop"
+              className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-brand-cream border border-brand-sand text-stone-800 text-xs font-medium uppercase tracking-wider rounded-xl transition-colors"
+            >
+              Clear All Filters
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
