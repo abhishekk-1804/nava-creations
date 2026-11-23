@@ -1,9 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { CatalogService } from '@/lib/catalog-service';
 import { ProductCard } from '@/components/product-card';
 import { ChevronRightIcon, ArrowRightIcon } from '@/components/icons';
+
+// Edge-cached ISR: Revalidate category queries every hour
+export const revalidate = 3600;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -16,7 +19,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     || (await CatalogService.getCategories()).find((c) => c.slug === slug);
 
   if (!currentCategory) {
-    notFound();
+    // If slug matches a curated collection, safely redirect to the collection page
+    const collections = await CatalogService.getPublishedCollections();
+    if (collections.some((col) => col.slug === slug)) {
+      redirect(`/collections/${slug}`);
+    }
+    // Otherwise fallback to canonical shop filtered by category slug (zero 404 guarantee)
+    redirect(`/shop?category=${encodeURIComponent(slug)}`);
   }
 
   const productsResult = await CatalogService.getPublishedProducts({

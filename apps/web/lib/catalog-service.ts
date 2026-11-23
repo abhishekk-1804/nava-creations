@@ -160,7 +160,9 @@ export class CatalogService {
       let filtered = [...SAMPLE_PRODUCTS];
 
       if (options.categoryId) {
-        filtered = filtered.filter((p) => p.categoryId === options.categoryId);
+        filtered = filtered.filter(
+          (p) => p.categoryId === options.categoryId || p.category?.slug === options.categoryId
+        );
       }
 
       if (options.isFeatured !== undefined) {
@@ -188,34 +190,46 @@ export class CatalogService {
       return buildPaginatedResult(paginated, total, page, limit);
     }
 
-    const where: any = {
-      status: 'PUBLISHED',
-    };
+    const andConditions: any[] = [{ status: 'PUBLISHED' }];
 
     if (options.categoryId) {
-      where.categoryId = options.categoryId;
+      andConditions.push({
+        OR: [
+          { categoryId: options.categoryId },
+          { category: { slug: options.categoryId } },
+        ],
+      });
     }
 
     if (options.isFeatured !== undefined) {
-      where.isFeatured = options.isFeatured;
+      andConditions.push({ isFeatured: options.isFeatured });
     }
 
     if (options.collectionId) {
-      where.collections = {
-        some: {
-          collectionId: options.collectionId,
+      andConditions.push({
+        collections: {
+          some: {
+            OR: [
+              { collectionId: options.collectionId },
+              { collection: { slug: options.collectionId } },
+            ],
+          },
         },
-      };
+      });
     }
 
     if (options.search && options.search.trim() !== '') {
       const term = options.search.trim();
-      where.OR = [
-        { name: { contains: term, mode: 'insensitive' } },
-        { description: { contains: term, mode: 'insensitive' } },
-        { sku: { contains: term, mode: 'insensitive' } },
-      ];
+      andConditions.push({
+        OR: [
+          { name: { contains: term, mode: 'insensitive' } },
+          { description: { contains: term, mode: 'insensitive' } },
+          { sku: { contains: term, mode: 'insensitive' } },
+        ],
+      });
     }
+
+    const where: any = andConditions.length === 1 ? andConditions[0] : { AND: andConditions };
 
     const [total, products] = await Promise.all([
       prisma.product.count({ where }),

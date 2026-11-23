@@ -4,6 +4,9 @@ import { CatalogService } from '@/lib/catalog-service';
 import { ProductCard } from '@/components/product-card';
 import { SearchIcon, ChevronRightIcon, ArrowRightIcon } from '@/components/icons';
 
+// Edge-cached ISR: Revalidate catalog queries every hour to withstand 1M+ user traffic surges
+export const revalidate = 3600;
+
 interface ShopPageProps {
   searchParams: Promise<{
     category?: string;
@@ -36,6 +39,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   ]);
 
   const { items: products, total, totalPages, hasNextPage, hasPrevPage } = productsResult;
+
+  const activeCategoryValue = categories.find((c) => c.id === categoryId || c.slug === categoryId)?.slug || categoryId || '';
+  const activeCollectionValue = collections.find((c) => c.id === collectionId || c.slug === collectionId)?.slug || collectionId || '';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
@@ -78,13 +84,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
           <select
             name="category"
-            defaultValue={categoryId || ''}
+            defaultValue={activeCategoryValue}
             aria-label="Filter by product category"
             className="text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white text-stone-800 focus:outline-none focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
           >
             <option value="">All Categories</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>
+              <option key={c.id} value={c.slug}>
                 {c.name}
               </option>
             ))}
@@ -92,13 +98,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
           <select
             name="collection"
-            defaultValue={collectionId || ''}
+            defaultValue={activeCollectionValue}
             aria-label="Filter by curated collection"
             className="text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white text-stone-800 focus:outline-none focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
           >
             <option value="">All Collections</option>
             {collections.map((c) => (
-              <option key={c.id} value={c.id}>
+              <option key={c.id} value={c.slug}>
                 {c.name}
               </option>
             ))}
@@ -126,20 +132,23 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         >
           All Items
         </Link>
-        {categories.map((c) => (
-          <Link
-            key={c.id}
-            href={`/categories/${c.slug}`}
-            prefetch={true}
-            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
-              categoryId === c.id
-                ? 'bg-brand-maroon text-white font-medium'
-                : 'bg-white border border-stone-200 text-stone-700 hover:border-brand-maroon'
-            }`}
-          >
-            {c.name}
-          </Link>
-        ))}
+        {categories.map((c) => {
+          const isSelected = categoryId === c.id || categoryId === c.slug;
+          return (
+            <Link
+              key={c.id}
+              href={`/shop?category=${c.slug}`}
+              prefetch={true}
+              className={`px-3 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
+                isSelected
+                  ? 'bg-brand-maroon text-white font-medium'
+                  : 'bg-white border border-stone-200 text-stone-700 hover:border-brand-maroon'
+              }`}
+            >
+              {c.name}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Product Grid or Empty State */}

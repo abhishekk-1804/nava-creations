@@ -120,27 +120,27 @@ export function Footer() {
             </h5>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/categories/handmade-bangles" prefetch={true} className="hover:text-brand-lightGold transition-colors">
+                <Link href="/shop?category=handmade-bangles" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Handmade Bangles
                 </Link>
               </li>
               <li>
-                <Link href="/categories/bridal-jewellery" prefetch={true} className="hover:text-brand-lightGold transition-colors">
+                <Link href="/shop?category=bridal-jewellery" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Bridal Sets &amp; Chuda
                 </Link>
               </li>
               <li>
-                <Link href="/categories/kundan-artistry" prefetch={true} className="hover:text-brand-lightGold transition-colors">
+                <Link href="/collections/kundan-artistry" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Kundan Artistry
                 </Link>
               </li>
               <li>
-                <Link href="/categories/hair-accessories" prefetch={true} className="hover:text-brand-lightGold transition-colors">
+                <Link href="/shop?category=hair-accessories" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Hair Accessories
                 </Link>
               </li>
               <li>
-                <Link href="/categories/return-gifts" prefetch={true} className="hover:text-brand-lightGold transition-colors">
+                <Link href="/shop?category=return-gifts" prefetch={true} className="hover:text-brand-lightGold transition-colors">
                   Return Gifts &amp; Favours
                 </Link>
               </li>

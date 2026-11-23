@@ -6,6 +6,9 @@ import { CatalogService } from '@/lib/catalog-service';
 import { ProductDetailView } from '@/components/product-detail-view';
 import { ChevronRightIcon } from '@/components/icons';
 
+// Edge-cached ISR: Revalidate product details every hour
+export const revalidate = 3600;
+
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }

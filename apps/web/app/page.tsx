@@ -13,6 +13,9 @@ import {
 } from '@/components/icons';
 import { CONFIG, buildWhatsAppLink } from '@/lib/config';
 
+// Edge-cached ISR: Revalidate every hour, served immediately from edge CDN under high concurrency
+export const revalidate = 3600;
+
 export default async function HomePage() {
   const [featuredResult, categories, collections] = await Promise.all([
     CatalogService.getPublishedProducts({ isFeatured: true, limit: 4 }),
@@ -53,7 +56,7 @@ export default async function HomePage() {
           {categories.slice(0, 4).map((cat) => (
             <Link
               key={cat.id}
-              href={`/categories/${cat.slug}`}
+              href={`/shop?category=${cat.slug}`}
               prefetch={true}
               className="group relative block bg-white p-6 rounded-xl border border-stone-200/80 shadow-sm hover:shadow-md hover:border-brand-gold/50 transition-all text-center"
             >

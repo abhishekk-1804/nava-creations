@@ -131,6 +131,16 @@ export default function CheckoutPage() {
       .catch(() => {});
   }, []);
 
+  const [paymentSettings, setPaymentSettings] = useState<{
+    codEnabled: boolean;
+    isMerchantConfirmed: boolean;
+    upiVpa?: string;
+    merchantName?: string;
+  }>({
+    codEnabled: true,
+    isMerchantConfirmed: true,
+  });
+
   useEffect(() => {
     fetch('/api/settings')
       .then((res) => (res.ok ? res.json() : null))
@@ -140,6 +150,15 @@ export default function CheckoutPage() {
             freeShippingThresholdPaise: data.settings.freeShippingThresholdPaise ?? 199900,
             standardShippingFeePaise: data.settings.standardShippingFeePaise ?? 15000,
           });
+          setPaymentSettings({
+            codEnabled: data.settings.codEnabled !== false,
+            isMerchantConfirmed: data.settings.isMerchantConfirmed !== false,
+            upiVpa: data.settings.upiVpa,
+            merchantName: data.settings.merchantName,
+          });
+          if (data.settings.codEnabled === false) {
+            setFormData((prev) => (prev.paymentMethod === 'COD' ? { ...prev, paymentMethod: 'UPI_MERCHANT_QR' } : prev));
+          }
         }
       })
       .catch(() => {
@@ -254,6 +273,16 @@ export default function CheckoutPage() {
 
     if (!/^[1-9][0-9]{5}$/.test(formData.postalCode.trim())) {
       setErrorMessage('Please enter a valid 6-digit Indian PIN code (must start with digits 1-9).');
+      return;
+    }
+
+    if (formData.paymentMethod === 'UPI_MERCHANT_QR' && !paymentSettings.isMerchantConfirmed) {
+      setErrorMessage('Merchant UPI collection is not yet configured or approved by the business owner.');
+      return;
+    }
+
+    if (formData.paymentMethod === 'COD' && !paymentSettings.codEnabled) {
+      setErrorMessage('Cash on Delivery is currently disabled by store management.');
       return;
     }
 
@@ -582,7 +611,9 @@ export default function CheckoutPage() {
             </h2>
             <div className="space-y-3">
               <label
-                className={`flex items-start gap-3 p-4 rounded-lg border transition-all cursor-pointer ${
+                className={`flex items-start gap-3 p-4 rounded-lg border transition-all ${
+                  paymentSettings.isMerchantConfirmed ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed'
+                } ${
                   formData.paymentMethod === 'UPI_MERCHANT_QR'
                     ? 'border-brand-maroon bg-brand-cream/50 ring-1 ring-brand-maroon'
                     : 'border-stone-200 hover:border-stone-300'
@@ -592,6 +623,7 @@ export default function CheckoutPage() {
                   type="radio"
                   name="paymentMethod"
                   value="UPI_MERCHANT_QR"
+                  disabled={!paymentSettings.isMerchantConfirmed}
                   checked={formData.paymentMethod === 'UPI_MERCHANT_QR'}
                   onChange={handleInputChange}
                   className="mt-0.5 text-brand-maroon focus:ring-brand-maroon"
@@ -609,33 +641,50 @@ export default function CheckoutPage() {
                     Scan our verified studio merchant QR code using GPay, PhonePe, Paytm, or BHIM.
                     After completing the transfer, submit your 12-digit UPI Bank UTR on the next screen.
                   </p>
+                  {paymentSettings.upiVpa && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 rounded text-[11px] font-mono text-stone-700">
+                      <span>UPI ID:</span>
+                      <span className="font-semibold text-brand-maroon">{paymentSettings.upiVpa}</span>
+                    </div>
+                  )}
+                  {!paymentSettings.isMerchantConfirmed && (
+                    <p className="text-[11px] text-amber-800 bg-amber-50 px-2 py-1 rounded font-medium">
+                      Merchant UPI onboarding is currently unapproved or unconfigured (MERCHANT_ONBOARDING_APPROVED is false).
+                    </p>
+                  )}
                 </div>
               </label>
 
-              <label
-                className={`flex items-start gap-3 p-4 rounded-lg border transition-all cursor-pointer ${
-                  formData.paymentMethod === 'COD'
-                    ? 'border-brand-maroon bg-brand-cream/50 ring-1 ring-brand-maroon'
-                    : 'border-stone-200 hover:border-stone-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="COD"
-                  checked={formData.paymentMethod === 'COD'}
-                  onChange={handleInputChange}
-                  className="mt-0.5 text-brand-maroon focus:ring-brand-maroon"
-                />
-                <div className="space-y-1">
-                  <span className="text-xs font-semibold text-stone-900 block">
-                    Cash on Delivery (COD)
-                  </span>
-                  <p className="text-[11px] text-stone-600 leading-relaxed">
-                    Pay in cash upon doorstep delivery by our courier partner. Available across eligible PIN codes.
-                  </p>
+              {paymentSettings.codEnabled ? (
+                <label
+                  className={`flex items-start gap-3 p-4 rounded-lg border transition-all cursor-pointer ${
+                    formData.paymentMethod === 'COD'
+                      ? 'border-brand-maroon bg-brand-cream/50 ring-1 ring-brand-maroon'
+                      : 'border-stone-200 hover:border-stone-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="COD"
+                    checked={formData.paymentMethod === 'COD'}
+                    onChange={handleInputChange}
+                    className="mt-0.5 text-brand-maroon focus:ring-brand-maroon"
+                  />
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-stone-900 block">
+                      Cash on Delivery (COD)
+                    </span>
+                    <p className="text-[11px] text-stone-600 leading-relaxed">
+                      Pay in cash upon doorstep delivery by our courier partner. Available across eligible PIN codes.
+                    </p>
+                  </div>
+                </label>
+              ) : (
+                <div className="p-3 bg-stone-50 border border-stone-200 rounded-lg text-stone-500 text-xs">
+                  Cash on Delivery is currently disabled by store management (COD_ENABLED is false).
                 </div>
-              </label>
+              )}
             </div>
           </div>
         </div>

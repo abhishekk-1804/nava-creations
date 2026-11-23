@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { SafeImage } from '@/components/safe-image';
 import {
   ShoppingBagIcon,
   TruckIcon,
@@ -46,6 +47,7 @@ interface OrderItem {
   quantity: number;
   unitPricePaise: number;
   totalPricePaise: number;
+  imageUrl?: string | null;
 }
 
 interface Order {
@@ -358,15 +360,26 @@ export default function CustomerAccountPage() {
 
                     <div className="divide-y divide-stone-100">
                       {order.items.map((item) => (
-                        <div key={item.id} className="py-3 flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-stone-800">{item.title}</p>
-                            {item.variantTitle && (
-                              <p className="text-xs text-stone-400">Variant: {item.variantTitle}</p>
-                            )}
-                            <p className="text-xs text-stone-500">Qty: {item.quantity}</p>
+                        <div key={item.id} className="py-3 flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden flex-shrink-0 border border-stone-200">
+                              <SafeImage
+                                src={item.imageUrl || '/branding/sample-chuda-1.jpg'}
+                                alt={item.title}
+                                width={48}
+                                height={48}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-stone-800">{item.title}</p>
+                              {item.variantTitle && (
+                                <p className="text-xs text-stone-400">Variant: {item.variantTitle}</p>
+                              )}
+                              <p className="text-xs text-stone-500">Qty: {item.quantity}</p>
+                            </div>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right flex-shrink-0">
                             <span className="text-sm font-medium text-stone-900">
                               ₹{(item.totalPricePaise / 100).toLocaleString('en-IN')}
                             </span>

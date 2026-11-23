@@ -138,8 +138,8 @@ export class PaymentService {
     if (this.testMerchantConfig) {
       return this.testMerchantConfig.isMerchantConfirmed && Boolean(this.testMerchantConfig.upiVpa && this.testMerchantConfig.upiVpa !== 'UNCONFIGURED_MERCHANT_VPA');
     }
-    const upiVpa = CONFIG.payment.upiVpa;
-    const isApproved = CONFIG.payment.isMerchantConfirmed;
+    const upiVpa = process.env.MERCHANT_UPI_VPA || CONFIG.payment.upiVpa;
+    const isApproved = process.env.MERCHANT_ONBOARDING_APPROVED === 'true' || CONFIG.payment.isMerchantConfirmed;
     return Boolean(isApproved && upiVpa && upiVpa.trim() !== '' && upiVpa !== 'UNCONFIGURED_MERCHANT_VPA');
   }
 

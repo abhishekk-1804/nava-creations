@@ -6,6 +6,9 @@ import { ProductCard } from '@/components/product-card';
 import { ChevronRightIcon, ArrowRightIcon, WhatsAppIcon } from '@/components/icons';
 import { buildWhatsAppLink } from '@/lib/config';
 
+// Edge-cached ISR: Revalidate curated collection queries every hour
+export const revalidate = 3600;
+
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
 }

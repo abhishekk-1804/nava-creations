@@ -44,20 +44,40 @@ export const CONFIG = {
 
   // Sovereign India-First Payment Configuration (Zero-MDR Merchant UPI & COD)
   payment: {
-    upiVpa: process.env.MERCHANT_UPI_VPA || '',
-    merchantName: process.env.MERCHANT_DISPLAY_NAME || 'NAVA CREATIONS',
-    merchantQrUrl: process.env.MERCHANT_QR_IMAGE_URL || '/branding/merchant-upi-qr.png',
-    isMerchantConfirmed: Boolean(
-      process.env.MERCHANT_UPI_VPA &&
-      process.env.MERCHANT_UPI_VPA.trim() !== '' &&
-      process.env.MERCHANT_ONBOARDING_APPROVED === 'true'
-    ),
-    codEnabled: process.env.COD_ENABLED !== 'false',
-    codMaxPaise: process.env.COD_MAX_PAISE ? parseInt(process.env.COD_MAX_PAISE, 10) : 500000, // ₹5,000 provisional ceiling
-    codPolicyApproved: process.env.COD_POLICY_APPROVED === 'true',
-    codCourierChargePaise: process.env.COD_COURIER_CHARGE_PAISE ? parseInt(process.env.COD_COURIER_CHARGE_PAISE, 10) : 0,
-    checkoutReservationTtlMinutes: process.env.CHECKOUT_RESERVATION_TTL_MINUTES ? parseInt(process.env.CHECKOUT_RESERVATION_TTL_MINUTES, 10) : 15,
-    verificationWindowHours: process.env.PAYMENT_VERIFICATION_WINDOW_HOURS ? parseInt(process.env.PAYMENT_VERIFICATION_WINDOW_HOURS, 10) : 24,
+    get upiVpa(): string {
+      return process.env.MERCHANT_UPI_VPA || '';
+    },
+    get merchantName(): string {
+      return process.env.MERCHANT_DISPLAY_NAME || 'NAVA CREATIONS';
+    },
+    get merchantQrUrl(): string {
+      return process.env.MERCHANT_QR_IMAGE_URL || '/branding/merchant-upi-qr.png';
+    },
+    get isMerchantConfirmed(): boolean {
+      return Boolean(
+        process.env.MERCHANT_UPI_VPA &&
+        process.env.MERCHANT_UPI_VPA.trim() !== '' &&
+        process.env.MERCHANT_ONBOARDING_APPROVED === 'true'
+      );
+    },
+    get codEnabled(): boolean {
+      return process.env.COD_ENABLED !== 'false';
+    },
+    get codMaxPaise(): number {
+      return process.env.COD_MAX_PAISE ? parseInt(process.env.COD_MAX_PAISE, 10) : 500000;
+    },
+    get codPolicyApproved(): boolean {
+      return process.env.COD_POLICY_APPROVED === 'true';
+    },
+    get codCourierChargePaise(): number {
+      return process.env.COD_COURIER_CHARGE_PAISE ? parseInt(process.env.COD_COURIER_CHARGE_PAISE, 10) : 0;
+    },
+    get checkoutReservationTtlMinutes(): number {
+      return process.env.CHECKOUT_RESERVATION_TTL_MINUTES ? parseInt(process.env.CHECKOUT_RESERVATION_TTL_MINUTES, 10) : 15;
+    },
+    get verificationWindowHours(): number {
+      return process.env.PAYMENT_VERIFICATION_WINDOW_HOURS ? parseInt(process.env.PAYMENT_VERIFICATION_WINDOW_HOURS, 10) : 24;
+    },
   },
 } as const;
 

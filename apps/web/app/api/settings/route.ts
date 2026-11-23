@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { SettingsService } from '@/lib/settings-service';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Public Storefront Settings Endpoint
  *
@@ -20,6 +22,7 @@ export async function GET() {
           studioCity: settings.studioCity,
           studioState: settings.studioState,
           whatsappDisplay: settings.whatsappDisplay,
+          supportPhone: settings.supportPhone || settings.whatsappDisplay,
           instagramHandle: settings.instagramHandle,
           codEnabled: settings.codEnabled,
           codMaxPaise: settings.codMaxPaise,
@@ -31,7 +34,7 @@ export async function GET() {
       {
         status: 200,
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         },
       }
     );

@@ -25,10 +25,10 @@ export function Header() {
 
   const navLinks = [
     { label: 'Shop All', href: '/shop' },
-    { label: 'Handmade Bangles', href: '/categories/handmade-bangles' },
-    { label: 'Bridal Sets', href: '/categories/bridal-jewellery' },
+    { label: 'Handmade Bangles', href: '/shop?category=handmade-bangles' },
+    { label: 'Bridal Sets', href: '/collections/bridal-edit-2026' },
     { label: 'Kundan Artistry', href: '/collections/kundan-artistry' },
-    { label: 'Return Gifts', href: '/categories/return-gifts' },
+    { label: 'Return Gifts', href: '/shop?category=return-gifts' },
     { label: 'Contact & Studio', href: '/contact' },
   ];
 

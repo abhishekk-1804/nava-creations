@@ -90,6 +90,7 @@ export default function AdminSettingsPage() {
         originStateCode: originStateCode.trim(),
         whatsappNumber: whatsappNumber.trim(),
         whatsappDisplay: whatsappDisplay.trim(),
+        supportPhone: whatsappDisplay.trim(),
         instagramHandle: instagramHandle.trim(),
         upiVpa: upiVpa.trim(),
         merchantName: merchantName.trim(),

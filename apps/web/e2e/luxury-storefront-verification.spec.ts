@@ -168,7 +168,7 @@ test.describe('NAVA CREATIONS — Luxury Storefront & Conversion Verification Su
     await page.goto('http://localhost:3000/');
 
     await expect(page.locator('button[aria-label="Open mobile menu"]')).toBeVisible();
-    await expect(page.locator('h1')).toContainText('Heirloom Bangles, Crafted for Your Sacred Moments.');
+    await expect(page.locator('h1').first()).toContainText('Heirloom Bangles, Crafted for Your Sacred Moments.');
 
     // Verify mobile menu opens and does NOT contain admin link
     await page.locator('button[aria-label="Open mobile menu"]').click();

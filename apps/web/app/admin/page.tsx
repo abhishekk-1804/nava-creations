@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { CatalogService } from '@/lib/catalog-service';
+import { AnalyticsService } from '@/lib/analytics-service';
+import { ExecutiveAnalytics } from '@/components/admin/executive-analytics';
 import {
   PackageIcon,
   LayersIcon,
@@ -14,7 +16,8 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  const [productsResult, categories, collections] = await Promise.all([
+  const [analytics, productsResult, categories, collections] = await Promise.all([
+    AnalyticsService.getExecutiveAnalytics(),
     CatalogService.getPublishedProducts({ limit: 50 }),
     CatalogService.getCategories(),
     CatalogService.getPublishedCollections(),
@@ -32,76 +35,100 @@ export default async function AdminDashboardPage() {
   });
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-10">
+      {/* Executive Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium text-stone-900">
-            Studio Overview
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-brand-darkGold block mb-1">
+            Studio Overview &amp; Financial Intelligence
+          </span>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+            Studio Overview — Executive Analytics Dashboard
           </h1>
           <p className="text-xs text-stone-500 mt-1">
-            Real-time status of NAVA CREATIONS product catalogue and inventory in Bengaluru.
+            Real-time financial performance, EBITDA operating margins, marketing ROI, and atelier catalog health.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <Link
-            href="/admin/products/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-maroon text-white rounded text-xs font-semibold hover:bg-brand-deepMaroon transition-colors shadow-sm"
+            href="/admin/settings"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 bg-white text-stone-800 rounded-lg text-xs font-semibold hover:bg-stone-50 transition-colors shadow-sm"
           >
-            <PlusIcon className="w-4 h-4" />
-            <span>Add New Piece</span>
+            <span>Payment &amp; Store Settings</span>
           </Link>
           <Link
             href="/admin/inventory"
-            className="inline-flex items-center gap-1.5 px-4 py-2 border border-stone-300 bg-white text-stone-800 rounded text-xs font-semibold hover:bg-stone-50 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 bg-white text-stone-800 rounded-lg text-xs font-semibold hover:bg-stone-50 transition-colors shadow-sm"
           >
-            <RefreshCwIcon className="w-4 h-4" />
+            <RefreshCwIcon className="w-3.5 h-3.5" />
             <span>Adjust Stock</span>
+          </Link>
+          <Link
+            href="/admin/products/new"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-maroon text-white rounded-lg text-xs font-semibold hover:bg-brand-deepMaroon transition-colors shadow-sm"
+          >
+            <PlusIcon className="w-3.5 h-3.5" />
+            <span>Add New Piece</span>
           </Link>
         </div>
       </div>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-          <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
-            <span>Catalogue Pieces</span>
-            <PackageIcon className="w-4 h-4 text-brand-maroon" />
-          </div>
-          <div className="text-2xl font-bold text-stone-900">{products.length}</div>
-          <span className="text-[11px] text-stone-400 mt-1 block">Active Published Pieces</span>
+      {/* Luxury Financial Analytics Engine (Recharts Charts & Metric Cards) */}
+      <ExecutiveAnalytics analytics={analytics} />
+
+      {/* Operational Catalog & Inventory Status Section */}
+      <div className="space-y-6 pt-4 border-t border-stone-200/80">
+        <div>
+          <h2 className="font-serif text-xl font-bold text-stone-900">
+            Catalogue &amp; Atelier Operations
+          </h2>
+          <p className="text-xs text-stone-500 mt-0.5">
+            Real-time breakdown of published designs and stock alerts across Bengaluru ateliers.
+          </p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-          <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
-            <span>Categories</span>
-            <LayersIcon className="w-4 h-4 text-brand-darkGold" />
+        {/* Operational Metrics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+            <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
+              <span>Catalogue Pieces</span>
+              <PackageIcon className="w-4 h-4 text-brand-maroon" />
+            </div>
+            <div className="text-2xl font-bold text-stone-900">{products.length}</div>
+            <span className="text-[11px] text-stone-400 mt-1 block">Active Published Pieces</span>
           </div>
-          <div className="text-2xl font-bold text-stone-900">{categories.length}</div>
-          <span className="text-[11px] text-stone-400 mt-1 block">Taxonomy Segments</span>
-        </div>
 
-        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-          <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
-            <span>Merchandising</span>
-            <TagIcon className="w-4 h-4 text-emerald-600" />
+          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+            <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
+              <span>Categories</span>
+              <LayersIcon className="w-4 h-4 text-brand-darkGold" />
+            </div>
+            <div className="text-2xl font-bold text-stone-900">{categories.length}</div>
+            <span className="text-[11px] text-stone-400 mt-1 block">Taxonomy Segments</span>
           </div>
-          <div className="text-2xl font-bold text-stone-900">{collections.length}</div>
-          <span className="text-[11px] text-stone-400 mt-1 block">Curated Edits Published</span>
-        </div>
 
-        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-          <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
-            <span>Stock Alerts</span>
-            <AlertCircleIcon className="w-4 h-4 text-amber-600" />
+          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+            <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
+              <span>Merchandising</span>
+              <TagIcon className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-bold text-stone-900">{collections.length}</div>
+            <span className="text-[11px] text-stone-400 mt-1 block">Curated Edits Published</span>
           </div>
-          <div className="text-2xl font-bold text-stone-900">
-            {lowStockItems.length + outOfStockItems.length}
+
+          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+            <div className="flex items-center justify-between text-stone-500 text-xs font-medium mb-3">
+              <span>Stock Alerts</span>
+              <AlertCircleIcon className="w-4 h-4 text-amber-600" />
+            </div>
+            <div className="text-2xl font-bold text-stone-900">
+              {lowStockItems.length + outOfStockItems.length}
+            </div>
+            <span className="text-[11px] text-amber-700 mt-1 block font-medium">
+              {lowStockItems.length} Low &bull; {outOfStockItems.length} Sold Out
+            </span>
           </div>
-          <span className="text-[11px] text-amber-700 mt-1 block font-medium">
-            {lowStockItems.length} Low &bull; {outOfStockItems.length} Sold Out
-          </span>
         </div>
       </div>
 

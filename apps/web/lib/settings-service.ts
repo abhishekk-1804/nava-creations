@@ -5,6 +5,7 @@ import { prisma } from '@nava/db';
 export interface StudioSettingsDto {
   whatsappNumber: string;
   whatsappDisplay: string;
+  supportPhone?: string;
   instagramHandle: string;
   upiVpa: string;
   merchantName: string;
@@ -67,37 +68,60 @@ export class SettingsService {
   static async getSettings(): Promise<StudioSettingsDto> {
     if (isDatabaseAvailable()) {
       try {
+        // Query dynamic StoreSettings model (store_configurations table) first
+        let dynamicConfig = null;
+        try {
+          dynamicConfig = await prisma.storeSettings.findFirst({
+            orderBy: { updatedAt: 'desc' },
+          });
+        } catch {
+          // Table might not exist yet or offline
+        }
+
         const record = await prisma.storeSetting.findUnique({
           where: { key: 'studio_settings' },
         });
 
+        let parsed: Partial<StudioSettingsDto> = {};
         if (record && record.value) {
           try {
-            const parsed = JSON.parse(record.value) as Partial<StudioSettingsDto>;
-            const merged: StudioSettingsDto = {
-              ...BASELINE_SETTINGS,
-              ...parsed,
-              updatedAt: record.updatedAt ? record.updatedAt.toISOString() : new Date().toISOString(),
-            };
-            // Keep memory cache updated
-            Object.assign(currentSettings, merged);
-            return merged;
+            parsed = JSON.parse(record.value) as Partial<StudioSettingsDto>;
           } catch {
             // If JSON corrupted, return baseline
           }
-        } else {
-          // Initialize DB row if missing
-          try {
-            await prisma.storeSetting.create({
-              data: {
-                key: 'studio_settings',
-                value: JSON.stringify(currentSettings),
-              },
-            });
-          } catch (_e) {
-            // Ignore race condition on create
-          }
         }
+
+        const envUpiApproved = process.env.MERCHANT_ONBOARDING_APPROVED === 'true';
+        const envCodDisabled = process.env.COD_ENABLED === 'false';
+
+        const upiVpa = dynamicConfig?.upiVpa || parsed.upiVpa || CONFIG.payment.upiVpa || 'nava.creations@bharatpe';
+        const merchantName = dynamicConfig?.merchantName || parsed.merchantName || CONFIG.payment.merchantName;
+        const supportPhone = dynamicConfig?.supportPhone || parsed.whatsappDisplay || CONFIG.whatsapp.displayNumber;
+        const codEnabled = dynamicConfig !== null && dynamicConfig !== undefined
+          ? dynamicConfig.codEnabled
+          : (envCodDisabled ? false : (parsed.codEnabled ?? CONFIG.payment.codEnabled));
+        const isMerchantConfirmed = dynamicConfig !== null && dynamicConfig !== undefined
+          ? Boolean(dynamicConfig.upiVpa && dynamicConfig.upiVpa !== 'UNCONFIGURED_MERCHANT_VPA')
+          : (envUpiApproved ? true : (parsed.isMerchantConfirmed ?? CONFIG.payment.isMerchantConfirmed));
+
+        const merged: StudioSettingsDto = {
+          ...BASELINE_SETTINGS,
+          ...parsed,
+          upiVpa,
+          merchantName,
+          whatsappDisplay: supportPhone,
+          whatsappNumber: supportPhone.replace(/[^\d]/g, ''),
+          supportPhone,
+          codEnabled,
+          isMerchantConfirmed,
+          updatedAt: dynamicConfig?.updatedAt
+            ? dynamicConfig.updatedAt.toISOString()
+            : (record?.updatedAt ? record.updatedAt.toISOString() : new Date().toISOString()),
+        };
+
+        // Keep memory cache updated
+        Object.assign(currentSettings, merged);
+        return merged;
       } catch (_dbError) {
         // Fall back to memory on error
       }
@@ -121,6 +145,16 @@ export class SettingsService {
 
     if (updates.whatsappDisplay !== undefined) {
       currentSettings.whatsappDisplay = updates.whatsappDisplay.trim();
+      currentSettings.supportPhone = updates.whatsappDisplay.trim();
+    }
+
+    if (updates.supportPhone !== undefined) {
+      currentSettings.whatsappDisplay = updates.supportPhone.trim();
+      currentSettings.supportPhone = updates.supportPhone.trim();
+      const cleanNum = updates.supportPhone.replace(/[^\d]/g, '');
+      if (cleanNum.length >= 10) {
+        currentSettings.whatsappNumber = cleanNum;
+      }
     }
 
     if (updates.upiVpa !== undefined) {
@@ -179,6 +213,29 @@ export class SettingsService {
 
     if (isDatabaseAvailable()) {
       try {
+        // 1. Persist directly to dynamic StoreSettings model (store_configurations table)
+        try {
+          await prisma.storeSettings.upsert({
+            where: { id: 'default-store-settings' },
+            create: {
+              id: 'default-store-settings',
+              supportPhone: currentSettings.whatsappDisplay,
+              upiVpa: currentSettings.upiVpa,
+              merchantName: currentSettings.merchantName,
+              codEnabled: currentSettings.codEnabled,
+            },
+            update: {
+              supportPhone: currentSettings.whatsappDisplay,
+              upiVpa: currentSettings.upiVpa,
+              merchantName: currentSettings.merchantName,
+              codEnabled: currentSettings.codEnabled,
+            },
+          });
+        } catch (_configErr) {
+          // Ignore if table not provisioned
+        }
+
+        // 2. Persist legacy JSON blob
         await prisma.storeSetting.upsert({
           where: { key: 'studio_settings' },
           create: {
