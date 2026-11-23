@@ -4,6 +4,7 @@ import { CartProvider } from '@/lib/cart-context';
 import { StorefrontShell } from '@/components/storefront-shell';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: 'NAVA CREATIONS Bengaluru | Bespoke Bridal Bangles & Kundan Jewellery',
   description:
     'Sovereign Indian accessories, handcrafted bangles, regal Kundan work, bespoke bridal chudas, and return gifts based in Bengaluru, Karnataka.',

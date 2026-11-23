@@ -151,7 +151,7 @@ Queried `pg_roles` and schema privileges for application role `nava_app`:
   ```
 
 ### 4.4 Client Bundle & Secret Isolation Scan
-Scanned all 114 compiled JavaScript and JSON files in `apps/web/.next/static` via [scripts/scan-client-bundles.js](file:///d:/NAVA/scripts/scan-client-bundles.js):
+Scanned all 117 compiled JavaScript and JSON files in `apps/web/.next/static` via [scripts/scan-client-bundles.js](file:///d:/NAVA/scripts/scan-client-bundles.js):
 - `SUPABASE_SERVICE_ROLE_KEY`: **0 occurrences found**
 - `DATABASE_URL`: **0 occurrences found**
 - `DIRECT_URL`: **0 occurrences found**
@@ -159,7 +159,7 @@ Scanned all 114 compiled JavaScript and JSON files in `apps/web/.next/static` vi
 - `POSTGRES_PASSWORD`: **0 occurrences found**
 - Raw `postgresql://` connection strings: **0 occurrences found**
 
-**Outcome:** **100% Secret Isolation Confirmed**.
+**Outcome:** **100% Secret Isolation Confirmed across 117 client bundles**.
 
 ---
 

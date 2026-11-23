@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { CatalogService } from '@/lib/catalog-service';
 import { PlusIcon } from '@/components/admin-icons';
+import { SafeImage } from '@/components/safe-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,14 +66,12 @@ export default async function AdminProductsPage() {
                       <td className="p-3.5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded bg-stone-100 border border-stone-200 overflow-hidden flex-shrink-0">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={thumb || '/branding/nava-product-placeholder.jpg'}
+                            <SafeImage
+                              src={thumb}
                               alt={p.name}
+                              width={40}
+                              height={40}
                               className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.currentTarget as HTMLImageElement).src = '/branding/nava-product-placeholder.jpg';
-                              }}
                             />
                           </div>
                           <div>
